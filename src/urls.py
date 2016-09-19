@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from hello import urls as hello_urls
+from user_admin import urls as user_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'hello/',include(hello_urls)),
+    
+    url(r'user/',include(user_urls),name='user_admin')
 ]
