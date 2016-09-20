@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
+<script type="text/javascript">
+	heads={{ heads | safe }}
+	row = {{ row | safe }}
+	errors={}
+
+	$(function () {
+		new Vue({
+			el:'#there',
+			data:{
+				kw:{
+					heads:heads,
+			        row:row,
+			   		errors:errors,
+				}
+			},
+			methods:{
+				submit:function () {
+					show_upload()
+					var post_data=[{fun:'save',row:this.kw.row}]
+					$.post('',JSON.stringify(post_data),function () {
+						setTimeout(function () {
+							hide_upload()
+						}, 2000);
+					})
+				}
+			}
+		})
+	})
+</script>
+<div> hi there</div>
+<div id='there'>
+	<button name="test" type="button" value="val" @click='submit()'>Button Text</button>
+	<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
+	
+</div>
+{% endblock %}

@@ -1,4 +1,46 @@
 {% extends "index.html" %}
+{% load static %}
+
 {% block page_content %}
+<script src='{% static "js/table.pack.js" %}'></script>
+<script type="text/javascript">
+	
+	filters={{filters | safe }}
+	q='{{q | safe |default:""}}'
+	sort={{sort | safe }}
+	heads={{ heads | safe }}
+	rows={{ rows | safe }}
+	page_nums = {{ page_nums | safe}}
+
+	$(function () {
+		new Vue({
+			el:'#there',
+			data:{
+		        heads:heads,
+		        rows:rows,
+		        crt_page:{},
+		        filters:filters,
+		        sort:sort,
+		        page_nums:page_nums,
+		        q:q
+			},
+			mixins:[build_table_args],
+			
+		})
+	})
+</script>
 <div> hi there</div>
+<div id='there'>
+	<input type="text" name="test" v-model='q'/>
+
+	<select name="" id="" v-for='filter in filters' v-model='filter.value'>
+	        <option value="" v-text='filter.label'></option>
+	        <option value="" >----</option>
+	        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
+	</select>
+	<button name="test" type="button" value="val" @click='search()'>search</button>
+	<sort-table :heads='heads' :rows='rows' :sort='sort'></sort-table>
+	<paginator :nums='page_nums'></paginator>
+	
+</div>
 {% endblock %}

@@ -153,7 +153,7 @@ class ModelTable(Table):
     def get_options(self):
         query = self.inn_filter(self.model.objects.all())
         options=[]
-        for name in self.sortable:
+        for name in self.filters:
             tmp = []
             option =[]
             label = filter(lambda x :x.name == name,self.model._meta.fields)[0]._verbose_name,
@@ -178,6 +178,7 @@ class ModelTable(Table):
 # class PageTable(ModelTable):
     # model = MobilePage
     # sortable=['name','label']
+    # filters = ['name','label']
     # include= ['name','label']
     # search_fields=['name']
     # per_page=2
