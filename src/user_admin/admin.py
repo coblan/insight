@@ -13,6 +13,9 @@ class BasicInfoTable(ModelTable):
     model = BasicInfo
     filters=['name','age']
     include = ['name','age']
+    sortable=['age']
+    per_page=2
+    search_fields=['age','name']
 
 
 class BasicInfoFields(ModelFields):

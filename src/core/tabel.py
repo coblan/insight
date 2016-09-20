@@ -94,6 +94,7 @@ class ModelTable(Table):
     include=[]
     per_page=30
     search_fields=[]
+    placeholder=''
     def __init__(self,page=1,sort=[],filter={},q=''):
         super(ModelTable,self).__init__(page,sort,filter,q)
         field_names = [x.name for x in self.model._meta.fields]
@@ -109,7 +110,8 @@ class ModelTable(Table):
             'page_nums' : json.dumps(self.get_page_nums()),
             'filters':json.dumps(self.get_options()),
             'sort':json.dumps(self.get_sort()),
-            'q':self.q 
+            'q': self.q ,
+            'placeholder':','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields]),
         }
        
 
@@ -182,3 +184,4 @@ class ModelTable(Table):
     # include= ['name','label']
     # search_fields=['name']
     # per_page=2
+  

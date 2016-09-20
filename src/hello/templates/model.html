@@ -7,6 +7,7 @@
 	
 	filters={{filters | safe }}
 	q='{{q | safe |default:""}}'
+	placeholder = '{{placeholder |default:""}}'
 	sort={{sort | safe }}
 	heads={{ heads | safe }}
 	rows={{ rows | safe }}
@@ -22,7 +23,8 @@
 		        filters:filters,
 		        sort:sort,
 		        page_nums:page_nums,
-		        q:q
+		        q:q,
+		        placeholder:placeholder,
 			},
 			mixins:[build_table_args],
 			
@@ -31,7 +33,7 @@
 </script>
 <div> hi there</div>
 <div id='there'>
-	<input type="text" name="test" v-model='q'/>
+	<input v-if='placeholder' type="text" name="test" v-model='q' :placeholder='placeholder'/>
 
 	<select name="" id="" v-for='filter in filters' v-model='filter.value'>
 	        <option value="" v-text='filter.label'></option>

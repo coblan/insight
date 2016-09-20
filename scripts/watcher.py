@@ -22,7 +22,7 @@ for src ,dst in target:
 class MyWatch(QFileSystemWatcher):
     def __init__(self, parent=None):
         super(MyWatch,self).__init__(parent)
-        for src in files:
+        for src,dst in files.items():
             self.addPath(src)
             print('init copy file {src} to {dst}'.format(src=src,dst=dst))
             shutil.copy2(src, dst)
