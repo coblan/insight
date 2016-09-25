@@ -6,6 +6,7 @@ from django import forms
 import json
 from datetime import datetime
 
+#from django.db.models.fields import related_descriptors
 
 def get_or_none(model, **kw):
     """
@@ -58,7 +59,8 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
     return out
 
 
-
+#def stringfy_model(model):
+    
 
 class DatetimeProc(object):
     def to_dict(self,inst,name):
@@ -90,7 +92,24 @@ class ManyProc(object):
     
     def from_dict(self,value,field):
         return value
-    
+
+class OneProc(object):
+    def to_dict(self,inst,name):
+        foreign=getattr(inst,name)
+        if foreign:
+            return foreign.pk 
+    def from_dict(self,value,field):
+        """may need test"""
+        model=field.rel.to
+        return model.objects.get(pk=value)    
+
+
+field_map={
+    models.DateTimeField:DatetimeProc,
+    models.ForeignKey : ForeignProc,
+    models.ManyToManyField:ManyProc,
+    models.OneToOneField:OneProc,
+}
 
 def from_dict(dc,model=None,pre_proc=None):
     """
@@ -131,33 +150,7 @@ def from_dict(dc,model=None,pre_proc=None):
     else:
         instance=model.objects.create(**processed)
         return instance
-    
-# def fpk_to_fobj(dc,model):
-    # """
-    # convert foreign key to foreign object. foreign key field name is in dc . according to model
-    # """
-    # fields=model._meta.fields
-    # for field in fields:
-        # if field.name in dc and isinstance(field,models.ForeignKey)\
-           # and not isinstance(dc[field.name],field.rel.to):
-            # dc[field.name]=_deserilize_foreignkey(field, dc[field.name])    
-
-# def _deserilize_foreignkey(field,pk):
-    # if pk is not None:
-        # model=field.rel.to
-        # return model.objects.get(pk=pk)
-    # else:
-        # return None
-
-#def _field_name_to_filed(fields,instance):
-    #out = []
-    #for name in fields:
-        #for field in instance._meta.fields:
-            #if field.name==name:
-                #out.append(field)
-                #break  
-    #return out
-                
+     
 
 def form_to_head(form):
     """
@@ -228,12 +221,48 @@ def model_form_save(form,models,success=None,**kw):
         return {'errors':iform.errors}
 
 
-
+def delete_related_query(inst):
+    """
+    When delet inst object,Django ORM will delet all related model instance.
+    this function used to search related instance with inst,return string tree
+    查询 删除inst时，所要删除的所有关联对象
+    """
+    if inst is None:
+        return []  
+    
+    ls = []
+    for rel in inst._meta.get_all_related_objects():
+        if rel.on_delete.__name__=='CASCADE':
+            name = rel.get_accessor_name()
+            obj = getattr(inst,name)
+            if hasattr(obj,'all'):  # Foreign Key field
+                for sub_obj in obj.all():
+                    ls.append({'str':"{cls_name}:{content}".format(cls_name = sub_obj.__class__.__name__,content=str(sub_obj)),
+                               'related':delete_related_query(sub_obj)})
+            else:   # OneToOne related
+                ls.append({'str':"{cls_name}:{content}".format(cls_name = obj.__class__.__name__,content=str(obj)),
+                           'related':delete_related_query(obj)})   
                 
+    for rel in inst._meta.get_all_related_many_to_many_objects():  # ManyToMany Related
+        name = rel.get_accessor_name()
+        many_to_many_rels = getattr(inst,name)
+        for obj in many_to_many_rels.all():
+            ls.append({'str':'{obj_cls}({obj_content}) to {inst_cls}({inst_content}) relationship '.format(obj_cls=obj.__class__.__name__,\
+                                obj_content=str(obj),inst_cls=inst.__class__.__name__,inst_content=str(obj)),
+                       'related':[]})
+    for field in inst._meta.get_fields():    # manyToMany Field
+        if isinstance(field,models.ManyToManyField):
+            name = field.name
+            for obj in getattr(inst,name).all():
+                ls.append({'str':'{obj_cls}({obj_content}) to {inst_cls}({inst_content}) relationship '.format(obj_cls=obj.__class__.__name__,\
+                                obj_content=str(obj),inst_cls=inst.__class__.__name__,inst_content=str(obj)),
+                       'related':[]})
+    
+    return ls
+            
+
+def options(inst):
+    pass
 
 
-field_map={
-    models.DateTimeField:DatetimeProc,
-    models.ForeignKey : ForeignProc,
-    models.ManyToManyField:ManyProc
-}
+

@@ -27,6 +27,15 @@
 		        placeholder:placeholder,
 			},
 			mixins:[build_table_args],
+			methods:{
+				map:function (name,row) {
+					if(name==heads[0].name){
+			                return '<a href="edit/'+row.pk+'">'+row[name]+'</a>'
+		                }else{
+			                return row[name]
+			        }
+				}
+			}
 			
 		})
 	})
@@ -41,7 +50,7 @@
 	        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
 	</select>
 	<button name="test" type="button" value="val" @click='search()'>search</button>
-	<sort-table :heads='heads' :rows='rows' :sort='sort'></sort-table>
+	<sort-table :heads='heads' :rows='rows' :sort='sort' :map='map'></sort-table>
 	<paginator :nums='page_nums'></paginator>
 	
 </div>

@@ -6,7 +6,24 @@ from django.db import models
 
 # Create your models here.
 class BasicInfo(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    # , on_delete=models.SET_NULL
+    user = models.OneToOneField(User, blank=True, null=True)
     name = models.CharField('姓名', max_length=50, blank=True)
     age = models.CharField('年龄', max_length=50, blank=True)
     
+    def __unicode__(self):
+        return self.name
+
+class MM(models.Model):
+    info = models.ManyToManyField(BasicInfo,verbose_name='jjyy')
+    name = models.CharField('姓名', max_length=50, blank=True)
+    
+    def __unicode__(self):
+        return self.name
+
+class Fore(models.Model):
+    info = models.ForeignKey(BasicInfo,verbose_name='jjyy')
+    name = models.CharField('姓名', max_length=50, blank=True)
+    
+    def __unicode__(self):
+        return self.name    

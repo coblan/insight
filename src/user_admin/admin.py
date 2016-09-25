@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import BasicInfo
+from models import BasicInfo,MM,Fore
 
 from core.model_render import model_dc
 from core.tabel import ModelTable
@@ -7,6 +7,8 @@ from core.fields import ModelFields
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
 admin.site.register(BasicInfo)
+admin.site.register(MM)
+admin.site.register(Fore)
 
 
 class BasicInfoTable(ModelTable):
@@ -20,6 +22,6 @@ class BasicInfoTable(ModelTable):
 
 class BasicInfoFields(ModelFields):
     model=BasicInfo
-    fields=['name','age']
+    fields=['name','age','user']
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}

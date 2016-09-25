@@ -1,5 +1,5 @@
 from django import forms
-from db_tools import form_to_head,to_dict,get_or_none
+from db_tools import form_to_head,to_dict,get_or_none,delete_related_query
 from django.http import Http404
 import json
 
@@ -34,6 +34,7 @@ class ModelFields(object):
         if self.pk:
             inst = get_or_none( self.model,pk=self.pk)
             if inst:
+                print(delete_related_query(inst))
                 return to_dict(inst)
             else:
                 raise Http404('Id that you request is not exist in database')
