@@ -80,8 +80,11 @@ class ForeignProc(object):
             return foreign.pk
         
     def from_dict(self,value,field):
-        model=field.rel.to
-        return model.objects.get(pk=value)
+        if isinstance(value,models.Model):
+            return value
+        else:
+            model=field.rel.to
+            return model.objects.get(pk=value)
 
 class ManyProc(object):
     def to_dict(self,inst,name):
@@ -91,6 +94,9 @@ class ManyProc(object):
         return out
     
     def from_dict(self,value,field):
+        """
+        TODO  think about : many_set
+        """
         return value
 
 class OneProc(object):
@@ -100,8 +106,11 @@ class OneProc(object):
             return foreign.pk 
     def from_dict(self,value,field):
         """may need test"""
-        model=field.rel.to
-        return model.objects.get(pk=value)    
+        if isinstance(value,models.Model):
+            return value
+        else:
+            model=field.rel.to
+            return model.objects.get(pk=value)    
 
 
 field_map={
@@ -130,12 +139,15 @@ def from_dict(dc,model=None,pre_proc=None):
         
     fields = model._meta.get_fields()
     for field in fields:
-        value= dc.get(field.name,None)
-        if value:
-            if field_map.get(field.__class__):
-                processed[field.name] = field_map.get(field.__class__)().from_dict(value,field) 
+        value= dc.get(field.name,'__not_output')
+        if value!='__not_output':
+            if not value is None:
+                if field_map.get(field.__class__):
+                    processed[field.name] = field_map.get(field.__class__)().from_dict(value,field) 
+                else:
+                    processed[field.name]=value
             else:
-                processed[field.name]=value
+                processed[field.name]=None
 
             
      #       
@@ -206,10 +218,15 @@ def model_form_save(form,models,success=None,**kw):
     """
     model_dict= models # kw.pop('models')
     model_dict.update(kw)
-    iform = form(model_dict)
+    model = form.Meta.model
+    pk=models.get('pk',None)
+    if pk:
+        inst = model.objects.get(pk=pk)
+        iform = form(model_dict,instance=inst)
+    else:
+        iform = form(model_dict)
 
     if iform.is_valid():
-        model = form.Meta.model
         model_dict.update(iform.cleaned_data)
         obj = from_dict(model_dict,model)
         if success:
@@ -261,8 +278,7 @@ def delete_related_query(inst):
     return ls
             
 
-def options(inst):
-    pass
+
 
 
 

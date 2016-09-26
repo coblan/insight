@@ -6,6 +6,7 @@
 <script type="text/javascript">
 	heads={{ heads | safe }}
 	row = {{ row | safe }}
+
 	errors={}
 
 	$(function () {
@@ -20,12 +21,19 @@
 			},
 			methods:{
 				submit:function () {
+					var self =this;
 					show_upload()
 					var post_data=[{fun:'save',row:this.kw.row}]
-					$.post('',JSON.stringify(post_data),function () {
-						setTimeout(function () {
+					$.post('',JSON.stringify(post_data),function (data) {
+						if(data.save.errors){
+							self.kw.errors = data.save.errors
 							hide_upload()
-						}, 2000);
+						}else{
+							setTimeout(function () {
+								hide_upload()
+							}, 2000);
+						}
+						
 					})
 				}
 			}

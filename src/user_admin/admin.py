@@ -23,5 +23,12 @@ class BasicInfoTable(ModelTable):
 class BasicInfoFields(ModelFields):
     model=BasicInfo
     fields=['name','age','user']
+    
+    #def get_heads(self):
+        #heads = super(BasicInfoFields,self).get_heads()
+        #for k in heads:
+            #if k['name']=='user':
+                #k['type']='sim_select'
+        #return heads
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
