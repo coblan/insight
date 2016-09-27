@@ -95,6 +95,7 @@ class ModelTable(Table):
     per_page=30
     search_fields=[]
     placeholder=''
+    filters=[]
     def __init__(self,page=1,sort=[],filter={},q=''):
         super(ModelTable,self).__init__(page,sort,filter,q)
         field_names = [x.name for x in self.model._meta.fields]
@@ -123,9 +124,8 @@ class ModelTable(Table):
         return heads
     
     def get_rows(self):
-        query = self.out_filter(self.model.objects.all())
-        query = self.inn_filter(query)
-        
+        query = self.inn_filter(self.model.objects.all())
+        query = self.out_filter(query)
         pg = Paginator(query,self.per_page)
         ls=[]
 
@@ -150,8 +150,11 @@ class ModelTable(Table):
                 else:
                     exp = exp | Q(**kw)
             query= query.filter(exp)
-        return query.filter(**self.arg_filter).order_by(*self.sort)
-       
+        if self.sort:
+            return query.filter(**self.arg_filter).order_by(*self.sort)
+        else:
+            return query.filter(**self.arg_filter)
+    
     def get_options(self):
         query = self.inn_filter(self.model.objects.all())
         options=[]
