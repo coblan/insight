@@ -164,6 +164,7 @@ def from_dict(dc,model=None,pre_proc=None):
         return instance
      
 
+
 def form_to_head(form,include=None):
     """
     convert form to head dict.一般接下来，会json.dumps()处理一下，然后传到到前端页面
