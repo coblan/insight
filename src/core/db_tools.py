@@ -164,12 +164,14 @@ def from_dict(dc,model=None,pre_proc=None):
         return instance
      
 
-def form_to_head(form):
+def form_to_head(form,include=None):
     """
     convert form to head dict.一般接下来，会json.dumps()处理一下，然后传到到前端页面
     """
     out = []
     for k,v in form.fields.items():
+        if isinstance(include,(tuple,list)) and k not in include:
+            continue
         dc = {'name':k,'label':unicode(v.label),'required':v.required,}
         if v.__class__==forms.fields.CharField:
             if v.max_length:

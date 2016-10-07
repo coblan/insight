@@ -21,9 +21,20 @@ class BasicInfoTable(ModelTable):
 
 
 class BasicInfoFields(ModelFields):
-    model=BasicInfo
-    fields=['name','age','user']
     
+    
+    class Meta:
+        model=BasicInfo
+        fields=['name','age','user'] 
+    
+    def get_fields(self):
+        return ['name','user','age']
+    
+    def clean_name(self):
+        print('here')
+        return self.cleaned_data['name']
+        
+        
     #def get_heads(self):
         #heads = super(BasicInfoFields,self).get_heads()
         #for k in heads:

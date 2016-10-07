@@ -4,32 +4,49 @@ from django.http import Http404
 import json
 from django.db import models
 
-class ModelFields(object):
+class ModelFields(forms.ModelForm):
     """
     Only @model is must
     """
     # form = 'XXX'
-    model = ''
-    fields=[]
+    #model = ''
+    #fields=[]
     #exclude=[]
-    def __init__(self,pk=''):
-        if not getattr(self,'form',None):
-            class TempForm(forms.ModelForm):
-                class Meta:
-                    model=self.model
-                    fields=self.fields
-                    #exclude=self.exclude
-            self.form = TempForm
-        self.pk=pk
-            
+
+    def __init__(self,dc,*args,**kw):
+        
+        pk = dc.get('pk',None)
+        crt_user = dc.get('crt_user',None)
+        if 'instance' not in kw:
+            if pk:
+                kw['instance']= get_or_none( self._meta.model,pk=pk)
+                if not kw['instance']:
+                    raise Http404('Id that you request is not exist in database')
+                
+            else:
+                kw['instance'] = self._meta.model()
+        if 'initial' not in kw:
+            kw['initial']=to_dict(kw['instance'])
+        super(ModelFields,self).__init__(dc,*args,**kw)
+        self.crt_user = crt_user
+        #form_obj = cls(instance=instance,*args,**kw)
+
+        #form_obj.user=user
+        
+        if self.get_fields():
+            self._meta.fields=self.get_fields() 
+
+    
     def get_context(self):
         return {
             'heads':json.dumps(self.get_heads()),
             'row': json.dumps(self.get_row()),
         }  
     
+    
+    
     def get_heads(self):
-        heads = form_to_head( self.form())
+        heads = form_to_head(self,include=self._meta.fields)
         for k,v in self.get_options().items():
             for head in heads:
                 if head['name']==k:
@@ -41,33 +58,44 @@ class ModelFields(object):
         return heads
     
     def get_row(self):
-        if self.pk:
-            inst = get_or_none( self.model,pk=self.pk)
-            if inst:
-                return to_dict(inst)
-            else:
-                raise Http404('Id that you request is not exist in database')
-        else:
-            return to_dict(self.model())
+        return to_dict(self.instance,include=self._meta.fields)
+
     
     def get_options(self):
         options={}
         
-        for f in self.fields:
-            field = self.model._meta.get_field(f)
+        for name,field in self._get_fields():
             if isinstance(field,models.OneToOneField):
-                options[f]=[{'pk':x.pk,'label':str(x)} for x in field.related_model.objects.all()]
+                options[name]=[{'pk':x.pk,'label':str(x)} for x in field.related_model.objects.all()]
         
         return options
     
+    
+    def get_fields(self):
+        return None
+    
+    def _get_fields(self):
+        for name in self._meta.fields:
+            yield name,self._meta.model._meta.get_field(name)
+        
     def get_input_type(self):
         types={}
-        for f in self.fields:
-            field = self.model._meta.get_field(f)
+        for name,field in self._get_fields():
             if isinstance(field,models.OneToOneField):
-                types[f]='sim_select'  
+                types[name]='sim_select'  
             
         return types
+    
+    #def get_read_fields(self):
+        #return self.fields
+    
+    #def get_write_fields(self):
+        #return self.fields
+    
+    
+    
+
+    
     
 
         

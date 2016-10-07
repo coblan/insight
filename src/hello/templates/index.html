@@ -12,8 +12,25 @@
     </head>
     <script type="text/javascript">
     	Vue.config.devtools = true
+    	menu= {{menu| safe}}
+    	$(function () {
+    		new Vue({
+	    	el:'#menu',
+	    	data:{
+		    	menu:menu
+	    	}
+    	})
+    	})
+    	
     </script>
     <body>
+	    <div id='menu'>
+		    <ul>
+			    <li v-for='m in menu'> 
+				    <a :href="m.url" v-text='m.label'></a>
+			    </li>
+		    </ul>
+	    </div>
         {% block page_content %}
         
         {% endblock %}

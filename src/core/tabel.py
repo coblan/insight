@@ -49,8 +49,11 @@ class Table(object):
         sort = kw.pop('_sort','').split(',')
         q=kw.pop('_q','')
         sort=filter(lambda x: x!='',sort)
-        arg_filter = kw
-        
+        arg_filter={}
+        for k in cls.filters:
+            arg = kw.pop(k,None)
+            if arg:
+                arg_filter[k]=arg
         return cls(page,sort,arg_filter,q)
     
     def get_heads(self):
@@ -104,7 +107,7 @@ class ModelTable(Table):
             if k in field_names:
                 self.arg_filter[k]=v
     
-    def get_context(self):
+    def get_context(self,user):
         return {
             'heads':json.dumps(self.get_heads()),
             'rows': json.dumps(self.get_rows()),
