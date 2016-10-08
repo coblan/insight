@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh-CN">
  
@@ -9,6 +10,7 @@
         <!--<script src="//cdn.bootcss.com/vue/1.0.24/vue.js"></script>-->
         <script src="http://cdn.bootcss.com/vue/1.0.26/vue.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	    <script src='{% static "js/uis.pack.js" %}'></script>
     </head>
     <script type="text/javascript">
     	Vue.config.devtools = true
@@ -24,12 +26,14 @@
     	
     </script>
     <body>
+	    
 	    <div id='menu'>
-		    <ul>
+		    <expand_menu :menu='menu'></expand_menu>
+		    <!--<ul>
 			    <li v-for='m in menu'> 
 				    <a :href="m.url" v-text='m.label'></a>
 			    </li>
-		    </ul>
+		    </ul>-->
 	    </div>
         {% block page_content %}
         
