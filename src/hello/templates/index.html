@@ -7,7 +7,6 @@
         <script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
         <script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <!--<script src="//cdn.bootcss.com/vue/1.0.24/vue.js"></script>-->
         <script src="http://cdn.bootcss.com/vue/1.0.26/vue.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	    <script src='{% static "js/uis.pack.js" %}'></script>
@@ -16,24 +15,81 @@
     	Vue.config.devtools = true
     	menu= {{menu| safe}}
     	$(function () {
+
     		new Vue({
 	    	el:'#menu',
 	    	data:{
 		    	menu:menu
 	    	}
     	})
+
+	    	for(var i=0;i<100;i++){
+		    	if($('body').height()<$(window).height()-10){
+			    	$('#wrap').height($('#wrap').height()+10)
+		    	}else{
+			    	break;
+		    	}
+	    	}
     	})
     	
     </script>
     <body>
-	    <div>
-		    <span>Welcome &nbsp{{user.username}}</span>&nbsp/&nbsp
+	    <div id='head'>
+		    <div class='crt_user'>
+			    {% if user.is_authenticated %}
+			    <span>Welcome &nbsp{{ user.username }}</span>&nbsp/&nbsp
+			    <a href="/accounts/logout/?next=/hello/model/basicinfo/">退出</a>
+			    {% else %}
+			    <a href="/accounts/login/?next=/hello/model/basicinfo/">登陆</a>
+				<a href="/accounts/regist/">注册</a>
+			    {% endif %}
+		    </div>
+		    
 	    </div>
-	    <div id='menu'>
-		    <expand_menu :menu='menu'></expand_menu>
+	    <div id='wrap'>
+		    <div id='menu'>
+		    	<expand_menu :menu='menu'></expand_menu>
+	    	</div>
+		    <div id='content'>
+			    {% block page_content %}
+	        
+	        	{% endblock %}
+		    </div>
 	    </div>
-        {% block page_content %}
-        
-        {% endblock %}
+	    
+        <div id='footer'>
+	        
+        </div>
     </body>
+    <style type="text/css" media="screen" id="test">
+	    ._expand_menu{
+		    width:200px;
+	    }
+	    #head{
+		    overflow: hidden;
+		    background-color: #2C3542;
+		    min-height:40px;
+		    color: #C5C5C5;
+	    }
+    	#head .crt_user{
+	    	float: right;
+    	}
+    	#wrap{
+	    	position: relative;
+    	}
+    	#menu{
+	    	position: absolute;
+	    	top:0;
+	    	bottom:0;
+	    	background-color: #2C3542;
+    	}
+    	#content{
+			margin-left: 210px;
+			padding: 20px;
+    	}
+    	#footer{
+	    	background-color: #2C3542;
+	    	min-height:30px;
+    	}
+    </style>
 </html>

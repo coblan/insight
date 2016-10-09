@@ -19,6 +19,7 @@ from hello import urls as hello_urls
 from user_admin import urls as user_urls
 
 urlpatterns = [
+    url(r'^accounts/',include('authuser.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'hello/',include(hello_urls)),
     
