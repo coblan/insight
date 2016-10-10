@@ -4,11 +4,14 @@ from models import BasicInfo,MM,Fore
 from core.model_render import model_dc
 from core.tabel import ModelTable
 from core.fields import ModelFields
+from django.contrib.auth.models import User
+
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
 admin.site.register(BasicInfo)
 admin.site.register(MM)
 admin.site.register(Fore)
+
 
 
 class BasicInfoTable(ModelTable):
@@ -22,7 +25,6 @@ class BasicInfoTable(ModelTable):
 
 class BasicInfoFields(ModelFields):
     
-    
     class Meta:
         model=BasicInfo
         fields=['name','age','user'] 
@@ -35,11 +37,14 @@ class BasicInfoFields(ModelFields):
         return self.cleaned_data['name']
         
         
-    #def get_heads(self):
-        #heads = super(BasicInfoFields,self).get_heads()
-        #for k in heads:
-            #if k['name']=='user':
-                #k['type']='sim_select'
-        #return heads
+class UserTable(ModelTable):
+    model=User
+    include=['username','first_name']
+
+class UserFields(ModelFields):
+    class Meta:
+        model=User
+        fields=['username','first_name']
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
+model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}

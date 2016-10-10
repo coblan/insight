@@ -187,7 +187,10 @@ def form_to_head(form,include=None):
 def model_to_head(model,include=[],exclude=[]):
     out = []
     for field in model._meta.fields:
-        dc = {'name':field.name,'label':field._verbose_name,}
+        if isinstance(field._verbose_name, (str,unicode)):
+            dc = {'name':field.name,'label':field._verbose_name,}
+        else:
+            dc= {'name':field.name,'label':field.name,}
         out.append(dc)
     if include:
         out=[x for x in out if x.get('name') in include]
