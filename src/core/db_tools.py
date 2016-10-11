@@ -179,6 +179,15 @@ def form_to_head(form,include=None):
                 dc.update({'type':'text','maxlength':v.max_length})
             else:
                 dc.update({'type':'area'})
+        elif v.__class__==forms.fields.BooleanField:
+            dc['type']='bool'
+            dc['no_auto_label']=True
+        elif v.__class__ ==forms.models.ModelMultipleChoiceField and \
+            isinstance(v.widget,forms.widgets.SelectMultiple):
+            dc['type']='tow_col'
+        elif v.__class__==forms.models.ModelChoiceField and \
+             isinstance(v.widget,forms.widgets.Select):
+            dc['type'] = 'sim_select'
         else:
             dc.update({'type':'text'})
         out.append(dc)

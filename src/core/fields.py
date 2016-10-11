@@ -63,8 +63,7 @@ class ModelFields(forms.ModelForm):
         
         for name,field in self.fields.items():
             if isinstance(field,forms.models.ModelChoiceField):
-                options[name]=[{'pk':x[0],'label':x[1]} for x in list(field.choices)[1:]]
-        
+                options[name]=[{'value':x[0],'label':x[1]} for x in list(field.choices)[1:]]
         return options
     
     
@@ -77,9 +76,9 @@ class ModelFields(forms.ModelForm):
         
     def get_input_type(self):
         types={}
-        for name,field in self.fields.items():
-            if isinstance(field,forms.models.ModelChoiceField):
-                types[name]='sim_select'  
+        #for name,field in self.fields.items():
+            #if isinstance(field,forms.models.ModelChoiceField):
+                #types[name]='sim_select'  
         return types
     
     def save(self,instane,row):

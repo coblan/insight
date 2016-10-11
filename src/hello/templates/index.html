@@ -25,7 +25,7 @@
 
 	    	for(var i=0;i<100;i++){
 		    	if($('body').height()<$(window).height()-10){
-			    	$('#wrap').height($('#wrap').height()+10)
+			    	$('#wrap').css('min-height',($('#wrap').height()+10)+'px')
 		    	}else{
 			    	break;
 		    	}

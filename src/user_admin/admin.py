@@ -63,12 +63,11 @@ class UserFields(ModelFields):
     
     def __init__(self,*args,**kw):
         super(UserFields,self).__init__(*args,**kw)
-        self.fields.pop('age')
+        #self.fields.pop('age')
         
-    
     class Meta:
         model=User
-        fields=['username','first_name']
+        fields=['username','first_name','is_active','is_staff','is_superuser','email','groups','user_permissions']
     
     def get_row(self):
         row = super(UserFields,self).get_row()
@@ -81,6 +80,7 @@ class UserFields(ModelFields):
         for item in heads:
             if item['name']=='age':
                 item['type']='text'
+                item['label'] = '年龄'
         return heads
     
     def clean_age(self):
