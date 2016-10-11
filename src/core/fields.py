@@ -29,10 +29,7 @@ class ModelFields(forms.ModelForm):
             kw['initial']=to_dict(kw['instance'])
         super(ModelFields,self).__init__(dc,*args,**kw)
         self.crt_user = crt_user
-        #form_obj = cls(instance=instance,*args,**kw)
 
-        #form_obj.user=user
-        
         if self.get_fields():
             self._meta.fields=self.get_fields() 
 
@@ -46,7 +43,7 @@ class ModelFields(forms.ModelForm):
     
     
     def get_heads(self):
-        heads = form_to_head(self,include=self._meta.fields)
+        heads = form_to_head(self,include=self.fields.keys())
         for k,v in self.get_options().items():
             for head in heads:
                 if head['name']==k:
@@ -64,9 +61,9 @@ class ModelFields(forms.ModelForm):
     def get_options(self):
         options={}
         
-        for name,field in self._get_fields():
-            if isinstance(field,models.OneToOneField):
-                options[name]=[{'pk':x.pk,'label':str(x)} for x in field.related_model.objects.all()]
+        for name,field in self.fields.items():
+            if isinstance(field,forms.models.ModelChoiceField):
+                options[name]=[{'pk':x[0],'label':x[1]} for x in list(field.choices)[1:]]
         
         return options
     
@@ -74,24 +71,23 @@ class ModelFields(forms.ModelForm):
     def get_fields(self):
         return None
     
-    def _get_fields(self):
-        for name in self._meta.fields:
-            yield name,self._meta.model._meta.get_field(name)
+    # def _get_fields(self):
+        # for name in self._meta.fields:
+            # yield name,self._meta.model._meta.get_field(name)
         
     def get_input_type(self):
         types={}
-        for name,field in self._get_fields():
-            if isinstance(field,models.OneToOneField):
+        for name,field in self.fields.items():
+            if isinstance(field,forms.models.ModelChoiceField):
                 types[name]='sim_select'  
-            
         return types
     
-    #def get_read_fields(self):
-        #return self.fields
-    
-    #def get_write_fields(self):
-        #return self.fields
-    
+    def save(self,instane,row):
+        """
+        call by model render engin
+        """
+        instane.save()
+        return {'status':'success'}
     
     
 

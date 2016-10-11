@@ -120,6 +120,9 @@ class ModelTable(Table):
        
 
     def get_heads(self):
+        """
+        return:[{"name": "name", "label": "\u59d3\u540d"}, {"sortable": true, "name": "age", "label": "\u5e74\u9f84"}]
+        """
         heads = model_to_head(self.model,include=self.include)
         for head in heads:
             if head.get('name') in self.sortable:
@@ -127,6 +130,9 @@ class ModelTable(Table):
         return heads
     
     def get_rows(self):
+        """
+        return: [{"name": "heyul0", "age": "32", "user": null, "pk": 1, "_class": "user_admin.BasicInfo", "id": 1}]
+        """
         query = self.inn_filter(self.model.objects.all())
         query = self.out_filter(query)
         pg = Paginator(query,self.per_page)

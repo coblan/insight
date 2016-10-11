@@ -111,8 +111,7 @@ class Render(object):
         self.model_item = model_dc.get(edit.group(1)) 
         fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
         row['crt_user']=user
-        #fields_obj = fields_cls()
-        #form = fields_obj.form
+        
         return model_form_save(fields_cls,row)
 
 
