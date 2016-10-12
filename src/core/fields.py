@@ -33,14 +33,11 @@ class ModelFields(forms.ModelForm):
         if self.get_fields():
             self._meta.fields=self.get_fields() 
 
-    
     def get_context(self):
         return {
             'heads':json.dumps(self.get_heads()),
             'row': json.dumps(self.get_row()),
         }  
-    
-    
     
     def get_heads(self):
         heads = form_to_head(self,include=self.fields.keys())
@@ -57,7 +54,6 @@ class ModelFields(forms.ModelForm):
     def get_row(self):
         return to_dict(self.instance,include=self._meta.fields)
 
-    
     def get_options(self):
         options={}
         
