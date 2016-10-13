@@ -13,6 +13,10 @@ class BasicInfo(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    class Meta:
+        permissions = (('read_basicinfo','At leaset read the records'),
+                       )
 
 class MM(models.Model):
     info = models.ManyToManyField(BasicInfo,verbose_name='jjyy')

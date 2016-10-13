@@ -58,8 +58,11 @@ class ModelFields(forms.ModelForm):
         options={}
         
         for name,field in self.fields.items():
-            if isinstance(field,forms.models.ModelChoiceField):
+            if isinstance(field,forms.models.ModelMultipleChoiceField):
+                options[name]=[{'value':x[0],'label':x[1]} for x in field.choices]            
+            elif isinstance(field,forms.models.ModelChoiceField):
                 options[name]=[{'value':x[0],'label':x[1]} for x in list(field.choices)[1:]]
+            
         return options
     
     

@@ -88,9 +88,25 @@ class Render(object):
     def get_menu(self):
         pop = self.request.GET.get('_pop')
         if not pop:
-            return self.menu
+            return self._evalue_menu_dict(self.menu)
         else:
             return {}
+    
+    def _evalue_menu_dict(self,menu):
+        temp_menu=[]
+        for act in menu:
+            temp_act ={}
+            for k,v in act.items():
+                if callable(v):
+                    temp_act[k]=v(self.request.user)
+                elif isinstance(v,(list,tuple)):
+                    temp_act[k]=self._evalue_menu_dict(v)
+                else:
+                    temp_act[k]=v
+            if not 'valid' in temp_act or temp_act['valid']: # only valid ,this menu will be display
+                temp_menu.append(temp_act)
+        return temp_menu
+                    
     
     def extra_context(self):
         return {}
