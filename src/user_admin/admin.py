@@ -60,13 +60,21 @@ class UserTable(ModelTable):
         return rows
 
 class UserFields(ModelFields):
-    age = forms.CharField()
+    age = forms.CharField(label='年龄')
     
-    def __init__(self,*args,**kw):
-        super(UserFields,self).__init__(*args,**kw)
+    def init_fields(self):
         if not hasattr(self.instance,'basicinfo'):
             self.fields.pop('age')
-        
+
+        self.fields.pop('username')       
+    
+    def init_value(self):
+        super(UserFields,self).init_value()
+        ls =['age']
+        for k in ls:
+            if k in self.fields:
+                self.fields[k].initial=self.instance.basicinfo.age
+    
     class Meta:
         model=User
         fields=['username','first_name','is_active','is_staff','is_superuser','email','groups','user_permissions']
@@ -75,16 +83,23 @@ class UserFields(ModelFields):
         row = super(UserFields,self).get_row()
         user = User.objects.get(pk= row['pk'])
         if hasattr(user,'basicinfo'):
-            row['age']=user.basicinfo.age
+            if 'age' in self.fields:
+                row['age']=user.basicinfo.age
         return row
     
     def get_heads(self):
+        """
+        TODO: READONLY
+        """
         heads= super(UserFields,self).get_heads()
         for item in heads:
             if item['name']=='age':
                 item['type']='text'
                 item['label'] = '年龄'
         return heads
+    
+    def get_readonly_fields(self):
+        return [] #['first_name']
     
     def get_options(self):
         return super(UserFields,self).get_options()
@@ -94,12 +109,15 @@ class UserFields(ModelFields):
         return self.cleaned_data['age']
     
     def save(self, instane, row):
+        super(UserFields,self).save(instane,row)
         user = instane
         user.save()
-        if hasattr(user,'basicinfo'):
-            user.basicinfo.age=row.get('age')
-            user.basicinfo.save()
         
+        age= self.cleaned_data.get('age')
+        # if hasattr(user,'basicinfo') and age\
+           # and not 'age' in self.get():
+            # user.basicinfo.age=age
+        user.basicinfo.save()
         
         return {'status':'success'}
         

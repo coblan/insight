@@ -17,6 +17,8 @@ class ModelFields(forms.ModelForm):
         
         pk = dc.get('pk',None)
         crt_user = dc.get('crt_user',None)
+        self.crt_user = crt_user
+        
         if 'instance' not in kw:
             if pk:
                 kw['instance']= get_or_none( self._meta.model,pk=pk)
@@ -25,13 +27,15 @@ class ModelFields(forms.ModelForm):
                 
             else:
                 kw['instance'] = self._meta.model()
-        if 'initial' not in kw:
-            kw['initial']=to_dict(kw['instance'])
+        # self.instance = kw['instance']
+        # if 'initial' not in kw:
+            # kw['initial']=self.get_init_value()
         super(ModelFields,self).__init__(dc,*args,**kw)
-        self.crt_user = crt_user
+        self.init_fields()
+        self.init_value()
 
-        if self.get_fields():
-            self._meta.fields=self.get_fields() 
+        # if self.get_fields():
+            # self._meta.fields=self.get_fields() 
 
     def get_context(self):
         return {
@@ -39,8 +43,19 @@ class ModelFields(forms.ModelForm):
             'row': json.dumps(self.get_row()),
         }  
     
+    def init_fields(self):
+        pass
+    
+    def init_value(self):
+        for f in self.instance._meta.get_all_field_names():
+            if f in self.fields:
+                value = getattr(self.instance,f)
+                if hasattr(value,'all'):
+                    value=value.all()
+                self.fields[f].initial= value
+    
     def get_heads(self):
-        heads = form_to_head(self,include=self.fields.keys())
+        heads = form_to_head(self)
         for k,v in self.get_options().items():
             for head in heads:
                 if head['name']==k:
@@ -49,10 +64,18 @@ class ModelFields(forms.ModelForm):
             for head in heads:
                 if head['name']==k:
                     head['type']=v
+        for name in self.get_readonly_fields():
+            for head in heads:
+                if head['name']==name:
+                    head['readonly']=True               
         return heads
     
+    def get_readonly_fields(self):
+        return []
+    
     def get_row(self):
-        return to_dict(self.instance,include=self._meta.fields)
+        include = [x for x in self._meta.fields if x in self.fields]
+        return to_dict(self.instance,include=include)
 
     def get_options(self):
         options={}
@@ -66,12 +89,11 @@ class ModelFields(forms.ModelForm):
         return options
     
     
-    def get_fields(self):
-        return None
-    
-    # def _get_fields(self):
-        # for name in self._meta.fields:
-            # yield name,self._meta.model._meta.get_field(name)
+    # def is_valid(self):
+        # for k in self.fields:
+            # if k in self.get_readonly_fields():
+                # self.fields.pop(k)
+        # return super(ModelFields,self).is_valid()
         
     def get_input_type(self):
         types={}
@@ -84,6 +106,9 @@ class ModelFields(forms.ModelForm):
         """
         call by model render engin
         """
+        for data in self.changed_data:
+            if data in self.get_readonly_fields():
+                raise ValueError,"Can't change {data}".format(data=data)
         instane.save()
         return {'status':'success'}
     
