@@ -87,19 +87,11 @@ class UserFields(ModelFields):
                 row['age']=user.basicinfo.age
         return row
     
-    def get_heads(self):
-        """
-        TODO: READONLY
-        """
-        heads= super(UserFields,self).get_heads()
-        for item in heads:
-            if item['name']=='age':
-                item['type']='text'
-                item['label'] = '年龄'
-        return heads
-    
     def get_readonly_fields(self):
-        return [] #['first_name']
+        return ['age'] #['first_name']
+    
+    def get_input_type(self):
+        return {'age':'text'}
     
     def get_options(self):
         return super(UserFields,self).get_options()
@@ -114,10 +106,11 @@ class UserFields(ModelFields):
         user.save()
         
         age= self.cleaned_data.get('age')
-        # if hasattr(user,'basicinfo') and age\
-           # and not 'age' in self.get():
-            # user.basicinfo.age=age
-        user.basicinfo.save()
+        if age:
+            user.basicinfo.age=age
+            
+        if hasattr(user,'basicinfo'):
+            user.basicinfo.save()
         
         return {'status':'success'}
         

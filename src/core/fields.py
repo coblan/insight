@@ -3,6 +3,8 @@ from db_tools import form_to_head,to_dict,get_or_none,delete_related_query
 from django.http import Http404
 import json
 from django.db import models
+from django.core.exceptions import PermissionDenied
+
 
 class ModelFields(forms.ModelForm):
     """
@@ -70,10 +72,23 @@ class ModelFields(forms.ModelForm):
                     head['readonly']=True               
         return heads
     
+    def can_access_instance(self):
+        """
+        used to judge is self.crt_user has right to access self.instance
+        """
+        return True
+    
     def get_readonly_fields(self):
         return []
     
     def get_row(self):
+        """
+        convert self.instance to dict.
+        Note:Only convert Meta.fields ,not All fields
+        """
+        if not self.can_access_instance():
+            raise PermissionDenied,'you have no Permission access this record'
+        
         include = [x for x in self._meta.fields if x in self.fields]
         return to_dict(self.instance,include=include)
 
@@ -97,18 +112,18 @@ class ModelFields(forms.ModelForm):
         
     def get_input_type(self):
         types={}
-        #for name,field in self.fields.items():
-            #if isinstance(field,forms.models.ModelChoiceField):
-                #types[name]='sim_select'  
         return types
     
     def save(self,instane,row):
         """
         call by model render engin
         """
+        if not self.can_access_instance():
+            raise PermissionDenied,'you have no Permission access this record'     
+        
         for data in self.changed_data:
             if data in self.get_readonly_fields():
-                raise ValueError,"Can't change {data}".format(data=data)
+                raise PermissionDenied,"Can't change {data}".format(data=data)
         instane.save()
         return {'status':'success'}
     
