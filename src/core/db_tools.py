@@ -55,7 +55,7 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
             else:
                 out[field.name]=field.get_prep_value( getattr(instance,field.name) )
     out['pk']=instance.pk
-    out['_class']= instance.__module__.split('.')[0]+'.'+instance.__class__.__name__
+    out['_class']= instance._meta.app_label+'.'+instance._meta.model_name
     return out
 
 
