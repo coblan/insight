@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
-from models import BasicInfo,MM,Fore
+from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 
 from core.model_render import model_dc
 from core.tabel import ModelTable
@@ -14,6 +14,12 @@ from django.contrib.auth.models import User,Group
 admin.site.register(BasicInfo)
 admin.site.register(MM)
 admin.site.register(Fore)
+admin.site.register(EmployeeInfo)
+admin.site.register(SalaryRecords)
+admin.site.register(Month)
+
+
+
 
 
 
@@ -24,6 +30,20 @@ class BasicInfoTable(ModelTable):
     sortable=['age']
     per_page=2
     search_fields=['age','name']
+    
+    def get_heads(self):
+        heads = super(BasicInfoTable,self).get_heads()
+        heads.extend([{'name':'salary','label':'工资'},
+                      ])
+        return heads    
+    
+    def get_rows(self):
+        rows=super(BasicInfoTable,self).get_rows()   
+        for row in rows:
+            baseinfo = BasicInfo.objects.get(pk=row['pk'])
+            if hasattr(baseinfo,'employeeinfo'):
+                row['salary']=baseinfo.employeeinfo.salary_level
+        return rows        
 
 
 class BasicInfoFields(ModelFields):
