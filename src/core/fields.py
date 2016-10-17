@@ -114,17 +114,24 @@ class ModelFields(forms.ModelForm):
         types={}
         return types
     
-    def save(self,instane,row):
+    def save(self,instance,row):
         """
         call by model render engin
         """
+        if instance.pk:
+            op='change'
+        else:
+            op='add'
+        table_perm = instance._meta.app_label+'.%s_'%op+instance._meta.model_name
+        if not self.crt_user.has_perm(table_perm):
+            raise PermissionDenied,'you have no Permission access this record'   
         if not self.can_access_instance():
             raise PermissionDenied,'you have no Permission access this record'     
         
         for data in self.changed_data:
             if data in self.get_readonly_fields():
                 raise PermissionDenied,"Can't change {data}".format(data=data)
-        instane.save()
+        instance.save()
         return {'status':'success'}
     
     

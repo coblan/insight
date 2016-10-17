@@ -123,8 +123,6 @@ class UserFields(ModelFields):
     def save(self, instane, row):
         super(UserFields,self).save(instane,row)
         user = instane
-        user.save()
-        
         age= self.cleaned_data.get('age')
         if age:
             user.basicinfo.age=age
