@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
+<script type="text/javascript">
+
+	set={{set | safe}}
+
+	
+	//heads={{ heads | safe }}
+	//row = {{ row | safe }}
+
+	//errors={}
+
+	$(function () {
+		new Vue({
+			el:'#there',
+			data:{
+				set:set,
+				crt:set[0],
+			},
+			methods:{
+				submit:function () {
+					//var self =this;
+					//show_upload()
+					//var post_data=[{fun:'save',row:this.kw.row}]
+					//$.post('',JSON.stringify(post_data),function (data) {
+					//	if(data.save.errors){
+					//		self.kw.errors = data.save.errors
+					//		hide_upload()
+					//	}else{
+					//		setTimeout(function () {
+					//			hide_upload()
+					//		}, 2000);
+					//	}
+						
+					//})
+				}
+			}
+		})
+	})
+</script>
+<div> hi there</div>
+<div id='there'>
+	<button name="test" type="button" value="val" @click='submit()'>Button Text</button>
+	<div>
+		<ul class='h-menu'>
+			<li v-for='fields in set' :class='{"active":crt==fields}' @click='crt=fields'>
+				<span v-text='fields.label'></span>
+			</li>
+			<span>+</span>
+		</ul>
+	</div>
+	<div >
+		<pure_form v-for='fields in set' :kw='{heads:fields.heads,row:fields.row,errors:{}}' 
+			:fields_name='fields.name' v-if='crt==fields'></pure_form>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+	Vue.component('pure_form',{
+		template:'#pure_form',
+		props:['kw','fields_name'],
+		methods:{
+			submit:function () {
+				var self =this;
+				show_upload()
+				var post_data=[{fun:'save',row:this.kw.row,fields_name:this.fields_name}]
+				$.post('',JSON.stringify(post_data),function (data) {
+					if(data.save.errors){
+						self.kw.errors = data.save.errors
+						hide_upload()
+					}else{
+						setTimeout(function () {
+							hide_upload()
+						}, 2000);
+					}
+					
+				})
+			}
+			}
+	})
+</script>
+<template id='pure_form'>
+	<div>
+		<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
+	</div>
+</template>
+{% endblock %}

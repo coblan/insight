@@ -15,10 +15,10 @@ class ModelFields(forms.ModelForm):
     #fields=[]
     #exclude=[]
 
-    def __init__(self,dc,*args,**kw):
+    def __init__(self,pk=None,crt_user=None,*args,**kw):
         
-        pk = dc.get('pk',None)
-        crt_user = dc.get('crt_user',None)
+        # pk = dc.get('pk',None)
+        # crt_user = dc.get('crt_user',None)
         self.crt_user = crt_user
         
         if 'instance' not in kw:
@@ -32,7 +32,7 @@ class ModelFields(forms.ModelForm):
         # self.instance = kw['instance']
         # if 'initial' not in kw:
             # kw['initial']=self.get_init_value()
-        super(ModelFields,self).__init__(dc,*args,**kw)
+        super(ModelFields,self).__init__(*args,**kw)
         self.init_fields()
         self.init_value()
 
@@ -136,7 +136,15 @@ class ModelFields(forms.ModelForm):
     
     
 
+class FieldsSet(object):
+    template=''
+    def __init__(self,pk=None,crt_user=None):
+        self.pk=pk
+        self.crt_user=crt_user
     
-    
+    def get_context(self):
+        return {}
+        
+
 
         

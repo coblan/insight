@@ -78,8 +78,8 @@ class Render(object):
         if self.request.method=='GET':
             fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
             dc={'pk':self.pk,'crt_user':self.request.user}
-            fields = fields_cls(dc)
-            if hasattr(fields,'template'):
+            fields = fields_cls(**dc)
+            if hasattr(fields,'template') and fields.template:
                 self.fields_temp=fields.template
            
             return self.fields_temp,fields.get_context()       

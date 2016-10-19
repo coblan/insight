@@ -6,8 +6,9 @@ from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 
 from core.model_render import model_dc
 from core.tabel import ModelTable
-from core.fields import ModelFields
+from core.fields import ModelFields,FieldsSet
 from django.contrib.auth.models import User,Group
+import json
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -143,6 +144,55 @@ class UserGroupFields(ModelFields):
         model=Group
         fields=['name','permissions']
 
+class EmployeeTable(ModelTable):
+    model=EmployeeInfo
+    include=['employ_id','position']
+
+class EmployeeFields(ModelFields):
+    class Meta:
+        model=EmployeeInfo
+        fields=['employ_id','position']
+
+class EmployeeSet(FieldsSet):
+    template='fieldsset.html'
+    def get_context(self):
+        ls=[]
+        employee = EmployeeInfo.objects.get(pk=self.pk)
+        em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
+        em_context={
+            'heads':em_form.get_heads(),
+            'row':em_form.get_row(),
+            'label':'员工信息',
+            'name':'employee_info'            
+        }
+        ls.append(em_context)
+        
+        if hasattr(employee,'baseinfo') and employee.baseinfo:
+            bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
+            bs_context={
+                'heads':bs.get_heads(),
+                'row':bs.get_row(),
+                'label':'基本信息',
+                'name':'baseinfo'
+            }
+            ls.append(bs_context)
+            
+            if hasattr(employee.baseinfo,'user'):
+                user_form = UserFields(instance=employee.baseinfo.user,crt_user=self.crt_user)
+                user_context={
+                    'heads':user_form.get_heads(),
+                    'row':user_form.get_row(),
+                    'label':'账号信息',
+                    'name':'userfields'
+                }  
+                ls.append(user_context)
+        
+        
+        return {'set': json.dumps(ls)}
+    
+
+
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
 model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
+model_dc['employee']={'table':EmployeeTable,'fields':EmployeeSet}
