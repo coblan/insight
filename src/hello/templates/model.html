@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
 <script src='{% static "js/table.pack.js" %}'></script>
 <script type="text/javascript">
 	
@@ -25,6 +26,8 @@
 		        page_nums:page_nums,
 		        q:q,
 		        placeholder:placeholder,
+		        selected:[],
+		        del_info:[],
 			},
 			mixins:[build_table_args],
 			methods:{
@@ -34,6 +37,27 @@
 		                }else{
 			                return row[name]
 			        }
+				},
+				del_item:function () {
+					
+					if (this.selected.length==0){
+						return
+					}
+					var rows=[]
+					for(var j=0;j<this.selected.length;j++){
+						var pk = this.selected[j]
+						for(var i=0;i<this.rows.length;i++){
+							if(this.rows[i].pk.toString()==pk){
+								rows.push(this.rows[i])
+							}
+						}
+					}
+					var self=this;
+					var post_data=[{fun:'get_del_info',rows:rows}]
+					$.post('',JSON.stringify(post_data),function (data) {
+						self.del_info=data.get_del_info
+					})
+					alert(this.selected)
 				}
 			}
 			
@@ -42,17 +66,56 @@
 </script>
 <div> hi there</div>
 <div id='there'>
-	<input v-if='placeholder' type="text" name="test" v-model='q' :placeholder='placeholder'/>
-
-	<select name="" id="" v-for='filter in filters' v-model='filter.value'>
-	        <option value="" v-text='filter.label'></option>
-	        <option value="" >----</option>
-	        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
-	</select>
-	<button name="test" type="button" value="val" @click='search()'>search</button>
-	<sort-table :heads='heads' :rows='rows' :sort='sort' :map='map'></sort-table>
+	<div class='btn-group'>
+		<button name="test" type="button" value="val">add new</button>
+		<button name="test" type="button" @click='del_item()' >delete</button>
+	</div>
+	<div class='btn-group'>
+		<input v-if='placeholder' type="text" name="test" v-model='q' :placeholder='placeholder'/>
+		<select name="" id="" v-for='filter in filters' v-model='filter.value'>
+		        <option value="" v-text='filter.label'></option>
+		        <option value="" >----</option>
+		        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
+		</select>
+		<button name="test" type="button" value="val" @click='search()'>search</button>
+	</div>
+	
+	<sort-table :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
 	<paginator :nums='page_nums'></paginator>
+	
 	<div>sssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s ss</div>
+	<del-info :infos='del_info'></del-info>
+	
 	
 </div>
+<style type="text/css" media="screen" id="test">
+	.btn-group{
+		display: inline-block;
+		margin: 3px 10px;
+		padding: 5px 5px;
+		background-color: #F2F2F2;
+		border: 1px solid #D4D4D4;
+		border-radius:3px;
+	}
+</style>
+<script type="text/javascript">
+	Vue.component('del-info',{
+		template:'#del-info',
+		props:['infos'],
+	})
+</script>
+<template id='del-info'>
+	<div>
+		<div v-for='info in infos'>
+			<h3 v-text='$key'></h3>
+			<ul>
+				<li v-for='item in info'>
+					<span v-text='item.str'></span>
+				</li>
+			</ul>
+		</div>
+		
+	</div>
+	
+</template>
 {% endblock %}

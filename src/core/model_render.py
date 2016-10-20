@@ -3,7 +3,7 @@ from django.shortcuts import render,Http404
 from tabel import ModelTable
 from fields import ModelFields
 from django.forms import ModelForm
-from db_tools import model_form_save
+from db_tools import model_form_save,from_dict,delete_related_query
 from port import jsonpost
 import json
 from django.apps import apps
@@ -127,8 +127,17 @@ class Render(object):
         self.model_item = model_dc.get(edit.group(1)) 
         fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
         row['crt_user']=user
-        
         return model_form_save(fields_cls,row)
+    
+    def get_del_info(self,rows):
+        out = {}
+        for row in rows:
+            inst=from_dict(row)
+            out[str(inst)]=delete_related_query(inst)
+        return out
+    
+    def delete(self,):
+        pass
 
 
 

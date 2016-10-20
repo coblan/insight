@@ -270,8 +270,10 @@ def delete_related_query(inst):
     for rel in inst._meta.get_all_related_objects():
         if rel.on_delete.__name__=='CASCADE':
             name = rel.get_accessor_name()
-            obj = getattr(inst,name)
-            if hasattr(obj,'all'):  # Foreign Key field
+            obj = getattr(inst,name,None)
+            if obj is None:
+                continue
+            elif hasattr(obj,'all'):  # Foreign Key field
                 for sub_obj in obj.all():
                     ls.append({'str':"{cls_name}:{content}".format(cls_name = sub_obj.__class__.__name__,content=str(sub_obj)),
                                'related':delete_related_query(sub_obj)})
