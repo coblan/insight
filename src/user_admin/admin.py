@@ -151,7 +151,7 @@ class EmployeeTable(ModelTable):
 class EmployeeFields(ModelFields):
     class Meta:
         model=EmployeeInfo
-        fields=['employ_id','position']
+        fields=['employ_id','position','baseinfo']
 
 class EmployeeSet(FieldsSet):
     template='fieldsset.html'
@@ -195,4 +195,5 @@ class EmployeeSet(FieldsSet):
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
 model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
-model_dc['employee']={'table':EmployeeTable,'fields':EmployeeSet}
+model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
+model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet}

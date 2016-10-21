@@ -275,10 +275,10 @@ def delete_related_query(inst):
                 continue
             elif hasattr(obj,'all'):  # Foreign Key field
                 for sub_obj in obj.all():
-                    ls.append({'str':"{cls_name}:{content}".format(cls_name = sub_obj.__class__.__name__,content=str(sub_obj)),
+                    ls.append({'str':"{cls_name}:{content}".format(cls_name = sub_obj.__class__.__name__,content=unicode(sub_obj)),
                                'related':delete_related_query(sub_obj)})
             else:   # OneToOne related
-                ls.append({'str':"{cls_name}:{content}".format(cls_name = obj.__class__.__name__,content=str(obj)),
+                ls.append({'str':"{cls_name}:{content}".format(cls_name = obj.__class__.__name__,content=unicode(obj)),
                            'related':delete_related_query(obj)})   
                 
     for rel in inst._meta.get_all_related_many_to_many_objects():  # ManyToMany Related
@@ -286,14 +286,14 @@ def delete_related_query(inst):
         many_to_many_rels = getattr(inst,name)
         for obj in many_to_many_rels.all():
             ls.append({'str':'{obj_cls}({obj_content}) to {inst_cls}({inst_content}) relationship '.format(obj_cls=obj.__class__.__name__,\
-                                obj_content=str(obj),inst_cls=inst.__class__.__name__,inst_content=str(obj)),
+                                obj_content=unicode(obj),inst_cls=inst.__class__.__name__,inst_content=unicode(obj)),
                        'related':[]})
     for field in inst._meta.get_fields():    # manyToMany Field
         if isinstance(field,models.ManyToManyField):
             name = field.name
             for obj in getattr(inst,name).all():
                 ls.append({'str':'{obj_cls}({obj_content}) to {inst_cls}({inst_content}) relationship '.format(obj_cls=obj.__class__.__name__,\
-                                obj_content=str(obj),inst_cls=inst.__class__.__name__,inst_content=str(obj)),
+                                obj_content=unicode(obj),inst_cls=inst.__class__.__name__,inst_content=unicode(obj)),
                        'related':[]})
     
     return ls

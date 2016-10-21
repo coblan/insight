@@ -17,6 +17,14 @@ model_dc={
 def get_url(name):
     pass
 
+def get_admin_by_model(model):
+    if model:
+        for k,v in model_dc.items():
+            if v.get('model')==model:
+                return k
+
+        
+
 class Render(object):
     def __init__(self,request,url,table_temp,fields_temp,menu):
         """
@@ -123,8 +131,14 @@ class Render(object):
         return TempTable    
     
     def save(self,row,user):
-        edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
-        self.model_item = model_dc.get(edit.group(1)) 
+        # edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
+        model= apps.get_model(row['_class'])
+        admin_name = get_admin_by_model(model)
+        if not admin_name:
+            edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
+            admin_name= edit.group(1)
+            
+        self.model_item = model_dc.get(admin_name) 
         fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
         row['crt_user']=user
         return model_form_save(fields_cls,row)

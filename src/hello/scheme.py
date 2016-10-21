@@ -4,6 +4,6 @@ menus=[
      'submenu':[{'name':'basice','label':'basicinfo','url':'/hello/model/basicinfo/','valid':lambda user:user.has_perm('user_admin.read_basicinfo')},
                 {'name':'user','label':'user admin','url':'/hello/model/user/'},
                 {'name':'group','label':'User Group','url':'/hello/model/group/'},
-                {'name':'employee','label':'employee','url':'/hello/model/employee/'}]}
+                {'name':'employee_set','label':'employee','url':'/hello/model/employee_set/'}]}
 ]
   

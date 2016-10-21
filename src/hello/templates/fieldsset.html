@@ -22,6 +22,7 @@
 			},
 			methods:{
 				submit:function () {
+					this.$broadcast('submit')
 					//var self =this;
 					//show_upload()
 					//var post_data=[{fun:'save',row:this.kw.row}]
@@ -54,7 +55,7 @@
 	</div>
 	<div >
 		<pure_form v-for='fields in set' :kw='{heads:fields.heads,row:fields.row,errors:{}}' 
-			:fields_name='fields.name' v-if='crt==fields'></pure_form>
+			:fields_name='fields.name' v-show='crt==fields'></pure_form>
 	</div>
 	
 </div>
@@ -67,7 +68,7 @@
 			submit:function () {
 				var self =this;
 				show_upload()
-				var post_data=[{fun:'save',row:this.kw.row,fields_name:this.fields_name}]
+				var post_data=[{fun:'save',row:this.kw.row}]
 				$.post('',JSON.stringify(post_data),function (data) {
 					if(data.save.errors){
 						self.kw.errors = data.save.errors
@@ -80,7 +81,12 @@
 					
 				})
 			}
+		},
+		events:{
+			'submit':function () {
+				this.submit()
 			}
+		}
 	})
 </script>
 <template id='pure_form'>
