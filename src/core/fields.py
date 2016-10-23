@@ -15,11 +15,14 @@ class ModelFields(forms.ModelForm):
     #fields=[]
     #exclude=[]
 
-    def __init__(self,pk=None,crt_user=None,*args,**kw):
+    def __init__(self,dc={},pk=None,crt_user=None,*args,**kw):
         
         # pk = dc.get('pk',None)
         # crt_user = dc.get('crt_user',None)
-        self.crt_user = crt_user
+        if not crt_user:
+            self.crt_user=dc.get('crt_user')
+        else:
+            self.crt_user = crt_user
         
         if 'instance' not in kw:
             if pk:
@@ -32,7 +35,7 @@ class ModelFields(forms.ModelForm):
         # self.instance = kw['instance']
         # if 'initial' not in kw:
             # kw['initial']=self.get_init_value()
-        super(ModelFields,self).__init__(*args,**kw)
+        super(ModelFields,self).__init__(dc,*args,**kw)
         self.init_fields()
         self.init_value()
 
@@ -41,20 +44,23 @@ class ModelFields(forms.ModelForm):
 
     def get_context(self):
         return {
-            'heads':json.dumps(self.get_heads()),
-            'row': json.dumps(self.get_row()),
+            'heads':self.get_heads(),
+            'row': self.get_row(),
         }  
+    def get_del_info(self):
+        return {unicode(self.instance):delete_related_query(self.instance)}
     
     def init_fields(self):
         pass
     
     def init_value(self):
-        for f in self.instance._meta.get_all_field_names():
-            if f in self.fields:
-                value = getattr(self.instance,f)
-                if hasattr(value,'all'):
-                    value=value.all()
-                self.fields[f].initial= value
+        if self.instance.pk:
+            for f in self.instance._meta.get_all_field_names():
+                if f in self.fields:
+                    value = getattr(self.instance,f)
+                    if hasattr(value,'all'):
+                        value=value.all()
+                    self.fields[f].initial= value
     
     def get_heads(self):
         heads = form_to_head(self)

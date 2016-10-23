@@ -5,6 +5,7 @@ import inspect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 def jsonpost(request, scope):
     """
@@ -24,7 +25,7 @@ def ajax_view(request):
             return HttpResponse(json.dumps(rt),content_type="application/json")
             
     """
-    router=RouterAjax(request, scope,rt_except=not settings.DEBUG)
+    router=RouterAjax(request, scope,rt_except= True)#not settings.DEBUG)
     return router.run()
 
 class RouterAjax(object):
@@ -56,7 +57,7 @@ class RouterAjax(object):
                     fun_name= func_dic.pop('fun')
                     func = self.scope[fun_name]
                     self.rt[fun_name] = self.inject_and_run(func,**func_dic)
-                except (UserWarning,TypeError,KeyError) as e:
+                except (UserWarning,TypeError,KeyError,PermissionDenied) as e:
                     self.msgs.append(repr(e))
             else:
                 fun_name= func_dic.pop('fun')

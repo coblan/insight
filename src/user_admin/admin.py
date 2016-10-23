@@ -45,7 +45,11 @@ class BasicInfoTable(ModelTable):
             if hasattr(baseinfo,'employeeinfo'):
                 row['salary']=baseinfo.employeeinfo.salary_level
         return rows        
-
+    
+    def get_context(self, user):
+        dc = super(BasicInfoTable,self).get_context(user)
+        dc['hh']={'jj':'<div>yy</div>'}
+        return dc
 
 class BasicInfoFields(ModelFields):
     
@@ -87,7 +91,7 @@ class UserFields(ModelFields):
         if not hasattr(self.instance,'basicinfo'):
             self.fields.pop('age')
 
-        self.fields.pop('username')       
+        #self.fields.pop('username')       
     
     def init_value(self):
         super(UserFields,self).init_value()
@@ -102,10 +106,11 @@ class UserFields(ModelFields):
     
     def get_row(self):
         row = super(UserFields,self).get_row()
-        user = User.objects.get(pk= row['pk'])
-        if hasattr(user,'basicinfo'):
-            if 'age' in self.fields:
-                row['age']=user.basicinfo.age
+        if row['pk']:
+            user = User.objects.get(pk= row['pk'])
+            if hasattr(user,'basicinfo'):
+                if 'age' in self.fields:
+                    row['age']=user.basicinfo.age
         return row
     
     def get_readonly_fields(self):
@@ -157,38 +162,31 @@ class EmployeeSet(FieldsSet):
     template='fieldsset.html'
     def get_context(self):
         ls=[]
-        employee = EmployeeInfo.objects.get(pk=self.pk)
+        if self.pk:
+            employee = EmployeeInfo.objects.get(pk=self.pk)
+        else:
+            employee= EmployeeInfo()
         em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
-        em_context={
-            'heads':em_form.get_heads(),
-            'row':em_form.get_row(),
-            'label':'员工信息',
-            'name':'employee_info'            
-        }
+        em_context=em_form.get_context()
+        em_context['label']='员工信息'
+      
         ls.append(em_context)
         
         if hasattr(employee,'baseinfo') and employee.baseinfo:
             bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
-            bs_context={
-                'heads':bs.get_heads(),
-                'row':bs.get_row(),
-                'label':'基本信息',
-                'name':'baseinfo'
-            }
+            bs_context=bs.get_context()
+            bs_context['label']='基本信息'
             ls.append(bs_context)
             
             if hasattr(employee.baseinfo,'user'):
                 user_form = UserFields(instance=employee.baseinfo.user,crt_user=self.crt_user)
-                user_context={
-                    'heads':user_form.get_heads(),
-                    'row':user_form.get_row(),
-                    'label':'账号信息',
-                    'name':'userfields'
-                }  
+                user_context=user_form.get_context()
+                user_context['label']='账号信息'
+
                 ls.append(user_context)
         
         
-        return {'set': json.dumps(ls)}
+        return {'set': ls}
     
 
 
@@ -196,4 +194,4 @@ model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicI
 model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
 model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
-model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet}
+model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}

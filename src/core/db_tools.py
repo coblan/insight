@@ -88,10 +88,13 @@ class ForeignProc(object):
 
 class ManyProc(object):
     def to_dict(self,inst,name):
-        out =[]
-        for item in getattr(getattr(inst,name),'all')():
-            out.append(item.pk)
-        return out
+        if not inst.pk:
+            return []
+        else:
+            out =[]
+            for item in getattr(getattr(inst,name),'all')():
+                out.append(item.pk)
+            return out
     
     def from_dict(self,value,field):
         """
@@ -156,12 +159,16 @@ def from_dict(dc,model=None,pre_proc=None):
     pk=dc.get('pk')
     if pk:
         instance=model.objects.get(pk=pk) 
-        for k,v in processed.items():
-            setattr(instance,k,v)       
-        return instance            
+        #for k,v in processed.items():
+            #setattr(instance,k,v)       
+        #return instance            
     else:
-        instance=model.objects.create(**processed)
-        return instance
+        #instance=model.objects.create(**processed)
+        instance=model.objects.create()
+        
+    for k,v in processed.items():
+        setattr(instance,k,v)     
+    return instance
      
 
 

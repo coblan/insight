@@ -8,6 +8,7 @@ from port import jsonpost
 import json
 from django.apps import apps
 import re
+import base64
 
 # used for model render
 model_dc={
@@ -26,7 +27,7 @@ def get_admin_by_model(model):
         
 
 class Render(object):
-    def __init__(self,request,url,table_temp,fields_temp,menu):
+    def __init__(self,request,url,table_temp,fields_temp,del_rows_temp,menu):
         """
         url:
         -----
@@ -39,6 +40,7 @@ class Render(object):
         self.url=url
         self.table_temp=table_temp
         self.fields_temp=fields_temp
+        self.del_rows_temp=del_rows_temp
         self.menu=menu
         
         self.model_item={}
@@ -53,18 +55,25 @@ class Render(object):
         else:
             temp = None
             context = None
-            browse = re.search('^(\w+)/?$', self.url)
-            if browse:
+            del_rows = re.search('^del_rows/?$',self.url)
+            if del_rows:
+                temp,context = self.del_rows()
+            elif re.search('^(\w+)/?$', self.url):
+                browse = re.search('^(\w+)/?$', self.url)
                 self.name=browse.group(1)
                 self.model_item =model_dc.get(self.name)
                 temp,context = self.browse()
-                
-            edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
-            if edit:
+            elif re.search('^(\w+)/edit/?$',self.url):
+                edit = re.search('^(\w+)/edit/?$',self.url)
                 self.name=edit.group(1)
                 self.model_item =model_dc.get(self.name)  
-                self.pk=edit.group(2)
+                temp, context = self.edit(name=edit.group(1),pk=None)            
+            elif re.search('^(\w+)/edit/(\w*)/?$',self.url):
+                edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
+                self.name=edit.group(1)
+                self.model_item =model_dc.get(self.name)  
                 temp, context = self.edit(name=edit.group(1),pk=edit.group(2))
+                
             if temp is None or context is None:
                 raise Http404()
             else:
@@ -85,13 +94,34 @@ class Render(object):
     def edit(self,name,pk):
         if self.request.method=='GET':
             fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
-            dc={'pk':self.pk,'crt_user':self.request.user}
+            dc={'pk':pk,'crt_user':self.request.user}
             fields = fields_cls(**dc)
             if hasattr(fields,'template') and fields.template:
                 self.fields_temp=fields.template
            
             return self.fields_temp,fields.get_context()       
 
+    def del_rows(self):
+        """
+        inst_ls = base64([{pk:1,_class:app.model}])
+        """
+        ls_str = self.request.GET.get('inst_ls')
+        ls = json.loads(base64.b64decode(ls_str))
+        
+        ctx = {}
+        for row in ls:
+            model = apps.get_model(row['_class'])
+            admin_name = get_admin_by_model(model)
+            model_item = model_dc.get(admin_name)
+            fields_cls = model_item.get('fields',self._get_new_fields_cls())
+            
+            dc={'pk':row['pk'],'crt_user':self.request.user}
+            fields_obj= fields_cls(**dc)
+            ctx.update(fields_obj.get_del_info())
+            
+            
+        print('here')
+        return self.del_rows_temp,{'infos':ctx}
     
     def get_menu(self):
         pop = self.request.GET.get('_pop')

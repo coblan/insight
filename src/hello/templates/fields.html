@@ -1,12 +1,13 @@
 {% extends "index.html" %}
 {% load static %}
+{% load jsonify %}
 
 {% block page_content %}
 <script src='{% static "js/fields.pack.js" %}'></script>
 <script type="text/javascript">
 	
-	heads={{ heads | safe }}
-	row = {{ row | safe }}
+	heads={{ heads | jsonify }}
+	row = {{ row | jsonify }}
 
 	errors={}
 
@@ -24,11 +25,18 @@
 				submit:function () {
 					var self =this;
 					show_upload()
+					var search =parseSearch(location.search)
 					var post_data=[{fun:'save',row:this.kw.row}]
 					$.post('',JSON.stringify(post_data),function (data) {
+						if(data.msg){
+							hide_upload()
+							return
+						}
 						if(data.save.errors){
 							self.kw.errors = data.save.errors
 							hide_upload()
+						}else if(search.next){
+							location=atob(search.next)
 						}else{
 							setTimeout(function () {
 								hide_upload()
@@ -36,6 +44,12 @@
 						}
 						
 					})
+				},
+				cancel:function () {
+					var search =parseSearch(location.search)
+					if(search.next){
+						location=atob(search.next)
+					}
 				}
 			}
 		})
@@ -43,7 +57,8 @@
 </script>
 <div> hi there</div>
 <div id='there'>
-	<button name="test" type="button" value="val" @click='submit()'>Button Text</button>
+	<button name="test" type="button" value="val" @click='submit()'>Save</button>
+	<button name="test" type="button" value="val" @click='cancel()'>Cancel</button>
 	<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
 	
 </div>

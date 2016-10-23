@@ -109,11 +109,11 @@ class ModelTable(Table):
     
     def get_context(self,user):
         return {
-            'heads':json.dumps(self.get_heads()),
-            'rows': json.dumps(self.get_rows()),
-            'page_nums' : json.dumps(self.get_page_nums()),
-            'filters':json.dumps(self.get_options()),
-            'sort':json.dumps(self.get_sort()),
+            'heads':self.get_heads(),
+            'rows': self.get_rows(),
+            'page_nums' : self.get_page_nums(),
+            'filters':self.get_options(),
+            'sort':self.get_sort(),
             'q': self.q ,
             'placeholder':','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields]),
         }

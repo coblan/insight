@@ -1,11 +1,12 @@
 {% extends "index.html" %}
 {% load static %}
+{% load jsonify %}
 
 {% block page_content %}
 <script src='{% static "js/fields.pack.js" %}'></script>
 <script type="text/javascript">
 
-	set={{set | safe}}
+	set={{set | jsonify}}
 
 	
 	//heads={{ heads | safe }}
@@ -22,6 +23,10 @@
 			},
 			methods:{
 				submit:function () {
+					this.need_submit=[]
+					for(var i=0;i<this.set.length;i++){
+						this.need_submit.push(this.set[i])
+					}
 					this.$broadcast('submit')
 					//var self =this;
 					//show_upload()
@@ -37,6 +42,14 @@
 					//	}
 						
 					//})
+				},
+			},
+			events:{
+				'submit-success':function () {
+					this.need_submit.pop()
+					if(this.need_submit.length==0){
+						location.reload()
+					}
 				}
 			}
 		})
@@ -44,7 +57,7 @@
 </script>
 <div> hi there</div>
 <div id='there'>
-	<button name="test" type="button" value="val" @click='submit()'>Button Text</button>
+	<button name="test" type="button" value="val" @click='submit()'>Save</button>
 	<div>
 		<ul class='h-menu'>
 			<li v-for='fields in set' :class='{"active":crt==fields}' @click='crt=fields'>
@@ -74,6 +87,7 @@
 						self.kw.errors = data.save.errors
 						hide_upload()
 					}else{
+						self.$dispatch('submit-success')
 						setTimeout(function () {
 							hide_upload()
 						}, 2000);

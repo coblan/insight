@@ -13,7 +13,11 @@ def home(request):
 
 @login_required
 def render(request,url):
-    md_render=Render(request, url, table_temp='model.html', fields_temp='fields.html',menu=menus)
+    md_render=Render(request, url, 
+                     table_temp='model.html', 
+                     fields_temp='fields.html',
+                     del_rows_temp='del_rows.html',
+                     menu=menus)
     # todo 加入 menu
     #md_render.
     return md_render.rout()

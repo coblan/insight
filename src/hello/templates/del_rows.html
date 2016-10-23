@@ -1,0 +1,75 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
+<script src='{% static "js/table.pack.js" %}'></script>
+<script type="text/javascript">
+	infos = {{ infos | jsonify }}
+	
+	$(function () {
+		new Vue({
+			el:'#there',
+			data:{
+		        infos:infos
+			},
+			methods:{
+				map:function (name,row) {
+					if(name==heads[0].name){
+			                return '<a href="edit/'+row.pk+'">'+row[name]+'</a>'
+		                }else{
+			                return row[name]
+			        }
+				},
+				del_item:function () {
+					
+					if (this.selected.length==0){
+						return
+					}
+					var rows=[]
+					for(var j=0;j<this.selected.length;j++){
+						var pk = this.selected[j]
+						for(var i=0;i<this.rows.length;i++){
+							if(this.rows[i].pk.toString()==pk){
+								rows.push(this.rows[i])
+							}
+						}
+					}
+					var self=this;
+					var post_data=[{fun:'get_del_info',rows:rows}]
+					$.post('',JSON.stringify(post_data),function (data) {
+						self.del_info=data.get_del_info
+					})
+					alert("{% url "model" "del_rows" %}?next="+ btoa(location.pathname+location.search) )
+				}
+			}
+			
+		})
+	})
+</script>
+
+	<div id='there'>
+		<div v-for='info in infos'>
+			<h3 v-text='$key'></h3>
+			<ul>
+				<li v-for='item in info'>
+					<span v-text='item.str'></span>
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+</div>
+<style type="text/css" media="screen" id="test">
+	.btn-group{
+		display: inline-block;
+		margin: 3px 10px;
+		padding: 5px 5px;
+		background-color: #F2F2F2;
+		border: 1px solid #D4D4D4;
+		border-radius:3px;
+	}
+</style>
+
+{% endblock %}
