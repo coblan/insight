@@ -18,12 +18,16 @@ model_dc={
 def get_url(name):
     pass
 
-def get_admin_by_model(model):
+def get_admin_name_by_model(model):
     if model:
         for k,v in model_dc.items():
             if v.get('model')==model:
                 return k
 
+def get_fields_by_name(name):
+    for k,v in model_dc.items():
+        if v.get('fields') and v.get('fields').__class__.__name__==name:
+            return v.get('fields')
         
 
 class Render(object):
@@ -42,6 +46,7 @@ class Render(object):
         self.fields_temp=fields_temp
         self.del_rows_temp=del_rows_temp
         self.menu=menu
+        self.crt_user = self.request.user
         
         self.model_item={}
          
@@ -111,7 +116,7 @@ class Render(object):
         ctx = {}
         for row in ls:
             model = apps.get_model(row['_class'])
-            admin_name = get_admin_by_model(model)
+            admin_name = get_admin_name_by_model(model)
             model_item = model_dc.get(admin_name)
             fields_cls = model_item.get('fields',self._get_new_fields_cls())
             
@@ -119,8 +124,6 @@ class Render(object):
             fields_obj= fields_cls(**dc)
             ctx.update(fields_obj.get_del_info())
             
-            
-        print('here')
         return self.del_rows_temp,{'infos':ctx}
     
     def get_menu(self):
@@ -163,7 +166,7 @@ class Render(object):
     def save(self,row,user):
         # edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
         model= apps.get_model(row['_class'])
-        admin_name = get_admin_by_model(model)
+        admin_name = get_admin_name_by_model(model)
         if not admin_name:
             edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
             admin_name= edit.group(1)
@@ -182,8 +185,23 @@ class Render(object):
     
     def delete(self,):
         pass
+    
+    def fields_info(self,pk=None,model=None,name=None):
+        """
+        从前端直接读取fields的 heads rows 属性
+        model and name 选择一个参数即可
+        """
+        if model:
+            admin_name = get_admin_name_by_model(model)
+            fields= model_dc.get(admin_name).get('fields')
+        elif name:
+            fields = get_fields_by_name(name)
+        return fields(pk=pk,crt_user=self.crt_user).get_context()
+            
 
 
+
+    
 
 # def rout(request,url,table_temp,fields_temp):
     # """

@@ -4,6 +4,7 @@
 
 {% block page_content %}
 <script src='{% static "js/fields.pack.js" %}'></script>
+<script src='{% static "js/uis.pack.js" %}'></script>
 <script type="text/javascript">
 
 	set={{set | jsonify}}
@@ -15,11 +16,13 @@
 	//errors={}
 
 	$(function () {
-		new Vue({
+		haha= new Vue({
 			el:'#there',
 			data:{
 				set:set,
 				crt:set[0],
+				show:false,
+				name:'',
 			},
 			methods:{
 				submit:function () {
@@ -28,22 +31,20 @@
 						this.need_submit.push(this.set[i])
 					}
 					this.$broadcast('submit')
-					//var self =this;
-					//show_upload()
-					//var post_data=[{fun:'save',row:this.kw.row}]
-					//$.post('',JSON.stringify(post_data),function (data) {
-					//	if(data.save.errors){
-					//		self.kw.errors = data.save.errors
-					//		hide_upload()
-					//	}else{
-					//		setTimeout(function () {
-					//			hide_upload()
-					//		}, 2000);
-					//	}
-						
-					//})
 				},
+				toggle:function () {
+					//this.show= !this.show
+					win_open("/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=")
+				},
+				exit:function () {
+					window.opener.haha.set_name('dog')
+					window.close()
+				},
+				set_name:function (name) {
+					this.name=name
+				}
 			},
+			
 			events:{
 				'submit-success':function () {
 					this.need_submit.pop()
@@ -54,6 +55,11 @@
 			}
 		})
 	})
+
+	function win_open(url) {
+			//var url ='file:///D:/coblan/webcode/dev/win_open.html?p=123'
+			window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
+	}
 </script>
 <div> hi there</div>
 <div id='there'>
@@ -70,6 +76,15 @@
 		<pure_form v-for='fields in set' :kw='{heads:fields.heads,row:fields.row,errors:{}}' 
 			:fields_name='fields.name' v-show='crt==fields'></pure_form>
 	</div>
+
+<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
+<button name="test" type="button" value="val" @click='exit()'>exit</button>
+<span v-text='name'></span>
+<modal v-show='show' @sd_hide='show=false' :inn_style='{height:"70%",width:"80%"}'>
+	    <iframe src="/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=" frameborder="0" style='height:100%;width:100%;'></iframe>
+</modal>
+      
+
 	
 </div>
 

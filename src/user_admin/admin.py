@@ -20,10 +20,6 @@ admin.site.register(SalaryRecords)
 admin.site.register(Month)
 
 
-
-
-
-
 class BasicInfoTable(ModelTable):
     model = BasicInfo
     filters=['name','age']
