@@ -4,7 +4,7 @@ from django import forms
 from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 
-from core.model_render import model_dc
+from core.model_render import model_dc,save_row
 from core.tabel import ModelTable
 from core.fields import ModelFields,FieldsSet
 from django.contrib.auth.models import User,Group
@@ -81,11 +81,12 @@ class UserTable(ModelTable):
         return rows
 
 class UserFields(ModelFields):
-    age = forms.CharField(label='年龄')
+    # age = forms.CharField(label='年龄')
     
     def init_fields(self):
-        if not hasattr(self.instance,'basicinfo'):
-            self.fields.pop('age')
+        pass
+        # if not hasattr(self.instance,'basicinfo'):
+            # self.fields.pop('age')
 
         #self.fields.pop('username')       
     
@@ -122,9 +123,9 @@ class UserFields(ModelFields):
         print('in age function')
         return self.cleaned_data['age']
     
-    def save(self, instane, row):
-        super(UserFields,self).save(instane,row)
-        user = instane
+    def save_form(self, instance, row):
+        super(UserFields,self).save_form(instance,row)
+        user = instance
         age= self.cleaned_data.get('age')
         if age:
             user.basicinfo.age=age
@@ -132,7 +133,7 @@ class UserFields(ModelFields):
         if hasattr(user,'basicinfo'):
             user.basicinfo.save()
         
-        return {'status':'success'}
+        return {'status':'success','instance':instance}
         
 
 class UserGroupTable(ModelTable):
@@ -183,7 +184,49 @@ class EmployeeSet(FieldsSet):
         
         
         return {'set': ls}
+
+
+class EmployeeProd(FieldsSet):
+    template='user_admin/employee.html'
+    def get_context(self):
+        ctx={}
+        if self.pk:
+            employee = EmployeeInfo.objects.get(pk=self.pk)
+        else:
+            employee= EmployeeInfo()
+        em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
+        em_context=em_form.get_context()
+        em_context['label']='员工信息'
+      
+        ctx['employee_info']=em_context
+        
+        if hasattr(employee,'baseinfo') and employee.baseinfo:
+            bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
+            bs_context=bs.get_context()
+            bs_context['label']='基本信息'
+            ctx['bs_info']=bs_context
+            
+            if hasattr(employee.baseinfo,'user'):
+                user_form = UserFields(instance=employee.baseinfo.user,crt_user=self.crt_user)
+                user_context=user_form.get_context()
+                user_context['label']='账号信息'
+
+                ctx['user_account']=user_context   
+        return ctx
     
+    def save_form(self,employee_info,bs_info,user_account,user):
+        dc={}
+        if employee_info:
+            emp_dc = save_row(employee_info, user)
+            dc['employee_errors']=emp_dc.get('errors')
+        if bs_info:
+            bs_dc = save_row(bs_info,user)
+            dc['bs_errors']=bs_dc.get('errors')
+        if user_account:
+            user_dc = save_row(user_account,user)
+            dc['user_errors']=user_dc.get('errors')
+            
+        return dc
 
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
@@ -191,3 +234,4 @@ model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
 model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
 model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
+model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd}

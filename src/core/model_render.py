@@ -9,6 +9,7 @@ import json
 from django.apps import apps
 import re
 import base64
+import inspect
 
 # used for model render
 model_dc={
@@ -24,10 +25,10 @@ def get_admin_name_by_model(model):
             if v.get('model')==model:
                 return k
 
-def get_fields_by_name(name):
-    for k,v in model_dc.items():
-        if v.get('fields') and v.get('fields').__class__.__name__==name:
-            return v.get('fields')
+# def get_fields_by_name(name):
+    # for k,v in model_dc.items():
+        # if k.lower()==name.lower():
+            # return v.get('fields')
         
 
 class Render(object):
@@ -52,11 +53,23 @@ class Render(object):
          
     def rout(self):
         if self.request.method=='POST':
-            dc ={}
-            for k,v in Render.__dict__.items():
-                if callable(v):
-                    dc[k]= getattr(self,k)
-            return jsonpost(self.request, dc)   
+            function_scope ={}
+            for k,v in inspect.getmembers(self):
+                if inspect.ismethod(v):
+                    function_scope[k]= v 
+                    
+            if re.search('^(\w+)/edit/(\w*)/?$',self.url):
+                edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
+                self.name=edit.group(1)
+                self.model_item =model_dc.get(self.name)                  
+                fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
+                dc={'pk':edit.group(2),'crt_user':self.request.user}
+                fields = fields_cls(**dc)
+                for k,v in inspect.getmembers(fields):
+                    if inspect.ismethod(v):
+                        function_scope[k]=v
+                
+            return jsonpost(self.request, function_scope)   
         else:
             temp = None
             context = None
@@ -79,8 +92,10 @@ class Render(object):
                 self.model_item =model_dc.get(self.name)  
                 temp, context = self.edit(name=edit.group(1),pk=edit.group(2))
                 
-            if temp is None or context is None:
+            if temp is None:
                 raise Http404()
+            elif context is None:
+                raise UserWarning,'constructed context is None,this may be an bug'
             else:
                 context['menu']= json.dumps(self.get_menu())
                 context.update(self.extra_context())
@@ -162,7 +177,8 @@ class Render(object):
         class TempTable(ModelTable):
             model = self.model_item.get('model')
         return TempTable    
-    
+
+#--------------frontend call-----------------------------------------    
     def save(self,row,user):
         # edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
         model= apps.get_model(row['_class'])
@@ -195,11 +211,17 @@ class Render(object):
             admin_name = get_admin_name_by_model(model)
             fields= model_dc.get(admin_name).get('fields')
         elif name:
-            fields = get_fields_by_name(name)
+            fields = model_dc.get(name).get('fields')
         return fields(pk=pk,crt_user=self.crt_user).get_context()
-            
+    
 
-
+def save_row(row,user):
+    model= apps.get_model(row['_class'])
+    admin_name = get_admin_name_by_model(model)    
+    model_item = model_dc.get(admin_name) 
+    fields_cls = model_item.get('fields')
+    row['crt_user']=user
+    return model_form_save(fields_cls,row)    
 
     
 

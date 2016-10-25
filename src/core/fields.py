@@ -109,18 +109,11 @@ class ModelFields(forms.ModelForm):
             
         return options
     
-    
-    # def is_valid(self):
-        # for k in self.fields:
-            # if k in self.get_readonly_fields():
-                # self.fields.pop(k)
-        # return super(ModelFields,self).is_valid()
-        
     def get_input_type(self):
         types={}
         return types
     
-    def save(self,instance,row):
+    def save_form(self,instance,row):
         """
         call by model render engin
         """
@@ -138,7 +131,7 @@ class ModelFields(forms.ModelForm):
             if data in self.get_readonly_fields():
                 raise PermissionDenied,"Can't change {data}".format(data=data)
         instance.save()
-        return {'status':'success'}
+        return {'status':'success','instance':instance}
     
     
 

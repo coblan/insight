@@ -1,0 +1,190 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
+<script src='{% static "js/uis.pack.js" %}'></script>
+<script type="text/javascript">
+	
+	order =['employee_info','bs_info','user_account']
+
+	employee_info = {{employee_info | jsonify}}
+	bs_info ={{bs_info | jsonify | default:"null"}}
+	user_account ={{user_account | jsonify | default:"null"}}
+	
+	$(function () {
+		haha= new Vue({
+			el:'#there',
+			data:{
+				order,order,
+				employee_info:employee_info,
+				employee_errors:{},
+				bs_info:bs_info,
+				bs_errors:{},
+				user_account:user_account,
+				user_errors:{},
+				crt:employee_info,
+				show:false,
+				name:'',
+			},
+			methods:{
+				get_pages:function () {
+					var ls=[]
+					for(var i=0;i<this.order.length;i++){
+						if(this[this.order[i]]){
+							ls.push(this[this.order[i]])
+						}
+					}
+					return ls
+				},
+				//get_error:function (page) {
+				//	if(page==this.employee_info){
+				//		return this.employee_errors
+				//	}else if(page==this.bs_info){
+				//		return this.bs_errors
+				//	}else if(page==this.user_account){
+				//		return this.user_errors
+				//	}
+				//},
+				submit:function () {
+					var self=this;
+					show_upload()
+					var post_data=[{fun:'save_form',employee_info:this.employee_info.row,bs_info:this.bs_info.row,user_account:this.user_account.row}]
+					$.post('',JSON.stringify(post_data),function (data) {
+						if(data.save_form.employee_errors){
+							self.$set('employee_errors',data.save_form.employee_errors)
+						}
+						if(data.save_form.bs_errors){
+							self.$set('bs_errors',data.save_form.bs_errors)
+						}
+						if(data.save_form.user_errors){
+							self.$set('user_errors',data.save_form.user_errors)
+						}
+						setTimeout(function () {
+							hide_upload()
+						},2000)
+					})
+				},
+				toggle:function () {
+					//this.show= !this.show
+					win_open("/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=")
+				},
+				exit:function () {
+					//window.opener.haha.set_name('dog')
+					//test_par()
+					window.close()
+				},
+				set_name:function (name) {
+					this.name=name
+				}
+			},
+			watch:{
+				'employee_info.row.baseinfo':function (n,o) {
+					if(!n){
+						this.bs_info=null
+					}else{
+						var self=this
+						var post_data=[{fun:'fields_info',pk:n,name:'basicinfo'}]
+						$.post('',JSON.stringify(post_data),function (data) {
+							data.fields_info.label='基本信息'
+							self.$set('bs_info',data.fields_info)
+						})
+					}
+					
+				},
+				'bs_info.row.user':function (n,o) {
+					if(!n){
+						this.user_account=null
+					}else{
+						var self=this
+						var post_data=[{fun:'fields_info',pk:n,name:'user'}]
+						$.post('',JSON.stringify(post_data),function (data) {
+							data.fields_info.label='账号信息'
+							self.$set('user_account',data.fields_info)
+						})
+					}
+				}
+			},
+			events:{
+				'submit-success':function () {
+					//this.need_submit.pop()
+					//if(this.need_submit.length==0){
+					//	location.reload()
+					//}
+				}
+			}
+		})
+	})
+
+	function win_open(url) {
+			//var url ='file:///D:/coblan/webcode/dev/win_open.html?p=123'
+			window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
+	}
+</script>
+<div> hi there</div>
+<div id='there'>
+	<button name="test" type="button" value="val" @click='submit()'>Save</button>
+	<div>
+		<ul class='h-menu'>
+			<li v-for='fields in get_pages()' :class='{"active":crt==fields}' @click='crt=fields'>
+				<span v-text='fields.label'></span>
+			</li>
+			<span>+</span>
+		</ul>
+	</div>
+	<div >
+		<pure_form :kw='{heads:employee_info.heads,row:employee_info.row,errors:employee_errors}' v-show='crt==employee_info'></pure_form>
+		<pure_form :kw='{heads:bs_info.heads,row:bs_info.row,errors:bs_errors}' v-show='crt==bs_info'></pure_form>
+		<pure_form :kw='{heads:user_account.heads,row:user_account.row,errors:user_errors}' v-show='crt==user_account'></pure_form>
+		<!--<pure_form v-for='fields in get_pages()' :kw='{heads:fields.heads,row:fields.row,errors:get_error(fields)' 
+			:fields_name='fields.name' v-show='crt==fields'></pure_form>-->
+	</div>
+
+<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
+<button name="test" type="button" value="val" @click='exit()'>exit</button>
+<span v-text='name'></span>
+<modal v-show='show' @sd_hide='show=false' :inn_style='{height:"70%",width:"80%"}'>
+	    <iframe src="/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=" frameborder="0" style='height:100%;width:100%;'></iframe>
+</modal>
+      
+
+	
+</div>
+
+<script type="text/javascript">
+	Vue.component('pure_form',{
+		template:'#pure_form',
+		props:['kw'],
+		methods:{
+			submit:function () {
+				var self =this;
+				show_upload()
+				var post_data=[{fun:'save',row:this.kw.row}]
+				$.post('',JSON.stringify(post_data),function (data) {
+					if(data.save.errors){
+						self.kw.errors = data.save.errors
+						hide_upload()
+					}else{
+						self.$dispatch('submit-success')
+						setTimeout(function () {
+							hide_upload()
+						}, 2000);
+					}
+					
+				})
+			}
+		},
+		events:{
+			'submit':function () {
+				this.submit()
+			}
+		}
+	})
+</script>
+<template id='pure_form'>
+	<div>
+		<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
+	</div>
+</template>
+{% endblock %}

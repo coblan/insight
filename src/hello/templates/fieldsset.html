@@ -15,6 +15,13 @@
 
 	//errors={}
 
+function test_par() {
+	if(window.opener){
+		window.opener.test_par()
+	}else{
+		window.haha.set_name('dog')
+	}
+}
 	$(function () {
 		haha= new Vue({
 			el:'#there',
@@ -37,7 +44,8 @@
 					win_open("/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=")
 				},
 				exit:function () {
-					window.opener.haha.set_name('dog')
+					//window.opener.haha.set_name('dog')
+					test_par()
 					window.close()
 				},
 				set_name:function (name) {

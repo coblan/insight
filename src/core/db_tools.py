@@ -255,8 +255,8 @@ def model_form_save(form,models,success=None,**kw):
         obj = from_dict(model_dict,model)
         if success:
             return success(obj)
-        elif hasattr(form,'save'):
-            return iform.save(obj,models)
+        elif hasattr(form,'save_form'):
+            return iform.save_form(obj,models)
         else:
             obj.save()
             return {'status':'success'}
