@@ -6,6 +6,7 @@ from django.http import Http404
 import json
 from django.db import models
 from django.core.exceptions import PermissionDenied
+from db_tools import from_dict
 
 
 class ModelFields(forms.ModelForm):
@@ -118,29 +119,34 @@ class ModelFields(forms.ModelForm):
         types={}
         return types
     
-    def save_form(self,instance,row):
+    def save_form(self,row):
         """
         call by model render engin
         """
         
         
+        if self.is_valid():
         
-        
-        if instance.pk:
-            op='change'
+            if self.instance.pk:
+                op='change'
+            else:
+                op='add'
+            table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
+            if not self.crt_user.has_perm(table_perm):
+                raise PermissionDenied,'you have no Permission access this record'   
+            if not self.can_access_instance():
+                raise PermissionDenied,'you have no Permission access this record'     
+            
+            for data in self.changed_data:
+                if data in self.get_readonly_fields():
+                    raise PermissionDenied,"Can't change {data}".format(data=data)
+
+            for k,v in self.cleaned_data.items():
+                setattr(self.instance,k,v)
+            self.instance.save()
+            return {'status':'success'}
         else:
-            op='add'
-        table_perm = instance._meta.app_label+'.%s_'%op+instance._meta.model_name
-        if not self.crt_user.has_perm(table_perm):
-            raise PermissionDenied,'you have no Permission access this record'   
-        if not self.can_access_instance():
-            raise PermissionDenied,'you have no Permission access this record'     
-        
-        for data in self.changed_data:
-            if data in self.get_readonly_fields():
-                raise PermissionDenied,"Can't change {data}".format(data=data)
-        instance.save()
-        return {'status':'success','instance':instance}
+            return {'errors':self.errors}
     
     
 

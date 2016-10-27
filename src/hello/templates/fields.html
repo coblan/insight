@@ -26,14 +26,14 @@
 					var self =this;
 					show_upload()
 					var search =parseSearch(location.search)
-					var post_data=[{fun:'save',row:this.kw.row}]
+					var post_data=[{fun:'save_form',row:this.kw.row}]
 					$.post('',JSON.stringify(post_data),function (data) {
 						if(data.msg){
 							hide_upload()
 							return
 						}
-						if(data.save.errors){
-							self.kw.errors = data.save.errors
+						if(data.save_form && data.save_form.errors){
+							self.kw.errors = data.save_form.errors
 							hide_upload()
 						}else if(search.next){
 							location=atob(search.next)

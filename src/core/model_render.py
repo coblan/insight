@@ -57,17 +57,26 @@ class Render(object):
             for k,v in inspect.getmembers(self):
                 if inspect.ismethod(v):
                     function_scope[k]= v 
-                    
+            
+            admin_name=''
             if re.search('^(\w+)/edit/(\w*)/?$',self.url):
                 edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
-                self.name=edit.group(1)
-                self.model_item =model_dc.get(self.name)                  
-                fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
                 dc={'pk':edit.group(2),'crt_user':self.request.user}
+                admin_name=edit.group(1)
+            elif re.search('^(\w+)/edit/?$',self.url):
+                edit = re.search('^(\w+)/edit/?$',self.url)
+                admin_name=edit.group(1)
+                dc={'crt_user':self.request.user}
+            
+            if admin_name:
+                model_item =model_dc.get(admin_name)                  
+                fields_cls = model_item.get('fields',self._get_new_fields_cls(model_item.get('model')))
                 fields = fields_cls(**dc)
-                for k,v in inspect.getmembers(fields):
-                    if inspect.ismethod(v):
-                        function_scope[k]=v
+                for k in dir(fields_cls):
+                    if k.startswith('_') or k in ['errors']:
+                        continue
+                    if inspect.ismethod(getattr(fields,k)):
+                        function_scope[k]=getattr(fields,k)
                 
             return jsonpost(self.request, function_scope)   
         else:
@@ -100,7 +109,9 @@ class Render(object):
                 context['menu']= json.dumps(self.get_menu())
                 context.update(self.extra_context())
                 return render(self.request,temp,context=context) 
-        
+    
+
+    
     def browse(self):
         table_cls = self.model_item.get('table',self._get_new_table_cls())
         table = table_cls.parse_request(self.request)
@@ -167,9 +178,9 @@ class Render(object):
     def extra_context(self):
         return {}
     
-    def _get_new_fields_cls(self):
+    def _get_new_fields_cls(self,_model=None):
         class TempFields(ModelFields):
-            model=self.model_item.get('model')
+            model=_model if _model else self.model_item.get('model')
 
         return TempFields   
     
@@ -180,6 +191,9 @@ class Render(object):
 
 #--------------frontend call-----------------------------------------    
     def save(self,row,user):
+        """
+        暂时不用这个函数。
+        """
         # edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
         model= apps.get_model(row['_class'])
         admin_name = get_admin_name_by_model(model)
