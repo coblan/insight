@@ -190,7 +190,8 @@ class Render(object):
         self.model_item = model_dc.get(admin_name) 
         fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
         row['crt_user']=user
-        return model_form_save(fields_cls,row)
+        fields_obj=fields_cls(row,crt_user=user)
+        # return model_form_save(fields_cls,row)
     
     def get_del_info(self,rows):
         out = {}

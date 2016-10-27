@@ -1,3 +1,5 @@
+# encoding:utf-8
+from __future__ import unicode_literals
 from django import forms
 from db_tools import form_to_head,to_dict,get_or_none,delete_related_query
 from django.http import Http404
@@ -51,6 +53,9 @@ class ModelFields(forms.ModelForm):
         return {unicode(self.instance):delete_related_query(self.instance)}
     
     def init_fields(self):
+        """
+        pop some field out,this will be 
+        """
         pass
     
     def init_value(self):
@@ -117,6 +122,10 @@ class ModelFields(forms.ModelForm):
         """
         call by model render engin
         """
+        
+        
+        
+        
         if instance.pk:
             op='change'
         else:
