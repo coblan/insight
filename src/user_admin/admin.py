@@ -4,11 +4,12 @@ from django import forms
 from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 
-from core.model_render import model_dc,save_row
+from core.model_render import model_dc
 from core.tabel import ModelTable
 from core.fields import ModelFields,FieldsSet
 from django.contrib.auth.models import User,Group
 import json
+import ajax
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -59,6 +60,24 @@ class BasicInfoFields(ModelFields):
     def clean_name(self):
         print('here')
         return self.cleaned_data['name']
+    
+    def can_access_instance(self):
+        access = super(BasicInfoFields,self).can_access_instance()
+        if not access:
+            perm = 'user_admin.read_basicinfo'
+            return self.crt_user.has_perm(perm)
+        else:
+            return access
+        
+    def get_readonly_fields(self):
+        access = super(BasicInfoFields,self).can_access_instance()
+        if not access:
+            perm = 'user_admin.read_basicinfo'
+            if self.crt_user.has_perm(perm):
+                return self.fields.keys()
+        else:
+            return []
+    
         
         
 class UserTable(ModelTable):
@@ -92,10 +111,10 @@ class UserFields(ModelFields):
     
     def init_value(self):
         super(UserFields,self).init_value()
-        ls =['age']
-        for k in ls:
-            if k in self.fields:
-                self.fields[k].initial=self.instance.basicinfo.age
+        # ls =['age']
+        # for k in ls:
+            # if k in self.fields:
+                # self.fields[k].initial=self.instance.basicinfo.age
     
     class Meta:
         model=User
@@ -110,8 +129,15 @@ class UserFields(ModelFields):
                     row['age']=user.basicinfo.age
         return row
     
+    def can_access_instance(self):
+        return self.crt_user.has_perm('auth.change_user') or self.crt_user.has_perm('user_admin.read_basicinfo')
+    
     def get_readonly_fields(self):
-        return ['age'] #['first_name']
+        if not self.crt_user.has_perm('auth.change_user') and\
+           self.crt_user.has_perm('user_admin.read_basicinfo'):
+            return self.fields.keys()
+        else:
+            return []
     
     def get_input_type(self):
         return {'age':'text'}
@@ -123,17 +149,17 @@ class UserFields(ModelFields):
         print('in age function')
         return self.cleaned_data['age']
     
-    def save_form(self, instance, row):
-        super(UserFields,self).save_form(instance,row)
-        user = instance
-        age= self.cleaned_data.get('age')
-        if age:
-            user.basicinfo.age=age
+    # def save_form(self, instance, row):
+        # super(UserFields,self).save_form(instance,row)
+        # user = instance
+        # age= self.cleaned_data.get('age')
+        # if age:
+            # user.basicinfo.age=age
             
-        if hasattr(user,'basicinfo'):
-            user.basicinfo.save()
+        # if hasattr(user,'basicinfo'):
+            # user.basicinfo.save()
         
-        return {'status':'success','instance':instance}
+        # return {'status':'success','instance':instance}
         
 
 class UserGroupTable(ModelTable):
@@ -145,15 +171,21 @@ class UserGroupFields(ModelFields):
     class Meta:
         model=Group
         fields=['name','permissions']
+    def get_heads(self):
+        heads = super(UserGroupFields,self).get_heads()
+        for head in heads:
+            if head['name']=='permissions':
+                head['size']=20
+        return heads
 
 class EmployeeTable(ModelTable):
     model=EmployeeInfo
-    include=['employ_id','position']
+    include=['employ_id','position','salary_level']
 
 class EmployeeFields(ModelFields):
     class Meta:
         model=EmployeeInfo
-        fields=['employ_id','position','baseinfo']
+        fields=['employ_id','position','baseinfo','salary_level']
 
 class EmployeeSet(FieldsSet):
     template='fieldsset.html'
@@ -181,7 +213,6 @@ class EmployeeSet(FieldsSet):
                 user_context['label']='账号信息'
 
                 ls.append(user_context)
-        
         
         return {'set': ls}
 
@@ -214,24 +245,24 @@ class EmployeeProd(FieldsSet):
                 ctx['user_account']=user_context   
         return ctx
     
-    def save_form(self,employee_info,bs_info,user_account,user):
-        dc={}
-        if employee_info:
-            emp_dc = save_row(employee_info, user)
-            dc['employee_errors']=emp_dc.get('errors')
-        if bs_info:
-            bs_dc = save_row(bs_info,user)
-            dc['bs_errors']=bs_dc.get('errors')
-        if user_account:
-            user_dc = save_row(user_account,user)
-            dc['user_errors']=user_dc.get('errors')
+    # def save_form(self,employee_info,bs_info,user_account,user):
+        # dc={}
+        # if employee_info:
+            # emp_dc = save_row(employee_info, user)
+            # dc['employee_errors']=emp_dc.errors
+        # if bs_info:
+            # bs_dc = save_row(bs_info,user)
+            # dc['bs_errors']=bs_dc.errors
+        # if user_account:
+            # user_dc = save_row(user_account,user)
+            # dc['user_errors']=user_dc.errors
             
-        return dc
+        # return dc
 
 
-model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields}
+model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe()}
 model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
 model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
 model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
-model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd}
+model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}

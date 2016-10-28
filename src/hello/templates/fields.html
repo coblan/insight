@@ -26,14 +26,14 @@
 					var self =this;
 					show_upload()
 					var search =parseSearch(location.search)
-					var post_data=[{fun:'save_form',row:this.kw.row}]
+					var post_data=[{fun:'save',row:this.kw.row}]
 					$.post('',JSON.stringify(post_data),function (data) {
 						if(data.msg){
 							hide_upload()
 							return
 						}
-						if(data.save_form && data.save_form.errors){
-							self.kw.errors = data.save_form.errors
+						if(data.save && data.save.errors){
+							self.kw.errors = data.save.errors
 							hide_upload()
 						}else if(search.next){
 							location=atob(search.next)
@@ -55,6 +55,7 @@
 		})
 	})
 </script>
+
 <div> hi there</div>
 <div id='there'>
 	<button name="test" type="button" value="val" @click='submit()'>Save</button>
@@ -62,4 +63,9 @@
 	<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
 	
 </div>
+<style type="text/css" media="screen" id="test">
+	._tow-col-sel .sel {
+    	width: 350px;
+	}
+</style>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.shortcuts import render,Http404
 from tabel import ModelTable
 from fields import ModelFields
 from django.forms import ModelForm
-from db_tools import model_form_save,from_dict,delete_related_query
+from db_tools import model_form_save,from_dict,delete_related_query,to_dict
 from port import jsonpost
 import json
 from django.apps import apps
@@ -70,13 +70,8 @@ class Render(object):
             
             if admin_name:
                 model_item =model_dc.get(admin_name)                  
-                fields_cls = model_item.get('fields',self._get_new_fields_cls(model_item.get('model')))
-                fields = fields_cls(**dc)
-                for k in dir(fields_cls):
-                    if k.startswith('_') or k in ['errors']:
-                        continue
-                    if inspect.ismethod(getattr(fields,k)):
-                        function_scope[k]=getattr(fields,k)
+                ajax_scope= model_item.get('ajax',{})
+                function_scope.update(ajax_scope)
                 
             return jsonpost(self.request, function_scope)   
         else:
@@ -84,7 +79,7 @@ class Render(object):
             context = None
             del_rows = re.search('^del_rows/?$',self.url)
             if del_rows:
-                temp,context = self.del_rows()
+                temp,context = self.del_rows_page()
             elif re.search('^(\w+)/?$', self.url):
                 browse = re.search('^(\w+)/?$', self.url)
                 self.name=browse.group(1)
@@ -132,15 +127,15 @@ class Render(object):
            
             return self.fields_temp,fields.get_context()       
 
-    def del_rows(self):
+    def del_rows_page(self):
         """
-        inst_ls = base64([{pk:1,_class:app.model}])
+        rows = base64([{pk:1,_class:app.model}])
         """
-        ls_str = self.request.GET.get('inst_ls')
-        ls = json.loads(base64.b64decode(ls_str))
+        ls_str = self.request.GET.get('rows')
+        rows = json.loads(base64.b64decode(ls_str))
         
-        ctx = {}
-        for row in ls:
+        infos = {}
+        for row in rows:
             model = apps.get_model(row['_class'])
             admin_name = get_admin_name_by_model(model)
             model_item = model_dc.get(admin_name)
@@ -148,9 +143,10 @@ class Render(object):
             
             dc={'pk':row['pk'],'crt_user':self.request.user}
             fields_obj= fields_cls(**dc)
-            ctx.update(fields_obj.get_del_info())
+            infos.update(fields_obj.get_del_info())
             
-        return self.del_rows_temp,{'infos':ctx}
+        return self.del_rows_temp,{'infos':infos,'rows':rows}
+
     
     def get_menu(self):
         pop = self.request.GET.get('_pop')
@@ -205,7 +201,17 @@ class Render(object):
         fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
         row['crt_user']=user
         fields_obj=fields_cls(row,crt_user=user)
+        if fields_obj.is_valid():
+            return fields_obj.save_form()
+        else:
+            return {'errors':fields_obj.errors}
         # return model_form_save(fields_cls,row)
+        
+    def del_rows(self,rows):
+        for row in rows:
+            del_row(row, self.crt_user)
+            
+        return {'status':'success'}  
     
     def get_del_info(self,rows):
         out = {}
@@ -214,12 +220,12 @@ class Render(object):
             out[str(inst)]=delete_related_query(inst)
         return out
     
-    def delete(self,):
-        pass
+   
     
     def fields_info(self,pk=None,model=None,name=None):
         """
         从前端直接读取fields的 heads rows 属性
+        [pk]
         model and name 选择一个参数即可
         """
         if model:
@@ -231,64 +237,23 @@ class Render(object):
     
 
 def save_row(row,user):
+    """
+    used by inner system ,save row handly
+    """
     model= apps.get_model(row['_class'])
     admin_name = get_admin_name_by_model(model)    
     model_item = model_dc.get(admin_name) 
     fields_cls = model_item.get('fields')
-    row['crt_user']=user
-    return model_form_save(fields_cls,row)    
+    fields_obj=fields_cls(row,crt_user=user)
+    if fields_obj.is_valid():
+        fields_obj.save_form()
+    return fields_obj
 
+def del_row(row,user):
+    model= apps.get_model(row['_class'])
+    admin_name = get_admin_name_by_model(model)    
+    model_item = model_dc.get(admin_name) 
+    fields_cls = model_item.get('fields')
+    fields_obj=fields_cls(row,crt_user=user)
+    return fields_obj.del_instance() 
     
-
-# def rout(request,url,table_temp,fields_temp):
-    # """
-    # name/
-    # name/edit/1
-    # """
-    # browse = re.search('^(\w+)/?$',url)
-    # if browse:
-        # return render_table(request,name=browse.group(1),temp=table_temp)
-    # edit = re.search('^(\w+)/edit/(\w*)/?$',url)
-    # if edit:
-        # return render_field(request,name=edit.group(1),pk=edit.group(2),temp=fields_temp)
-    # raise Http404()
-        
-
-
-
-# def render_table(request,name,temp):
-    # dc = model_dc.get(name)
-    # if not dc:
-        # raise Http404()
-    # table_cls = dc.get('table',_get_table_cls(dc.get('model')))
-    # table = table_cls.parse_request(request)
-    # if hasattr(table,'template'):
-        # temp=table.template
-    # return render(request,temp,table.get_context())
-
-# def _get_table_cls(model_):
-    # class TempTable(ModelTable):
-        # model = model_
-    # return TempTable
-
-# def render_field(request,name,pk,temp):
-    # dc = model_dc.get(name)
-    # if not dc:
-        # raise Http404()
-    # fields_cls = dc.get('fields',_get_new_fields_cls(dc.get('model')))
-    # fields = fields_cls(pk=pk)
-    # if hasattr(fields,'template'):
-        # temp=fields.template
-    # return render(request,temp,fields.get_context())
-
-# def _get_new_fields_cls(model_):
-    # # class TempForm(ModelForm):
-        # # class Meta:
-            # # model=model_
-            # # exclude=[]
-    # class TempFields(ModelFields):
-        # pass
-        # # form=TempForm
-    
-    # return TempFields
-        

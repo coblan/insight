@@ -1,6 +1,7 @@
 from db_tools import to_dict,model_to_head
 import json
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 #from forms import MobilePageForm
 
 
@@ -36,11 +37,12 @@ def get_page_nums(page_range,page):
 
 class Table(object):
     per_page=30
-    def __init__(self,page=1,sort=[],filter={},q=''):
+    def __init__(self,page=1,sort=[],filter={},q='',crt_user=None):
         self.page=page
         self.sort=sort
         self.arg_filter=filter 
         self.q = q
+        self.crt_user=crt_user
         
     @classmethod
     def parse_request(cls,request):
@@ -54,7 +56,7 @@ class Table(object):
             arg = kw.pop(k,None)
             if arg:
                 arg_filter[k]=arg
-        return cls(page,sort,arg_filter,q)
+        return cls(page,sort,arg_filter,q,request.user)
     
     def get_heads(self):
         pass
@@ -99,8 +101,8 @@ class ModelTable(Table):
     search_fields=[]
     placeholder=''
     filters=[]
-    def __init__(self,page=1,sort=[],filter={},q=''):
-        super(ModelTable,self).__init__(page,sort,filter,q)
+    def __init__(self,page=1,sort=[],filter={},q='',crt_user=None):
+        super(ModelTable,self).__init__(page,sort,filter,q,crt_user)
         field_names = [x.name for x in self.model._meta.fields]
         self.arg_filter={}
         for k,v in filter.items():
@@ -146,7 +148,11 @@ class ModelTable(Table):
         return self.__page_nums
     
     def inn_filter(self,query):
-        return query
+        perm = self.model._meta.app_label+'.change_'+self.model._meta.model_name
+        if not self.crt_user.has_perm(perm):
+            raise PermissionDenied,'no permission to browse %s'%self.model._meta.model_name
+        else:
+            return query
     
     def out_filter(self,query):
         if self.search_fields and self.q:

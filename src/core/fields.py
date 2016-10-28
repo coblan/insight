@@ -13,10 +13,6 @@ class ModelFields(forms.ModelForm):
     """
     Only @model is must
     """
-    # form = 'XXX'
-    #model = ''
-    #fields=[]
-    #exclude=[]
 
     def __init__(self,dc={},pk=None,crt_user=None,*args,**kw):
         
@@ -27,6 +23,8 @@ class ModelFields(forms.ModelForm):
         else:
             self.crt_user = crt_user
         
+        if pk is None:
+            pk=dc.get('pk')
         if 'instance' not in kw:
             if pk:
                 kw['instance']= get_or_none( self._meta.model,pk=pk)
@@ -88,7 +86,8 @@ class ModelFields(forms.ModelForm):
         """
         used to judge is self.crt_user has right to access self.instance
         """
-        return True
+        perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
+        return self.crt_user.has_perm(perm)
     
     def get_readonly_fields(self):
         return []
@@ -99,7 +98,7 @@ class ModelFields(forms.ModelForm):
         Note:Only convert Meta.fields ,not All fields
         """
         if not self.can_access_instance():
-            raise PermissionDenied,'you have no Permission access this record'
+            raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name
         
         include = [x for x in self._meta.fields if x in self.fields]
         return to_dict(self.instance,include=include)
@@ -119,34 +118,36 @@ class ModelFields(forms.ModelForm):
         types={}
         return types
     
-    def save_form(self,row):
+    def save_form(self):
         """
         call by model render engin
         """
-        
-        
-        if self.is_valid():
-        
-            if self.instance.pk:
-                op='change'
-            else:
-                op='add'
-            table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
-            if not self.crt_user.has_perm(table_perm):
-                raise PermissionDenied,'you have no Permission access this record'   
-            if not self.can_access_instance():
-                raise PermissionDenied,'you have no Permission access this record'     
-            
-            for data in self.changed_data:
-                if data in self.get_readonly_fields():
-                    raise PermissionDenied,"Can't change {data}".format(data=data)
-
-            for k,v in self.cleaned_data.items():
-                setattr(self.instance,k,v)
-            self.instance.save()
-            return {'status':'success'}
+        if self.instance.pk:
+            op='change'
         else:
-            return {'errors':self.errors}
+            op='add'
+        table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
+        if not self.crt_user.has_perm(table_perm):
+            raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name 
+        if not self.can_access_instance():
+            raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+        
+        for data in self.changed_data:
+            if data in self.get_readonly_fields():
+                raise PermissionDenied,"Can't change {data}".format(data=data)
+        
+        if self.instance.pk is None:
+            self.instance.save() # if instance is a new row , need save first then manytomany_relationship can create        
+        for k,v in self.cleaned_data.items():
+            setattr(self.instance,k,v)
+        self.instance.save()
+        return {'status':'success'}
+    
+    def del_instance(self):
+        del_perm = self.instance._meta.app_label+'.del_'+self.instance._meta.model_name
+        if self.crt_user.has_perm(del_perm):
+            self.instance.delete()
+
     
     
 

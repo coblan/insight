@@ -60,14 +60,14 @@
 							}
 						}
 					}
-					var self=this;
-					var post_data=[{fun:'get_del_info',rows:rows}]
-					$.post('',JSON.stringify(post_data),function (data) {
-						self.del_info=data.get_del_info
-					})
-					alert("{% url "model" "del_rows" %}?next="+ btoa(location.pathname+location.search) )
+					//var self=this;
+					//var post_data=[{fun:'get_del_info',rows:rows}]
+					//$.post('',JSON.stringify(post_data),function (data) {
+					//	self.del_info=data.get_del_info
+					//})
+					//alert("{% url "model" "del_rows" %}?next="+ btoa(location.pathname+location.search) )
 					
-					location="{% url "model" "del_rows" %}?inst_ls="+btoa(JSON.stringify(inst_ls))
+					location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))
 				}
 			}
 			
@@ -93,8 +93,8 @@
 	<sort-table :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
 	<paginator :nums='page_nums'></paginator>
 	
-	<div>sssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sssss s            s s sssssssss sssss ssss sssss sss</div>
-	<del-info :infos='del_info'></del-info>
+
+	<!--<del-info :infos='del_info'></del-info>-->
 	
 	
 </div>

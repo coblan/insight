@@ -50,16 +50,16 @@
 				submit:function () {
 					var self=this;
 					show_upload()
-					var post_data=[{fun:'save_form',employee_info:this.employee_info.row,bs_info:this.bs_info.row,user_account:this.user_account.row}]
+					var post_data=[{fun:'save_employ_infos',employee_info:this.employee_info.row,bs_info:this.bs_info.row,user_account:this.user_account.row}]
 					$.post('',JSON.stringify(post_data),function (data) {
-						if(data.save_form.employee_errors){
-							self.$set('employee_errors',data.save_form.employee_errors)
+						if(data.save_employ_infos.employee_errors){
+							self.$set('employee_errors',data.save_employ_infos.employee_errors)
 						}
-						if(data.save_form.bs_errors){
-							self.$set('bs_errors',data.save_form.bs_errors)
+						if(data.save_employ_infos.bs_errors){
+							self.$set('bs_errors',data.save_employ_infos.bs_errors)
 						}
-						if(data.save_form.user_errors){
-							self.$set('user_errors',data.save_form.user_errors)
+						if(data.save_employ_infos.user_errors){
+							self.$set('user_errors',data.save_employ_infos.user_errors)
 						}
 						setTimeout(function () {
 							hide_upload()
