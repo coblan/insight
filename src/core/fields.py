@@ -1,13 +1,15 @@
 # encoding:utf-8
 from __future__ import unicode_literals
 from django import forms
-from db_tools import form_to_head,to_dict,get_or_none,delete_related_query
+from db_tools import form_to_head,to_dict,get_or_none,delete_related_query,get_model_label
 from django.http import Http404
 import json
 from django.db import models
 from django.core.exceptions import PermissionDenied
 from db_tools import from_dict
-
+from django.core.urlresolvers import reverse
+from model_render import get_admin_name_by_model
+import base64
 
 class ModelFields(forms.ModelForm):
     """
@@ -37,7 +39,7 @@ class ModelFields(forms.ModelForm):
         # if 'initial' not in kw:
             # kw['initial']=self.get_init_value()
         super(ModelFields,self).__init__(dc,*args,**kw)
-        self.init_fields()
+        self.pop_fields()
         self.init_value()
 
         # if self.get_fields():
@@ -51,7 +53,7 @@ class ModelFields(forms.ModelForm):
     def get_del_info(self):
         return {unicode(self.instance):delete_related_query(self.instance)}
     
-    def init_fields(self):
+    def pop_fields(self):
         """
         pop some field out,this will be 
         """
@@ -79,12 +81,28 @@ class ModelFields(forms.ModelForm):
         for name in self.get_readonly_fields():
             for head in heads:
                 if head['name']==name:
-                    head['readonly']=True               
+                    head['readonly']=True 
+        #for head in heads:
+            #field = self.instance._meta.get_field(head['name'])
+            #if isinstance(field,(models.OneToOneField,models.ForeignKey)):
+                #related = field.related_model
+                #app = related._meta.app_label
+                #model_name=related._meta.model_name
+                #admin_name = get_admin_name_by_model(related)
+                #if admin_name:
+                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
+                        #head['add_url']=reverse('model',args=(admin_name,))
+                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
+                        #head['change_url']=reverse('model',args=(admin_name,))
+                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
+                        #head['del_url']=reverse('model',args=('del_rows/',))
+                        #head['_class']='%s.%s'%(app,model_name)
+            
         return heads
     
     def can_access_instance(self):
         """
-        used to judge is self.crt_user has right to access self.instance
+        used to judge if self.crt_user has right to access self.instance
         """
         perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
         return self.crt_user.has_perm(perm)
@@ -141,7 +159,7 @@ class ModelFields(forms.ModelForm):
         for k,v in self.cleaned_data.items():
             setattr(self.instance,k,v)
         self.instance.save()
-        return {'status':'success'}
+        return {'status':'success','pk':self.instance.pk,'_class':get_model_label(self.instance)}
     
     def del_instance(self):
         del_perm = self.instance._meta.app_label+'.del_'+self.instance._meta.model_name

@@ -60,14 +60,8 @@
 							}
 						}
 					}
-					//var self=this;
-					//var post_data=[{fun:'get_del_info',rows:rows}]
-					//$.post('',JSON.stringify(post_data),function (data) {
-					//	self.del_info=data.get_del_info
-					//})
-					//alert("{% url "model" "del_rows" %}?next="+ btoa(location.pathname+location.search) )
 					
-					location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))
+					location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))+'&next='+btoa(location.pathname+location.search)
 				}
 			}
 			

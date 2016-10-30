@@ -39,10 +39,6 @@ function test_par() {
 					}
 					this.$broadcast('submit')
 				},
-				toggle:function () {
-					//this.show= !this.show
-					win_open("/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=")
-				},
 				exit:function () {
 					//window.opener.haha.set_name('dog')
 					test_par()
@@ -85,8 +81,8 @@ function test_par() {
 			:fields_name='fields.name' v-show='crt==fields'></pure_form>
 	</div>
 
-<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
-<button name="test" type="button" value="val" @click='exit()'>exit</button>
+<!--<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
+<button name="test" type="button" value="val" @click='exit()'>exit</button>-->
 <span v-text='name'></span>
 <modal v-show='show' @sd_hide='show=false' :inn_style='{height:"70%",width:"80%"}'>
 	    <iframe src="/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=" frameborder="0" style='height:100%;width:100%;'></iframe>

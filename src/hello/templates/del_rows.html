@@ -23,26 +23,29 @@
 			                return row[name]
 			        }
 				},
-				del_item:function () {
-					
-					if (this.selected.length==0){
-						return
-					}
-					var rows=[]
-					for(var j=0;j<this.selected.length;j++){
-						var pk = this.selected[j]
-						for(var i=0;i<this.rows.length;i++){
-							if(this.rows[i].pk.toString()==pk){
-								rows.push(this.rows[i])
-							}
-						}
-					}
-					var self=this;
-					var post_data=[{fun:'get_del_info',rows:rows}]
+				del_rows:function () {
+					var self =this
+					var post_data=[{fun:'del_rows',rows:this.rows}]
 					$.post('',JSON.stringify(post_data),function (data) {
-						self.del_info=data.get_del_info
+						if(data.del_rows){
+							if(window.opener.on_subwin_close){
+								window.opener.on_subwin_close(data.del_rows.rows)
+							}
+							self.next_page()
+						}
 					})
-					alert("{% url "model" "del_rows" %}?next="+ btoa(location.pathname+location.search) )
+				},
+				next_page:function () {
+					var search =parseSearch()
+					if(search._pop){
+						window.close()
+					}
+					var next = search.next
+					if(next){
+						var url = atob(next)
+						location=url
+					}
+					
 				}
 			}
 			
@@ -60,6 +63,8 @@
 				</li>
 			</ul>
 		</div>
+		<button name="test" type="button" @click='del_rows()'>确定删除</button>
+		<button name="test" type="button" @click='next_page()'>取消</button>
 	</div>
 	
 </div>

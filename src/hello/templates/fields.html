@@ -35,6 +35,11 @@
 						if(data.save && data.save.errors){
 							self.kw.errors = data.save.errors
 							hide_upload()
+						}else if(search._pop==1){
+							if(window.opener.on_subwin_close){
+								window.opener.on_subwin_close({pk:data.save.pk,_class:data.save._class})
+							}
+							window.close()
 						}else if(search.next){
 							location=atob(search.next)
 						}else{

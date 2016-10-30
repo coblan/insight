@@ -11,7 +11,7 @@
 
 	employee_info = {{employee_info | jsonify}}
 	bs_info ={{bs_info | jsonify | default:"null"}}
-	user_account ={{user_account | jsonify | default:"null"}}
+	//user_account ={{user_account | jsonify | default:"null"}}
 	
 	$(function () {
 		haha= new Vue({
@@ -22,8 +22,8 @@
 				employee_errors:{},
 				bs_info:bs_info,
 				bs_errors:{},
-				user_account:user_account,
-				user_errors:{},
+				//user_account:user_account,
+				//user_errors:{},
 				crt:employee_info,
 				show:false,
 				name:'',
@@ -38,19 +38,11 @@
 					}
 					return ls
 				},
-				//get_error:function (page) {
-				//	if(page==this.employee_info){
-				//		return this.employee_errors
-				//	}else if(page==this.bs_info){
-				//		return this.bs_errors
-				//	}else if(page==this.user_account){
-				//		return this.user_errors
-				//	}
-				//},
 				submit:function () {
 					var self=this;
 					show_upload()
-					var post_data=[{fun:'save_employ_infos',employee_info:this.employee_info.row,bs_info:this.bs_info.row,user_account:this.user_account.row}]
+					//var user_account=this.user_account?this.user_account.row:null
+					var post_data=[{fun:'save_employ_infos',employee_info:this.employee_info.row,bs_info:this.bs_info.row}]
 					$.post('',JSON.stringify(post_data),function (data) {
 						if(data.save_employ_infos.employee_errors){
 							self.$set('employee_errors',data.save_employ_infos.employee_errors)
@@ -58,69 +50,18 @@
 						if(data.save_employ_infos.bs_errors){
 							self.$set('bs_errors',data.save_employ_infos.bs_errors)
 						}
-						if(data.save_employ_infos.user_errors){
-							self.$set('user_errors',data.save_employ_infos.user_errors)
-						}
 						setTimeout(function () {
 							hide_upload()
 						},2000)
 					})
 				},
-				toggle:function () {
-					//this.show= !this.show
-					win_open("/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=")
-				},
-				exit:function () {
-					//window.opener.haha.set_name('dog')
-					//test_par()
-					window.close()
-				},
-				set_name:function (name) {
-					this.name=name
-				}
 			},
-			watch:{
-				'employee_info.row.baseinfo':function (n,o) {
-					if(!n){
-						this.bs_info=null
-					}else{
-						var self=this
-						var post_data=[{fun:'fields_info',pk:n,name:'basicinfo'}]
-						$.post('',JSON.stringify(post_data),function (data) {
-							data.fields_info.label='基本信息'
-							self.$set('bs_info',data.fields_info)
-						})
-					}
-					
-				},
-				'bs_info.row.user':function (n,o) {
-					if(!n){
-						this.user_account=null
-					}else{
-						var self=this
-						var post_data=[{fun:'fields_info',pk:n,name:'user'}]
-						$.post('',JSON.stringify(post_data),function (data) {
-							data.fields_info.label='账号信息'
-							self.$set('user_account',data.fields_info)
-						})
-					}
-				}
-			},
-			events:{
-				'submit-success':function () {
-					//this.need_submit.pop()
-					//if(this.need_submit.length==0){
-					//	location.reload()
-					//}
-				}
-			}
 		})
 	})
 
-	function win_open(url) {
-			//var url ='file:///D:/coblan/webcode/dev/win_open.html?p=123'
-			window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
-	}
+	//function win_open(url) {
+	//		window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
+	//}
 </script>
 <div> hi there</div>
 <div id='there'>
@@ -136,17 +77,17 @@
 	<div >
 		<pure_form :kw='{heads:employee_info.heads,row:employee_info.row,errors:employee_errors}' v-show='crt==employee_info'></pure_form>
 		<pure_form :kw='{heads:bs_info.heads,row:bs_info.row,errors:bs_errors}' v-show='crt==bs_info'></pure_form>
-		<pure_form :kw='{heads:user_account.heads,row:user_account.row,errors:user_errors}' v-show='crt==user_account'></pure_form>
+		<!--<pure_form :kw='{heads:user_account.heads,row:user_account.row,errors:user_errors}' v-show='crt==user_account'></pure_form>-->
 		<!--<pure_form v-for='fields in get_pages()' :kw='{heads:fields.heads,row:fields.row,errors:get_error(fields)' 
 			:fields_name='fields.name' v-show='crt==fields'></pure_form>-->
 	</div>
 
-<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
-<button name="test" type="button" value="val" @click='exit()'>exit</button>
-<span v-text='name'></span>
+<!--<button name="test" type="button" value="val" @click='toggle()'>open_new</button>
+<button name="test" type="button" value="val" @click='exit()'>exit</button>-->
+<!--<span v-text='name'></span>
 <modal v-show='show' @sd_hide='show=false' :inn_style='{height:"70%",width:"80%"}'>
 	    <iframe src="/hello/model/employee_set/edit/2/?next=L2hlbGxvL21vZGVsL2VtcGxveWVlX3NldC8=" frameborder="0" style='height:100%;width:100%;'></iframe>
-</modal>
+</modal>-->
       
 
 	

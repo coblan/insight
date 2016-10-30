@@ -3,16 +3,16 @@ from core.model_render import save_row
 def get_globe():
     return globals()
 
-def save_employ_infos(employee_info,bs_info,user_account,user):
+def save_employ_infos(employee_info=None,bs_info=None,user=None):
     dc={}
-    if employee_info:
-        emp_dc = save_row(employee_info, user)
-        dc['employee_errors']=emp_dc.errors
     if bs_info:
-        bs_dc = save_row(bs_info,user)
-        dc['bs_errors']=bs_dc.errors
-    if user_account:
-        user_dc = save_row(user_account,user)
-        dc['user_errors']=user_dc.errors
-
+        bs_form = save_row(bs_info,user)
+        dc['bs_errors']=bs_form.errors
+    if not bs_form.errors :
+        employee_info['baseinfo'] =bs_form.instance.pk
+        
+    if employee_info:
+        emp_form = save_row(employee_info, user)
+        dc['employee_errors']=emp_form.errors
+    
     return dc    

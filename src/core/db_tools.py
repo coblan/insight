@@ -44,18 +44,11 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
         else:
             if field_map.get(field.__class__):
                 out[field.name] = field_map.get(field.__class__)().to_dict(instance,field.name)
-            #if isinstance(field,models.ForeignKey):
-                #foreign=getattr(instance,field.name)
-                #if foreign:
-                    #out[field.name]=foreign.pk
-                #else:
-                    #out[field.name]=None
-            #elif isinstance(field,models.DateTimeField):
-                #out[field.name]=getattr(instance,field.name).strftime('%Y-%m-%d %H:%M:%S')
             else:
                 out[field.name]=field.get_prep_value( getattr(instance,field.name) )
     out['pk']=instance.pk
     out['_class']= instance._meta.app_label+'.'+instance._meta.model_name
+    out['_label']=unicode(instance)
     return out
 
 
@@ -171,6 +164,8 @@ def from_dict(dc,model=None,pre_proc=None):
     return instance
      
 
+def get_model_label(instance):
+    return '%s.%s'%(instance._meta.app_label,instance._meta.model_name)
 
 def form_to_head(form,include=None):
     """

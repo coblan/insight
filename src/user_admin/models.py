@@ -19,7 +19,7 @@ class BasicInfo(models.Model):
                        )
 
 class EmployeeInfo(models.Model):
-    baseinfo=models.OneToOneField(BasicInfo,blank=True,null=True)
+    baseinfo=models.OneToOneField(BasicInfo,blank=True,null=True,on_delete=models.SET_NULL)
     employ_id = models.CharField('职员ID',max_length=50,blank=True)
     position = models.CharField('职位',max_length=100,blank=True)
     salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)

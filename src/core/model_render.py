@@ -1,7 +1,7 @@
 # encoding:utf-8
 from django.shortcuts import render,Http404
-from tabel import ModelTable
-from fields import ModelFields
+#from tabel import ModelTable
+#from fields import ModelFields
 from django.forms import ModelForm
 from db_tools import model_form_save,from_dict,delete_related_query,to_dict
 from port import jsonpost
@@ -108,7 +108,7 @@ class Render(object):
 
     
     def browse(self):
-        table_cls = self.model_item.get('table',self._get_new_table_cls())
+        table_cls = self.model_item.get('table') #,self._get_new_table_cls())
         table = table_cls.parse_request(self.request)
         if hasattr(table,'template'):
             self.table_temp = table.template
@@ -119,7 +119,7 @@ class Render(object):
  
     def edit(self,name,pk):
         if self.request.method=='GET':
-            fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
+            fields_cls = self.model_item.get('fields') #,self._get_new_fields_cls())
             dc={'pk':pk,'crt_user':self.request.user}
             fields = fields_cls(**dc)
             if hasattr(fields,'template') and fields.template:
@@ -139,7 +139,7 @@ class Render(object):
             model = apps.get_model(row['_class'])
             admin_name = get_admin_name_by_model(model)
             model_item = model_dc.get(admin_name)
-            fields_cls = model_item.get('fields',self._get_new_fields_cls())
+            fields_cls = model_item.get('fields') #,self._get_new_fields_cls())
             
             dc={'pk':row['pk'],'crt_user':self.request.user}
             fields_obj= fields_cls(**dc)
@@ -174,16 +174,16 @@ class Render(object):
     def extra_context(self):
         return {}
     
-    def _get_new_fields_cls(self,_model=None):
-        class TempFields(ModelFields):
-            model=_model if _model else self.model_item.get('model')
+    #def _get_new_fields_cls(self,_model=None):
+        #class TempFields(ModelFields):
+            #model=_model if _model else self.model_item.get('model')
 
-        return TempFields   
+        #return TempFields   
     
-    def _get_new_table_cls(self):
-        class TempTable(ModelTable):
-            model = self.model_item.get('model')
-        return TempTable    
+    #def _get_new_table_cls(self):
+        #class TempTable(ModelTable):
+            #model = self.model_item.get('model')
+        #return TempTable    
 
 #--------------frontend call-----------------------------------------    
     def save(self,row,user):
@@ -198,7 +198,7 @@ class Render(object):
             admin_name= edit.group(1)
             
         self.model_item = model_dc.get(admin_name) 
-        fields_cls = self.model_item.get('fields',self._get_new_fields_cls())
+        fields_cls = self.model_item.get('fields') 
         row['crt_user']=user
         fields_obj=fields_cls(row,crt_user=user)
         if fields_obj.is_valid():
@@ -211,7 +211,7 @@ class Render(object):
         for row in rows:
             del_row(row, self.crt_user)
             
-        return {'status':'success'}  
+        return {'status':'success','rows':rows}  
     
     def get_del_info(self,rows):
         out = {}
@@ -220,7 +220,13 @@ class Render(object):
             out[str(inst)]=delete_related_query(inst)
         return out
     
-   
+    def get_rows_info(self,rows):
+        for row in rows:
+            pk=row['pk']
+            model = apps.get_model(row['_class'])
+            row['label']=unicode(model.objects.get(pk=pk))
+        return rows
+            
     
     def fields_info(self,pk=None,model=None,name=None):
         """
@@ -248,6 +254,7 @@ def save_row(row,user):
     if fields_obj.is_valid():
         fields_obj.save_form()
     return fields_obj
+
 
 def del_row(row,user):
     model= apps.get_model(row['_class'])
