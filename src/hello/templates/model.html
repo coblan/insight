@@ -68,12 +68,12 @@
 		})
 	})
 </script>
-<div> hi there</div>
 <div id='there'>
 	<div class='btn-group'>
 		<button name="test" type="button" @click='add_new()'>add new</button>
 		<button name="test" type="button" @click='del_item()' >delete</button>
 	</div>
+	
 	<div class='btn-group'>
 		<input v-if='placeholder' type="text" name="test" v-model='q' :placeholder='placeholder'/>
 		<select name="" id="" v-for='filter in filters' v-model='filter.value'>
@@ -83,8 +83,8 @@
 		</select>
 		<button name="test" type="button" value="val" @click='search()'>search</button>
 	</div>
-	
-	<sort-table :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
+
+	<sort-table class='table table-hover table-striped' :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
 	<paginator :nums='page_nums'></paginator>
 	
 
@@ -102,7 +102,7 @@
 		border-radius:3px;
 	}
 </style>
-<script type="text/javascript">
+<!--<script type="text/javascript">
 	Vue.component('del-info',{
 		template:'#del-info',
 		props:['infos'],
@@ -121,5 +121,5 @@
 		
 	</div>
 	
-</template>
+</template>-->
 {% endblock %}

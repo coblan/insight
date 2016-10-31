@@ -10,6 +10,7 @@ from django.apps import apps
 import re
 import base64
 import inspect
+from core.container import evalue_container
 
 # used for model render
 model_dc={
@@ -101,11 +102,9 @@ class Render(object):
             elif context is None:
                 raise UserWarning,'constructed context is None,this may be an bug'
             else:
-                context['menu']= json.dumps(self.get_menu())
+                context['menu']= self.get_menu()
                 context.update(self.extra_context())
                 return render(self.request,temp,context=context) 
-    
-
     
     def browse(self):
         table_cls = self.model_item.get('table') #,self._get_new_table_cls())
@@ -151,24 +150,25 @@ class Render(object):
     def get_menu(self):
         pop = self.request.GET.get('_pop')
         if not pop:
-            return self._evalue_menu_dict(self.menu)
+            # return self._evalue_menu_dict(self.menu)
+            return evalue_container(self.menu,user=self.crt_user)
         else:
             return {}
     
-    def _evalue_menu_dict(self,menu):
-        temp_menu=[]
-        for act in menu:
-            temp_act ={}
-            for k,v in act.items():
-                if callable(v):
-                    temp_act[k]=v(self.request.user)
-                elif isinstance(v,(list,tuple)):
-                    temp_act[k]=self._evalue_menu_dict(v)
-                else:
-                    temp_act[k]=v
-            if not 'valid' in temp_act or temp_act['valid']: # only valid ,this menu will be display
-                temp_menu.append(temp_act)
-        return temp_menu
+    # def _evalue_menu_dict(self,menu):
+        # temp_menu=[]
+        # for act in menu:
+            # temp_act ={}
+            # for k,v in act.items():
+                # if callable(v):
+                    # temp_act[k]=v(self.request.user)
+                # elif isinstance(v,(list,tuple)):
+                    # temp_act[k]=self._evalue_menu_dict(v)
+                # else:
+                    # temp_act[k]=v
+            # if not 'valid' in temp_act or temp_act['valid']: # only valid ,this menu will be display
+                # temp_menu.append(temp_act)
+        # return temp_menu
                     
     
     def extra_context(self):
@@ -194,7 +194,7 @@ class Render(object):
         model= apps.get_model(row['_class'])
         admin_name = get_admin_name_by_model(model)
         if not admin_name:
-            edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
+            edit = re.search('^(\w+)/edit/',self.url)
             admin_name= edit.group(1)
             
         self.model_item = model_dc.get(admin_name) 

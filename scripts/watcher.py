@@ -12,7 +12,8 @@ from datetime import datetime
 
 target=[(r'D:\coblan\webcode\build\fields.pack.js','../src/static/js/fields.pack.js'),
         (r'D:\coblan\webcode\build\table.pack.js','../src/static/js/table.pack.js'),
-        (r'D:\coblan\webcode\build\uis.pack.js','../src/static/js/uis.pack.js')]
+        (r'D:\coblan\webcode\build\uis.pack.js','../src/static/js/uis.pack.js'),
+        (r'D:\coblan\webcode\js\exfun.js','../src/static/js/exfun.js')]
 
 files = {}
 for src ,dst in target:

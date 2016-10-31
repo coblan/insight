@@ -169,6 +169,18 @@ class UserGroupFields(ModelFields):
 class EmployeeTable(ModelTable):
     model=EmployeeInfo
     include=['employ_id','position','salary_level']
+    def get_heads(self):
+        heads = super(EmployeeTable,self).get_heads()
+        heads.insert(1,{'name':'name','label':'姓名'})
+        return heads
+    
+    def get_rows(self):
+        rows = super(EmployeeTable,self).get_rows()
+        for row in rows:
+            emp = EmployeeInfo.objects.get(pk=row['pk'])
+            row['name']=emp.baseinfo.name
+        return rows
+        
 
 class EmployeeFields(ModelFields):
     class Meta:
@@ -225,6 +237,30 @@ class EmployeeProd(FieldsSet):
         return {'employee_info':em_context,'bs_info':bs_context}
     
 
+class SalaryTabel(ModelTable):
+    model=SalaryRecords
+    include=['empoyee','base_salary','merit_pay']
+    
+    def get_heads(self):
+        heads = super(SalaryTabel,self).get_heads()
+        heads[0]['label']='员工ID'
+        heads.insert(1,{'name':'name','label':'员工名字'})
+        return heads
+    
+    def get_rows(self):
+        rows=super(SalaryTabel,self).get_rows()
+        for salary_dc in rows:
+            emp = EmployeeInfo.objects.get(pk=salary_dc['empoyee'])
+            salary_dc['empoyee']=emp.employ_id
+            if emp.baseinfo:
+                salary_dc['name']=emp.baseinfo.name
+        return rows    
+    
+
+class SalaryFields(ModelFields):
+    class Meta:
+        model=SalaryRecords
+        fields=['empoyee','base_salary','merit_pay']        
 
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe()}
@@ -233,3 +269,4 @@ model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields
 model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
 model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
 model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
+model_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}

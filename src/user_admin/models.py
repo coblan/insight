@@ -23,7 +23,12 @@ class EmployeeInfo(models.Model):
     employ_id = models.CharField('职员ID',max_length=50,blank=True)
     position = models.CharField('职位',max_length=100,blank=True)
     salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)
-
+    
+    def __unicode__(self):
+        if self.baseinfo:
+            return self.baseinfo.name
+        else:
+            return self.employ_id
 
 class SalaryRecords(models.Model):
     empoyee=models.ForeignKey(EmployeeInfo,verbose_name='员工',blank=True,null=True)
@@ -33,7 +38,11 @@ class SalaryRecords(models.Model):
     social_security = models.FloatField('社保',blank=True,null=True)
     reserved_funds = models.FloatField('社保',blank=True,null=True)
     month = models.ForeignKey('Month',verbose_name='月份',blank=True,null=True)
-    adapt_day=models.FloatField('修正',blank=True,)
+    adapt_day=models.FloatField('修正天数',blank=True,null=True)
+    
+    def __unicode__(self):
+        return '{employee} 的工资'.format(employee=self.empoyee.baseinfo.name)
+    
 
 class Month(models.Model):
     workdays = models.FloatField('应该工作天数',blank=True)
