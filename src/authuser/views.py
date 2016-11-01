@@ -7,7 +7,9 @@ import json
 from core.db_tools import form_to_head
 from forms import AuthForm
 from django.contrib import auth 
+from django.views.decorators.csrf import ensure_csrf_cookie
 
+@ensure_csrf_cookie
 def login(request):
     if request.method=='GET':
         next_url=request.GET.get('next','/')
@@ -21,7 +23,7 @@ def login(request):
     elif request.method=='POST':
         return jsonpost(request,get_globe())
     
-    
+@ensure_csrf_cookie
 def regist_user(request):
     if request.method=='GET':
         dc={
@@ -38,6 +40,7 @@ def logout(request):
     auth.logout(request)
     return redirect(next) 
 
+@ensure_csrf_cookie
 def change_pswd(request):
     if request.method=='GET':
         dc={

@@ -21,6 +21,8 @@
 			   		errors:errors,
 				},
 				menu:menu,
+				can_save:false,
+				can_delete:false,
 			},
 			methods:{
 				submit:function () {
@@ -57,6 +59,18 @@
 						location=atob(search.next)
 					}
 				}
+			},
+			compiled:function () {
+				var self=this
+				var ls = row._class.split('.')
+				var app_label=ls[0]
+				var model_name=ls[1]
+				var post_data=[{fun:'has_perm',perm:app_label+'.change_'+model_name,_rt_key:'can_save'},
+								{fun:'has_perm',perm:app_label+'.del_'+model_name,_rt_key:'can_delete'}]
+				$.post('',JSON.stringify(post_data),function (data) {
+					self.can_save=data.can_save
+					self.can_delete=data.can_delete
+				})
 			}
 		})
 	})
@@ -68,8 +82,9 @@
 		<li><span>编辑</span></li>
 	</path-nav>
 	
-	<button name="test" type="button" value="val" @click='submit()'>Save</button>
-	<button name="test" type="button" value="val" @click='cancel()'>Cancel</button>
+	<button name="test" type="button" value="val" @click='submit()' v-if='can_save'>Save</button>
+	<button name="delete" type="button" value="val" v-if='can_delete'>删除</button>
+	<button name="test" type="button" value="val" @click='cancel()' >Cancel</button>
 	<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
 	
 </div>

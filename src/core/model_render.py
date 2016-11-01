@@ -11,20 +11,18 @@ import re
 import base64
 import inspect
 from core.container import evalue_container
+from ajax import get_globle,get_admin_name_by_model,model_dc
 
-# used for model render
-model_dc={
-    #'xxx_model': {'model':'xxx','table_temp':xxx,'field_temp':xxx}
-}
+
 
 def get_url(name):
     pass
 
-def get_admin_name_by_model(model):
-    if model:
-        for k,v in model_dc.items():
-            if v.get('model')==model:
-                return k
+#def get_admin_name_by_model(model):
+    #if model:
+        #for k,v in model_dc.items():
+            #if v.get('model')==model:
+                #return k
 
 # def get_fields_by_name(name):
     # for k,v in model_dc.items():
@@ -55,9 +53,10 @@ class Render(object):
     def rout(self):
         if self.request.method=='POST':
             function_scope ={}
-            for k,v in inspect.getmembers(self):
-                if inspect.ismethod(v):
-                    function_scope[k]= v 
+            function_scope=get_globle()
+            #for k,v in inspect.getmembers(self):
+                #if inspect.ismethod(v):
+                    #function_scope[k]= v 
             
             admin_name=''
             if re.search('^(\w+)/edit/(\w*)/?$',self.url):
