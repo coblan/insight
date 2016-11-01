@@ -36,12 +36,15 @@ class SalaryRecords(models.Model):
     merit_pay = models.FloatField('绩效工资',blank=True,null=True)
     allowance = models.FloatField('补贴',blank=True,null=True)
     social_security = models.FloatField('社保',blank=True,null=True)
-    reserved_funds = models.FloatField('社保',blank=True,null=True)
+    reserved_funds = models.FloatField('公积金',blank=True,null=True)
     month = models.ForeignKey('Month',verbose_name='月份',blank=True,null=True)
     adapt_day=models.FloatField('修正天数',blank=True,null=True)
     
     def __unicode__(self):
-        return '{employee} 的工资'.format(employee=self.empoyee.baseinfo.name)
+        try:
+            return '{employee} 的工资'.format(employee=self.empoyee.baseinfo.name)
+        except AttributeError:
+            return '某人工资'
     
 
 class Month(models.Model):

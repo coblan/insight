@@ -5,7 +5,7 @@ from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 
 from core.model_render import model_dc
-from core.tabel import ModelTable
+from core.tabel import ModelTable,SearchQuery
 from core.fields import ModelFields,FieldsSet
 from django.contrib.auth.models import User,Group
 import json
@@ -237,9 +237,20 @@ class EmployeeProd(FieldsSet):
         return {'employee_info':em_context,'bs_info':bs_context}
     
 
+class SalarySearch(SearchQuery):
+    def get_query(self,query,q,crt_user):
+        try:
+            return query.filter(empoyee__id__icontains=int(q))
+        except:
+            return query.filter(empoyee__baseinfo__name__icontains=q)
+    
+    def get_placeholder(self):
+        return '员工ID或者姓名'
+    
 class SalaryTabel(ModelTable):
     model=SalaryRecords
-    include=['empoyee','base_salary','merit_pay']
+    include=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']
+    search_fields=[SalarySearch()]
     
     def get_heads(self):
         heads = super(SalaryTabel,self).get_heads()
@@ -260,7 +271,7 @@ class SalaryTabel(ModelTable):
 class SalaryFields(ModelFields):
     class Meta:
         model=SalaryRecords
-        fields=['empoyee','base_salary','merit_pay']        
+        fields=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']        
 
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe()}

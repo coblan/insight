@@ -117,7 +117,7 @@ class ModelTable(Table):
             'filters':self.get_options(),
             'sort':self.get_sort(),
             'q': self.q ,
-            'placeholder':','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields]),
+            'placeholder':self.get_placeholder(),
         }
        
 
@@ -158,13 +158,17 @@ class ModelTable(Table):
         if self.search_fields and self.q:
             exp = None
             for field in self.search_fields:
-                kw ={}
-                kw['%s__icontains'%field] =self.q
-                if exp is None:
-                    exp = Q(**kw)
+                if isinstance(field,SearchQuery):
+                    query=field.get_query(query,self.q,self.crt_user)
                 else:
-                    exp = exp | Q(**kw)
-            query= query.filter(exp)
+                    kw ={}
+                    kw['%s__icontains'%field] =self.q
+                    if exp is None:
+                        exp = Q(**kw)
+                    else:
+                        exp = exp | Q(**kw)
+            if exp:
+                query= query.filter(exp)
         if self.sort:
             return query.filter(**self.arg_filter).order_by(*self.sort)
         else:
@@ -192,7 +196,24 @@ class ModelTable(Table):
                 'options':option,
             })
         return options    
+    
+    def get_placeholder(self):
+        ls=[]
+        for field in self.search_fields:
+            if isinstance(field,SearchQuery):
+                ls.append(field.get_placeholder())
+            else:
+                ls.append(self.model._meta.get_field(field).verbose_name)
+        return ','.join(ls)
+        # return ','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields])
 
+class SearchQuery(object):
+
+    def get_query(self,query,q,crt_user):
+        return query
+
+    def get_placeholder(self):
+        return 'Search'
 
 # from models import MobilePage
 # class PageTable(ModelTable):

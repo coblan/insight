@@ -30,6 +30,7 @@
 		        placeholder:placeholder,
 		        selected:[],
 		        del_info:[],
+		        menu:menu,
 			},
 			mixins:[build_table_args],
 			methods:{
@@ -69,22 +70,31 @@
 	})
 </script>
 <div id='there'>
-	<div class='btn-group'>
-		<button name="test" type="button" @click='add_new()'>add new</button>
-		<button name="test" type="button" @click='del_item()' >delete</button>
+	<div class='btn-panel'>
+		
+		<path-nav :menu='menu'></path-nav>
+		
+		<form class='button-group' autocomplete="on" v-if='placeholder || filters.length>0'>
+			<input v-if='placeholder' type="text" name="_q" v-model='q' :placeholder='placeholder' class='form-control'/>
+			<select name="" id="" v-for='filter in filters' v-model='filter.value' class='form-control'>
+			        <option value="" v-text='filter.label'></option>
+			        <option value="" >----</option>
+			        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
+			</select>
+			<button name="go" type="button" class="btn btn-info" @click='search()' style='position: absolute;right:-80px;top:-1px;width:70px;height:33px;'>提交</button>
+			<!--<input type="submit">-->
+		</form>
+		<div class='btn-group' style='float: right;'>
+			<button type="button" class="btn btn-success" @click='add_new()' >创建</button>
+			<button type="button" class="btn btn-danger" @click='del_item()' >删除</button>
+		</div>
+		
 	</div>
 	
-	<div class='btn-group'>
-		<input v-if='placeholder' type="text" name="test" v-model='q' :placeholder='placeholder'/>
-		<select name="" id="" v-for='filter in filters' v-model='filter.value'>
-		        <option value="" v-text='filter.label'></option>
-		        <option value="" >----</option>
-		        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
-		</select>
-		<button name="test" type="button" value="val" @click='search()'>search</button>
-	</div>
+	
+	
 
-	<sort-table class='table table-hover table-striped' :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
+	<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
 	<paginator :nums='page_nums'></paginator>
 	
 
@@ -93,13 +103,15 @@
 	
 </div>
 <style type="text/css" media="screen" id="test">
-	.btn-group{
+	.button-group{
+		position: relative;
 		display: inline-block;
-		margin: 3px 10px;
-		padding: 5px 5px;
-		background-color: #F2F2F2;
-		border: 1px solid #D4D4D4;
-		border-radius:3px;
+	}
+	.form-control{
+		display: inline-block;
+		margin-left:10px;
+		width:auto;
+		height:30px;
 	}
 </style>
 <!--<script type="text/javascript">

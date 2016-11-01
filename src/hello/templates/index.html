@@ -38,7 +38,7 @@
     	menu= {{menu| jsonify}}
     	$(function () {
 
-    		new Vue({
+    	frame=new Vue({
 	    	el:'#menu',
 	    	data:{
 		    	menu:menu
@@ -82,8 +82,46 @@
         <div id='footer'>
 	        
         </div>
+        
+      
     </body>
+    <script type="text/javascript">
+    	Vue.component('path-nav',{
+	    	template:'#path-nav',
+	    	props:['menu'],
+	    	methods:{
+		    	get_active_links:function () {
+			    	var ls=[]
+		    		for(var i=0;i<this.menu.length;i++){
+			    		var act = this.menu[i]
+			    		if(act.selected){
+				    		ls.push(act)
+				    		for(var j =0;j<act.submenu.length;j++){
+					    		var sub_act=act.submenu[j]
+					    		if(sub_act.active){
+						    		ls.push(sub_act)
+					    		}
+				    		}
+			    		}
+		    		}
+		    		return ls
+		    	}
+	    	}
+    	})
+    </script>
+    <template id='path-nav'>
+		<ol class="breadcrumb">
+			<li v-for='act in get_active_links()'><span v-text='act.label'></span></li>
+			<slot></slot>
+			<!--<li><a href="#">Home</a></li>
+			<li><a href="#">Library</a></li>
+			<li class="active">Data</li>-->
+		</ol>
+    </template>
     <style type="text/css" media="screen" id="test">
+	    body{
+		    background-color: #F5F5F5;
+	    }
 	    ._expand_menu{
 		    width:200px;
 	    }
@@ -119,10 +157,51 @@
 	    	background-image: linear-gradient(to bottom, #f3f3f3, #e5e5e5);
     	}
     	.table{
-	    	border: 1px solid #e5e5e5;
+	    	border: 1px solid #DDD;
+	    	border-radius:6px;
     	}
     	.table td{
 	    	border-left: 1px solid #F5F5F5;
     	}
+    	.table tr>td:first-child{
+	    	border-left: none;
+    	}
+    	.table.suit-style tbody tr{
+	    	background-color: white;
+	    	
+    	}
+    	.table.suit-style tbody td{
+	    	border-top:1px solid #E7E7E7;
+	    	padding-top: 3px;
+	    	padding-bottom: 3px;
+    	}
+    	
+    	.table.suit-style tr:nth-child(even){
+	    	background-color: #FAFAFA;
+    	}
+    	.table.suit-style tr:hover{
+	    	background-color: #F5F5F5;
+    	}
+
+    	.btn-panel{
+	    	/*background-color: white;
+	    	background-color: #e5e5e5;
+	    	background-image: linear-gradient(to bottom, #f3f3f3, #e5e5e5);
+	    	border: 1px solid #CDCDCD;
+	    	border-radius:5px;*/
+	    	padding: 10px;
+			margin: 3px 0px 10px 0px;
+    	}
+    	.btn-group{
+	    	display: inline-block;
+	    	margin-left:10px;
+    	}
+    	.field input[type='text'],.field input[type="number"]{
+	    	max-width:300px;
+    	}
+    	.field select.form-control{
+	    	max-width:300px;
+    	}
     </style>
+    
 </html>

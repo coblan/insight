@@ -19,7 +19,8 @@
 					heads:heads,
 			        row:row,
 			   		errors:errors,
-				}
+				},
+				menu:menu,
 			},
 			methods:{
 				submit:function () {
@@ -61,8 +62,12 @@
 	})
 </script>
 
-<div> hi there</div>
 <div id='there'>
+	
+	<path-nav :menu='menu'>
+		<li><span>编辑</span></li>
+	</path-nav>
+	
 	<button name="test" type="button" value="val" @click='submit()'>Save</button>
 	<button name="test" type="button" value="val" @click='cancel()'>Cancel</button>
 	<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
