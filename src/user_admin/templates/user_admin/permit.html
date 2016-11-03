@@ -1,0 +1,114 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+<script src='{% static "js/fields.pack.js" %}'></script>
+<script src='{% static "js/uis.pack.js" %}'></script>
+<script type="text/javascript">
+        
+        heads={{ heads | jsonify }}
+		row = {{ row | jsonify }}
+		permits={{permits | jsonify }}
+		models = {{ models | jsonify}}
+		errors={}
+
+        $(function () {
+                haha= new Vue({
+                        el:'#there',
+                        data:{
+                                models:models,
+                                permits:permits,
+                                selected_admin_name:''
+                        },
+                        methods:{
+                                add:function (name) {
+	                                if(!name){
+		                                return 
+	                                }
+                                    var post_data=[{fun:'admin_fields',name:this.selected_admin_name}]
+                                    $.post('',JSON.stringify(post_data),function (data) {
+                                    	alert(data)
+                                    })
+                                },
+                                submit:function () {
+                                        var self=this;
+                                        show_upload()
+                                        //var user_account=this.user_account?this.user_account.row:null
+                                        var post_data=[{fun:'save_employ_infos',employee_info:this.employee_info.row,bs_info:this.bs_info.row}]
+                                        $.post('',JSON.stringify(post_data),function (data) {
+                                                if(data.save_employ_infos.employee_errors){
+                                                        self.$set('employee_errors',data.save_employ_infos.employee_errors)
+                                                }
+                                                if(data.save_employ_infos.bs_errors){
+                                                        self.$set('bs_errors',data.save_employ_infos.bs_errors)
+                                                }
+                                                setTimeout(function () {
+                                                        hide_upload()
+                                                },2000)
+                                        })
+                                },
+                        },
+                })
+        })
+
+        //function win_open(url) {
+        //		window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
+        //}
+</script>
+<div> hi theressssssssss</div>
+<div id='there'>
+        <button name="test" type="button" value="val" @click='submit()'>Save</button>
+        <div>
+            <select name="" id="" v-model='selected_admin_name'>
+	            <option v-for='item in models' :value="item.name" v-text='item.label'></option>
+            </select>
+            <button name="test" type="button" value="val" @click='add(selected_admin_name)'>添加</button>
+        </div>
+        <div >
+            <ul v-for='permit in permits'>
+	            <li>
+		            
+	            </li>
+	        </ul>  
+        </div>
+
+
+</div>
+
+<script type="text/javascript">
+        Vue.component('pure_form',{
+                template:'#pure_form',
+                props:['kw'],
+                methods:{
+                        submit:function () {
+                                var self =this;
+                                show_upload()
+                                var post_data=[{fun:'save',row:this.kw.row}]
+                                $.post('',JSON.stringify(post_data),function (data) {
+                                        if(data.save.errors){
+                                                self.kw.errors = data.save.errors
+                                                hide_upload()
+                                        }else{
+                                                self.$dispatch('submit-success')
+                                                setTimeout(function () {
+                                                        hide_upload()
+                                                }, 2000);
+                                        }
+                                        
+                                })
+                        }
+                },
+                events:{
+                        'submit':function () {
+                                this.submit()
+                        }
+                }
+        })
+</script>
+<template id='pure_form'>
+        <div>
+                <field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
+        </div>
+</template>
+{% endblock %}

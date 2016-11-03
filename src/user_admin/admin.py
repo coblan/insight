@@ -2,14 +2,15 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
-from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
-
+from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month,PermitModel
+from django.apps import apps
 from core.model_render import model_dc
 from core.tabel import ModelTable,SearchQuery
 from core.fields import ModelFields,FieldsSet
 from django.contrib.auth.models import User,Group
 import json
 import ajax
+
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -19,6 +20,7 @@ admin.site.register(Fore)
 admin.site.register(EmployeeInfo)
 admin.site.register(SalaryRecords)
 admin.site.register(Month)
+admin.site.register(PermitModel)
 
 
 class BasicInfoTable(ModelTable):
@@ -156,15 +158,31 @@ class UserGroupTable(ModelTable):
 
 
 class UserGroupFields(ModelFields):
+    template='user_admin/permit.html'
     class Meta:
         model=Group
-        fields=['name','permissions']
-    def get_heads(self):
-        heads = super(UserGroupFields,self).get_heads()
-        for head in heads:
-            if head['name']=='permissions':
-                head['size']=20
-        return heads
+        fields=['name',]
+        
+    # def get_heads(self):
+        # heads = super(UserGroupFields,self).get_heads()
+        # for head in heads:
+            # if head['name']==:
+                # head['size']=20
+        # return heads
+    def get_context(self):
+        dc = super(UserGroupFields,self).get_context()
+        dc['permits']=[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.permitmodel_set.all()]
+        ls = []
+        # for k1,v1 in apps.all_models.items():
+            # for k2,v2 in v1.items():
+                # ls.append({'name':'%s.%s'%(k1,k2),'label':'%s.%s'%(k1,k2)})
+        for k,v in model_dc.items():
+            if v.has_key('model'):
+                ls.append({'name':k,'label':v.get('label',k)})
+        dc['models']=ls
+        
+        return dc
+
 
 class EmployeeTable(ModelTable):
     model=EmployeeInfo
@@ -274,9 +292,9 @@ class SalaryFields(ModelFields):
         fields=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']        
 
 
-model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe()}
+model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
 model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
-model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields}
+model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
 model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
 model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
 model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
