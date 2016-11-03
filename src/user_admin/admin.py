@@ -57,7 +57,7 @@ class BasicInfoFields(ModelFields):
         fields=['name','age','user'] 
     
     def get_fields(self):
-        return ['name','user','age']
+        return ['name','age']
     
     def clean_name(self):
         print('here')
@@ -293,9 +293,9 @@ class SalaryFields(ModelFields):
 
 
 model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
-model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields}
+model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
 model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
-model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields}
+model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
 model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
 model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
 model_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}

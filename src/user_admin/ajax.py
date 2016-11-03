@@ -19,5 +19,13 @@ def save_employ_infos(employee_info=None,bs_info=None,user=None):
 
 def admin_fields(name,user):
     fields = model_dc.get(name).get('fields')
-    return fields(crt_user=user).fields.keys()
+    ls=[]
+    for k,v in fields(crt_user=user).fields.items():
+        if hasattr(v.label,'title') and callable(v.label.title):
+            label=v.label.title()
+        else:
+            label=v.label
+            
+        ls.append({'name':k,'label':label})
+    return ls
 

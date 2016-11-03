@@ -26,10 +26,46 @@
 	                                if(!name){
 		                                return 
 	                                }
+	                                var self=this;
                                     var post_data=[{fun:'admin_fields',name:this.selected_admin_name}]
                                     $.post('',JSON.stringify(post_data),function (data) {
-                                    	alert(data)
+	                                    //var row={'can__create':false,'can__delete':false}
+	                                    var heads=data.admin_fields
+	                                    //for (var i=0;i<heads.length;i++){
+		                                   // var head=heads[i]
+		                                   // row[head.name+'__read']=false
+		                                   // row[head.name+'__write']=false
+	                                    //}
+                                    	permits.push({heads:data.admin_fields,
+                                    					admin_name:self.selected_admin_name,
+                                    					row:[],
+                                    					})
                                     })
+                                },
+                                get_admin_label:function (name) {
+                                	for(var i=0;i<this.models.length;i++){
+	                                	if(this.models[i].name==name){
+		                                	return this.models[i].label
+	                                	}
+                                	}
+                                },
+                                get_left_models:function () {
+	                                var ls=[]
+                                	for(var i=0;i<this.models.length;i++){
+	                                	var model=this.models[i]
+	                                	var find=false;
+	                                	for(var j=0;j<this.permits.length;j++){
+		                                	var permit = this.permits[j]
+		                                	if(permit.admin_name==model.name){
+			                                	find=true
+			                                	break
+		                                	}
+	                                	}
+	                                	if(!find){
+		                                	ls.push(model)
+	                                	}
+                                	}
+                                	return ls
                                 },
                                 submit:function () {
                                         var self=this;
@@ -61,20 +97,61 @@
         <button name="test" type="button" value="val" @click='submit()'>Save</button>
         <div>
             <select name="" id="" v-model='selected_admin_name'>
-	            <option v-for='item in models' :value="item.name" v-text='item.label'></option>
+	            <option v-for='item in get_left_models()' :value="item.name" v-text='item.label'></option>
             </select>
             <button name="test" type="button" value="val" @click='add(selected_admin_name)'>添加</button>
         </div>
-        <div >
-            <ul v-for='permit in permits'>
-	            <li>
-		            
-	            </li>
-	        </ul>  
+        <div  class='row'>
+	        <table>
+	        	<tr v-for='permit in permits'>
+		        	<td><span v-text='get_admin_label(permit.admin_name) '></span></td>
+		        	<td>
+			        	<ul >
+				        	<li class='col'>
+					        	<span >快捷</span>
+								<div>
+									<input type="checkbox" name="test" value="" />
+								</div>
+					           <div>
+						           <input type="checkbox" value='' >
+					           </div>
+				        	</li>
+				        	<li class='col'>
+					        	<span >整表</span>
+								<div>
+									<input type="checkbox" name="test" value="can__create" v-model='permit.row'/>创建
+								</div>
+					           <div>
+						           <input type="checkbox" value='can__delete' v-model='permit.row'>删除
+					           </div>
+				        	</li>
+
+				            <li v-for='head in permit.heads' class='col'>
+					           	<span v-text='head.label'></span>
+								<div>
+									<input type="checkbox" :value="head.name+'__read'" v-model="permit.row" />读
+								</div>
+					           <div>
+						           <input type="checkbox" :value="head.name+'__write'" v-model="permit.row">写
+					           </div>
+					           	
+				            </li>
+				        </ul>  
+		        	</td>
+	        	</tr>
+	        </table>
+
         </div>
 
 
 </div>
+
+<style type="text/css" media="screen" id="test">
+	.row .col{
+		display: inline-block;
+		margin-left:10px;
+	}
+</style>
 
 <script type="text/javascript">
         Vue.component('pure_form',{
