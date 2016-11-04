@@ -71,14 +71,14 @@ class BasicInfoFields(ModelFields):
         else:
             return access
         
-    def get_readonly_fields(self):
-        access = super(BasicInfoFields,self).can_access_instance()
-        if not access:
-            perm = 'user_admin.read_basicinfo'
-            if self.crt_user.has_perm(perm):
-                return self.fields.keys()
-        else:
-            return []
+    # def get_readonly_fields(self):
+        # access = super(BasicInfoFields,self).can_access_instance()
+        # if not access:
+            # perm = 'user_admin.read_basicinfo'
+            # if self.crt_user.has_perm(perm):
+                # return self.fields.keys()
+        # else:
+            # return access
     
         
         
@@ -171,7 +171,10 @@ class UserGroupFields(ModelFields):
         # return heads
     def get_context(self):
         dc = super(UserGroupFields,self).get_context()
-        dc['permits']=[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.permitmodel_set.all()]
+        group = self.instance
+        if not hasattr(group,'permitmodel'):
+            group.permitmodel=PermitModel.objects.create(group=group)
+        dc['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
         ls = []
         # for k1,v1 in apps.all_models.items():
             # for k2,v2 in v1.items():

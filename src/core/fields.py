@@ -10,6 +10,7 @@ from db_tools import from_dict
 from django.core.urlresolvers import reverse
 from model_render import get_admin_name_by_model
 import base64
+from permit import Permit
 
 class ModelFields(forms.ModelForm):
     """
@@ -39,8 +40,10 @@ class ModelFields(forms.ModelForm):
         # if 'initial' not in kw:
             # kw['initial']=self.get_init_value()
         super(ModelFields,self).__init__(dc,*args,**kw)
+        self.permit= Permit(self.instance,self.crt_user)
         self.pop_fields()
         self.init_value()
+        
 
         # if self.get_fields():
             # self._meta.fields=self.get_fields() 
@@ -57,7 +60,15 @@ class ModelFields(forms.ModelForm):
         """
         pop some field out,this will be 
         """
-        pass
+        if self.crt_user.is_superuser:
+            return
+        ls=[]
+        ls.extend(self.permit.readable_fields())
+        ls.extend(self.permit.changeable_fields())
+        for key in dict(self.fields).keys():
+            if key not in ls:
+                self.fields.pop(key)
+                
     
     def init_value(self):
         if self.instance.pk:
@@ -104,11 +115,17 @@ class ModelFields(forms.ModelForm):
         """
         used to judge if self.crt_user has right to access self.instance
         """
-        perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
-        return self.crt_user.has_perm(perm)
+        if self.crt_user.is_superuser:
+            return True
+        elif self.permit.readable_fields() or self.permit.changeable_fields():
+            return True
+        # perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
+        # return self.crt_user.has_perm(perm)
+    
     
     def get_readonly_fields(self):
-        return []
+        return self.permit.readonly_fields()
+        # return []
     
     def get_row(self):
         """
@@ -141,14 +158,16 @@ class ModelFields(forms.ModelForm):
         call by model render engin
         """
         if self.instance.pk:
-            op='change'
+            if not self.permit.changeable_fields():
+                raise PermissionDenied,'you have no Permission changed %s'%self.instance._meta.model_name 
         else:
-            op='add'
-        table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
-        if not self.crt_user.has_perm(table_perm):
-            raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name 
-        if not self.can_access_instance():
-            raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+            if not self.can_access_instance():
+                raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+        # table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
+        # if not self.crt_user.has_perm(table_perm):
+            # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name 
+        # if not self.can_access_instance():
+            # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
         
         for data in self.changed_data:
             if data in self.get_readonly_fields():

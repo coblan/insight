@@ -19,7 +19,12 @@
                         data:{
                                 models:models,
                                 permits:permits,
-                                selected_admin_name:''
+                                selected_admin_name:'',
+                                kw:{
+	                                heads:heads,
+	                                row:row,
+	                                errors:{},
+                                }
                         },
                         methods:{
                                 add:function (name) {
@@ -27,7 +32,7 @@
 		                                return 
 	                                }
 	                                var self=this;
-                                    var post_data=[{fun:'admin_fields',name:this.selected_admin_name}]
+                                    var post_data=[{fun:'admin_fields',admin_name:this.selected_admin_name}]
                                     $.post('',JSON.stringify(post_data),function (data) {
 	                                    //var row={'can__create':false,'can__delete':false}
 	                                    var heads=data.admin_fields
@@ -70,17 +75,14 @@
                                 submit:function () {
                                         var self=this;
                                         show_upload()
-                                        //var user_account=this.user_account?this.user_account.row:null
-                                        var post_data=[{fun:'save_employ_infos',employee_info:this.employee_info.row,bs_info:this.bs_info.row}]
+                                        var post_data=[{fun:'save_permit',row:this.kw.row,permits:this.permits}]
                                         $.post('',JSON.stringify(post_data),function (data) {
-                                                if(data.save_employ_infos.employee_errors){
-                                                        self.$set('employee_errors',data.save_employ_infos.employee_errors)
+                                                if(data.save_permit.errors){
+                                                        this.kw.errors=data.save_permit.errors
                                                 }
-                                                if(data.save_employ_infos.bs_errors){
-                                                        self.$set('bs_errors',data.save_employ_infos.bs_errors)
-                                                }
+                                   
                                                 setTimeout(function () {
-                                                        hide_upload()
+                                                    hide_upload()
                                                 },2000)
                                         })
                                 },
@@ -92,9 +94,11 @@
         //		window.open(url,location.pathname,'height=500,width=800,resizable=yes,scrollbars=yes')
         //}
 </script>
-<div> hi theressssssssss</div>
 <div id='there'>
+		
         <button name="test" type="button" value="val" @click='submit()'>Save</button>
+        
+        <field name='name' :kw='kw'></field>
         <div>
             <select name="" id="" v-model='selected_admin_name'>
 	            <option v-for='item in get_left_models()' :value="item.name" v-text='item.label'></option>
@@ -102,41 +106,37 @@
             <button name="test" type="button" value="val" @click='add(selected_admin_name)'>添加</button>
         </div>
         <div  class='row'>
-	        <table>
+	        <table class='table'>
 	        	<tr v-for='permit in permits'>
-		        	<td><span v-text='get_admin_label(permit.admin_name) '></span></td>
+		        	<td><span v-text='get_admin_label(permit.admin_name)'></span></td>
 		        	<td>
-			        	<ul >
-				        	<li class='col'>
-					        	<span >快捷</span>
-								<div>
-									<input type="checkbox" name="test" value="" />
-								</div>
-					           <div>
-						           <input type="checkbox" value='' >
-					           </div>
-				        	</li>
-				        	<li class='col'>
-					        	<span >整表</span>
-								<div>
-									<input type="checkbox" name="test" value="can__create" v-model='permit.row'/>创建
-								</div>
-					           <div>
-						           <input type="checkbox" value='can__delete' v-model='permit.row'>删除
-					           </div>
-				        	</li>
-
-				            <li v-for='head in permit.heads' class='col'>
-					           	<span v-text='head.label'></span>
-								<div>
-									<input type="checkbox" :value="head.name+'__read'" v-model="permit.row" />读
-								</div>
-					           <div>
-						           <input type="checkbox" :value="head.name+'__write'" v-model="permit.row">写
-					           </div>
-					           	
-				            </li>
-				        </ul>  
+			        	<table >
+				        	<tr class='select_cell'>
+					        	<td><span >快捷</span></td>
+					        	<td><span >整表</span></td>
+					        	<td v-for='head in permit.heads'><span v-text='head.label'></span></td>
+				        	</tr>
+				        	<tr class='select_cell'>
+					        	<td><input type="checkbox" name="test" value="" /></td>
+					        	<td><input type="checkbox" :id="permit.admin_name+'can__create'" value="can__create" v-model='permit.row'/>
+									<label :for="permit.admin_name+'can__create'">创建</label>
+									</td>
+								<td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__read'" 
+										:value="head.name+'__read'" v-model="permit.row" />
+									<label :for="permit.admin_name+head.name+'__read'">读</label>
+									</td>
+				        	</tr>
+				        	<tr class='select_cell'>
+					        	<td><input type="checkbox" value='' ></td>
+					        	<td><input type="checkbox" :id="permit.admin_name+'can__delete'"  value='can__delete' v-model='permit.row'>
+							       <label :for="permit.admin_name+'.can__delete'">删除</label>
+							       </td>
+							    <td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__write'" 
+						           	:value="head.name+'__write'" v-model="permit.row">
+						           	<label :for="permit.admin_name+head.name+'__write'">写</label>
+						           	</td>
+				        	</tr>
+				        </table>  
 		        	</td>
 	        	</tr>
 	        </table>
@@ -150,6 +150,9 @@
 	.row .col{
 		display: inline-block;
 		margin-left:10px;
+	}
+	.select_cell label{
+		font-weight:normal;
 	}
 </style>
 

@@ -1,4 +1,5 @@
 from core.model_render import save_row,model_dc
+import json
 
 def get_globe():
     return globals()
@@ -17,8 +18,8 @@ def save_employ_infos(employee_info=None,bs_info=None,user=None):
     
     return dc    
 
-def admin_fields(name,user):
-    fields = model_dc.get(name).get('fields')
+def admin_fields(admin_name,user):
+    fields = model_dc.get(admin_name).get('fields')
     ls=[]
     for k,v in fields(crt_user=user).fields.items():
         if hasattr(v.label,'title') and callable(v.label.title):
@@ -29,3 +30,14 @@ def admin_fields(name,user):
         ls.append({'name':k,'label':label})
     return ls
 
+
+def save_permit(row,permits,user):  #TODO .....
+    group_form= save_row(row, user)
+    group_form.instance.permitmodel.permit=json.dumps(permits)
+    group_form.instance.permitmodel.save()
+    
+    # perm={'group':group_form.instance.pk,'permit':permits}
+    # perm_form = save_row(perm, user)
+    return {'status':'success'}
+    
+    
