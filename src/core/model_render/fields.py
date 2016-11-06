@@ -1,16 +1,16 @@
 # encoding:utf-8
 from __future__ import unicode_literals
 from django import forms
-from db_tools import form_to_head,to_dict,get_or_none,delete_related_query,get_model_label
+from core.db_tools import form_to_head,to_dict,get_or_none,delete_related_query,get_model_label,from_dict,model_stringfy
 from django.http import Http404
 import json
 from django.db import models
 from django.core.exceptions import PermissionDenied
-from db_tools import from_dict
 from django.core.urlresolvers import reverse
 from model_render import get_admin_name_by_model
 import base64
 from permit import Permit
+from authuser.models import LogModel
 
 class ModelFields(forms.ModelForm):
     """
@@ -40,7 +40,7 @@ class ModelFields(forms.ModelForm):
         # if 'initial' not in kw:
             # kw['initial']=self.get_init_value()
         super(ModelFields,self).__init__(dc,*args,**kw)
-        self.permit= Permit(self.instance,self.crt_user)
+        self.permit= Permit(self.instance._meta.model,self.crt_user)
         self.pop_fields()
         self.init_value()
         
@@ -117,6 +117,11 @@ class ModelFields(forms.ModelForm):
         """
         if self.crt_user.is_superuser:
             return True
+        if not self.instance.pk:
+            if self.permit.can_add():
+                return True
+            else:
+                return False
         elif self.permit.readable_fields() or self.permit.changeable_fields():
             return True
         # perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
@@ -157,27 +162,43 @@ class ModelFields(forms.ModelForm):
         """
         call by model render engin
         """
-        if self.instance.pk:
-            if not self.permit.changeable_fields():
-                raise PermissionDenied,'you have no Permission changed %s'%self.instance._meta.model_name 
-        else:
-            if not self.can_access_instance():
-                raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
-        # table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
-        # if not self.crt_user.has_perm(table_perm):
-            # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name 
-        # if not self.can_access_instance():
-            # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+        if not self.crt_user.is_superuser:
+            if self.instance.pk:
+                if not self.permit.changeable_fields():
+                    raise PermissionDenied,'you have no Permission changed %s'%self.instance._meta.model_name 
+            else:
+                if not self.can_access_instance():
+                    raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+            # table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
+            # if not self.crt_user.has_perm(table_perm):
+                # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name 
+            # if not self.can_access_instance():
+                # raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
+            
+            model_str= unicode(self.instance)
+            for data in self.changed_data:
+                if data in self.get_readonly_fields():
+                    self.cleaned_data.pop(data)
+                    print("Can't change {data} of {model},I pop it".format(data=data,model=model_str))
+                    #raise PermissionDenied,"Can't change {data}".format(data=data)
         
-        for data in self.changed_data:
-            if data in self.get_readonly_fields():
-                raise PermissionDenied,"Can't change {data}".format(data=data)
-        
+        op=None
+        if self.changed_data:
+            op='change'
+            detail=','.join(self.changed_data)
+            
         if self.instance.pk is None:
-            self.instance.save() # if instance is a new row , need save first then manytomany_relationship can create        
+            op='add'
+            detail=''
+            self.instance.save() # if instance is a new row , need save first then manytomany_relationship can create   
+            
         for k,v in self.cleaned_data.items():
             setattr(self.instance,k,v)
         self.instance.save()
+        
+        if op:
+            log =LogModel(key='{model_label}.{pk}'.format(model_label=get_model_label(self.instance),pk=self.instance.pk),op=op,user=self.crt_user,detail=detail)
+            log.save()
         return {'status':'success','pk':self.instance.pk,'_class':get_model_label(self.instance)}
     
     def del_instance(self):

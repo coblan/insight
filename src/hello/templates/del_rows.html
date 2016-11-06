@@ -28,9 +28,9 @@
 					var post_data=[{fun:'del_rows',rows:this.rows}]
 					$.post('',JSON.stringify(post_data),function (data) {
 						if(data.del_rows){
-							if(window.opener.on_subwin_close){
-								window.opener.on_subwin_close(data.del_rows.rows)
-							}
+							//if(window.opener.on_subwin_close){
+							//	window.opener.on_subwin_close(data.del_rows.rows)
+							//}
 							self.next_page()
 						}
 					})

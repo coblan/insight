@@ -21,21 +21,13 @@ def evalue_container(container,*args,**kw):
 def evalue_dict(dc,*args,**kw):
     for k,v in dc.items():
         dc[k]=evalue_container(v,*args,**kw)
-        # temp_act ={}
-        # for k,v in act.items():
-            # if callable(v):
-                # temp_act[k]=v(self.request.user)
-            # elif isinstance(v,(list,tuple)):
-                # temp_act[k]=self._evalue_menu_dict(v)
-            # else:
-                # temp_act[k]=v
-        # if not 'valid' in temp_act or temp_act['valid']: # only valid ,this menu will be display
-            # temp_menu.append(temp_act)
     return dc
 
 def evalue_list(ls,*args,**kw):
-    index=0
+    new_ls=[]
     for item in ls:
-        ls[index]=evalue_container(item,*args,**kw)
-        index+=1
-    return ls
+        tmp=evalue_container(item,*args,**kw)
+        if isinstance(tmp,dict) and tmp.get('invalid'):
+            continue
+        new_ls.append(tmp)
+    return new_ls

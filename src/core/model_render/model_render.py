@@ -3,15 +3,16 @@ from django.shortcuts import render,Http404
 #from tabel import ModelTable
 #from fields import ModelFields
 from django.forms import ModelForm
-from db_tools import model_form_save,from_dict,delete_related_query,to_dict
-from port import jsonpost
+from core.db_tools import model_form_save,from_dict,delete_related_query,to_dict
+from core.port import jsonpost
 import json
 from django.apps import apps
 import re
 import base64
 import inspect
 from core.container import evalue_container
-from ajax import get_globle,get_admin_name_by_model,model_dc
+from base import model_dc,get_admin_name_by_model
+import ajax
 
 
 
@@ -53,7 +54,7 @@ class Render(object):
     def rout(self):
         if self.request.method=='POST':
             function_scope ={}
-            function_scope=get_globle()
+            function_scope=ajax.get_globle()
             #for k,v in inspect.getmembers(self):
                 #if inspect.ismethod(v):
                     #function_scope[k]= v 
@@ -206,11 +207,7 @@ class Render(object):
             return {'errors':fields_obj.errors}
         # return model_form_save(fields_cls,row)
         
-    def del_rows(self,rows):
-        for row in rows:
-            del_row(row, self.crt_user)
-            
-        return {'status':'success','rows':rows}  
+
     
     def get_del_info(self,rows):
         out = {}
@@ -241,25 +238,8 @@ class Render(object):
         return fields(pk=pk,crt_user=self.crt_user).get_context()
     
 
-def save_row(row,user):
-    """
-    used by inner system ,save row handly
-    """
-    model= apps.get_model(row['_class'])
-    admin_name = get_admin_name_by_model(model)    
-    model_item = model_dc.get(admin_name) 
-    fields_cls = model_item.get('fields')
-    fields_obj=fields_cls(row,crt_user=user)
-    if fields_obj.is_valid():
-        fields_obj.save_form()
-    return fields_obj
 
 
-def del_row(row,user):
-    model= apps.get_model(row['_class'])
-    admin_name = get_admin_name_by_model(model)    
-    model_item = model_dc.get(admin_name) 
-    fields_cls = model_item.get('fields')
-    fields_obj=fields_cls(row,crt_user=user)
-    return fields_obj.del_instance() 
+
+
     

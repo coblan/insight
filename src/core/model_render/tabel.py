@@ -1,7 +1,10 @@
-from db_tools import to_dict,model_to_head
+from __future__ import unicode_literals
+
+from core.db_tools import to_dict,model_to_head,model_stringfy
 import json
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
+from permit import Permit
 #from forms import MobilePageForm
 
 
@@ -108,6 +111,8 @@ class ModelTable(Table):
         for k,v in filter.items():
             if k in field_names:
                 self.arg_filter[k]=v
+        
+        self.permit=Permit(model=self.model, user=crt_user)
     
     def get_context(self,user):
         return {
@@ -118,6 +123,7 @@ class ModelTable(Table):
             'sort':self.get_sort(),
             'q': self.q ,
             'placeholder':self.get_placeholder(),
+            'model':model_stringfy(self.model),
         }
        
 
@@ -149,7 +155,7 @@ class ModelTable(Table):
     
     def inn_filter(self,query):
         perm = self.model._meta.app_label+'.change_'+self.model._meta.model_name
-        if not self.crt_user.has_perm(perm):
+        if not self.crt_user.is_superuser and not self.permit.readable_fields():
             raise PermissionDenied,'no permission to browse %s'%self.model._meta.model_name
         else:
             return query

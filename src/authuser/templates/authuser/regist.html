@@ -17,32 +17,30 @@
 			{name:'pas2',label:'确认密码',type:'password'}]
 	merge(heads,fix)
 	
-	meta={
-		errors:{},
-		row:{
-			username:'',
-			password:'',
-			pas2:'',
-		},
-		heads: heads
-	}
-	
 	$(function () {
 		new Vue({
 			el:'#content',
 			data:{
-				meta:meta,
+				kw:{
+					errors:{},
+					row:{
+						username:'',
+						password:'',
+						pas2:'',
+					},
+					heads: heads
+				},
 				
 			},
 			methods:{
 				submit_info:function () {
 					var self=this;
 					var post_data={
-						registe:{info:this.meta.row}
+						registe:{info:this.kw.row}
 					}
 					$.post('',JSON.stringify(post_data),function (data) {
 						if(data.registe.errors){
-							update_vue_obj(self.meta.errors,data.registe.errors)
+							update_vue_obj(self.kw.errors,data.registe.errors)
 						}else{
 							location=login_url;
 						}
@@ -63,9 +61,9 @@
 		class='form-signin' novalidate>
 		<h2 class='form-signin-heading'>用户注册</h2>
 		
-		<field name='username' :meta='meta'></field>
-		<field name='password' :meta='meta'></field>
-		<field name='pas2' :meta='meta'>
+		<field name='username' :kw='kw'></field>
+		<field name='password' :kw='kw'></field>
+		<field name='pas2' :kw='kw'>
 			<span>防止密码输错，所以请第二次输出相同的密码</span>
 		</field>
 		

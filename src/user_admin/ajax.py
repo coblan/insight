@@ -1,4 +1,5 @@
 from core.model_render import save_row,model_dc
+from models import PermitModel
 import json
 
 def get_globe():
@@ -33,8 +34,11 @@ def admin_fields(admin_name,user):
 
 def save_permit(row,permits,user):  #TODO .....
     group_form= save_row(row, user)
-    group_form.instance.permitmodel.permit=json.dumps(permits)
-    group_form.instance.permitmodel.save()
+    group = group_form.instance
+    if not hasattr(group,'permitmodel'):
+        PermitModel.objects.create(group=group)
+    group.permitmodel.permit=json.dumps(permits)
+    group.permitmodel.save()
     
     # perm={'group':group_form.instance.pk,'permit':permits}
     # perm_form = save_row(perm, user)

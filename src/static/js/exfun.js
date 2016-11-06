@@ -35,9 +35,18 @@ function update(dst_obj,src_obj) {
 	}
 }
 
+//  startsWith
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(searchString, position){
       position = position || 0;
       return this.substr(position, searchString.length) === searchString;
   };
 }
+
+Array.prototype.each = function(fun) 
+{ 
+	for(var i=0;i<this.length;i++){
+		fun(this[i])
+	}
+//return this.length ? [fn(this.slice(0,1))].concat(this.slice(1).each(fn)) : []; 
+};

@@ -17,7 +17,12 @@ def get_or_none(model, **kw):
     except IndexError:
         return None
 
+def model_stringfy(model):
+    return model._meta.app_label+'.'+model._meta.model_name
 
+def model_parse(app_model_string):
+    return apps.get_model(app_model_string)
+    
 
 def to_dict(instance,filt_attr=None,include=None,exclude=None):
     """
@@ -164,8 +169,8 @@ def from_dict(dc,model=None,pre_proc=None):
     return instance
      
 
-def get_model_label(instance):
-    return '%s.%s'%(instance._meta.app_label,instance._meta.model_name)
+def get_model_label(ins_or_model):
+    return '%s.%s'%(ins_or_model._meta.app_label,ins_or_model._meta.model_name)
 
 def form_to_head(form,include=None):
     """

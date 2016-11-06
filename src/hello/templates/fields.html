@@ -65,8 +65,8 @@
 				var ls = row._class.split('.')
 				var app_label=ls[0]
 				var model_name=ls[1]
-				var post_data=[{fun:'has_perm',perm:app_label+'.change_'+model_name,_rt_key:'can_save'},
-								{fun:'has_perm',perm:app_label+'.del_'+model_name,_rt_key:'can_delete'}]
+				var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
+								{fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'}]
 				$.post('',JSON.stringify(post_data),function (data) {
 					self.can_save=data.can_save
 					self.can_delete=data.can_delete

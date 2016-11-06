@@ -9,7 +9,7 @@
         
         heads={{ heads | jsonify }}
 		row = {{ row | jsonify }}
-		permits={{permits | jsonify }}
+		permits={{permits | jsonify |default:"[]"  }}
 		models = {{ models | jsonify}}
 		errors={}
 
@@ -114,12 +114,16 @@
 				        	<tr class='select_cell'>
 					        	<td><span >快捷</span></td>
 					        	<td><span >整表</span></td>
+					        	<td><span>查看日志</span></td>
 					        	<td v-for='head in permit.heads'><span v-text='head.label'></span></td>
 				        	</tr>
 				        	<tr class='select_cell'>
 					        	<td><input type="checkbox" name="test" value="" /></td>
 					        	<td><input type="checkbox" :id="permit.admin_name+'can__create'" value="can__create" v-model='permit.row'/>
 									<label :for="permit.admin_name+'can__create'">创建</label>
+									</td>
+								<td><input type="checkbox" :id="permit.admin_name+'can__log'" value="can__log" v-model='permit.row'/>
+									<label :for="permit.admin_name+'can__log'">允许</label>
 									</td>
 								<td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__read'" 
 										:value="head.name+'__read'" v-model="permit.row" />
@@ -131,6 +135,7 @@
 					        	<td><input type="checkbox" :id="permit.admin_name+'can__delete'"  value='can__delete' v-model='permit.row'>
 							       <label :for="permit.admin_name+'.can__delete'">删除</label>
 							       </td>
+							    <td></td>
 							    <td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__write'" 
 						           	:value="head.name+'__write'" v-model="permit.row">
 						           	<label :for="permit.admin_name+head.name+'__write'">写</label>

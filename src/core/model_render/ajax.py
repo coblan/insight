@@ -1,25 +1,17 @@
 # encoding:Utf8
 from __future__ import unicode_literals
 from django.apps import apps
+from permit import Permit
+from base import model_dc,get_admin_name_by_model,del_row
 
-# used for model render
-model_dc={
-    #'xxx_model': {'model':'xxx','table_temp':xxx,'field_temp':xxx}
-}
 
 def get_globle():
     return globals()
 
 
-def has_perm(user,perm):
-    return user.has_perm(perm)
-
-
-def get_admin_name_by_model(model):
-    if model:
-        for k,v in model_dc.items():
-            if v.get('model')==model:
-                return k
+def model_perm(user,perm,model):
+    validator = Permit(model, user)
+    return getattr(validator,perm)()
 
 def save(row,user):
     """
@@ -35,3 +27,10 @@ def save(row,user):
         return fields_obj.save_form()
     else:
         return {'errors':fields_obj.errors}
+
+
+def del_rows(rows,user):
+    for row in rows:
+        del_row(row, user)
+        
+    return {'status':'success','rows':rows}  

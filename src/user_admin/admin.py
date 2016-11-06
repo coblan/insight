@@ -4,9 +4,8 @@ from django import forms
 from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month,PermitModel
 from django.apps import apps
-from core.model_render import model_dc
-from core.tabel import ModelTable,SearchQuery
-from core.fields import ModelFields,FieldsSet
+from core.model_render import model_dc,ModelTable,ModelFields,SearchQuery,FieldsSet
+
 from django.contrib.auth.models import User,Group
 import json
 import ajax
@@ -63,13 +62,13 @@ class BasicInfoFields(ModelFields):
         print('here')
         return self.cleaned_data['name']
     
-    def can_access_instance(self):
-        access = super(BasicInfoFields,self).can_access_instance()
-        if not access:
-            perm = 'user_admin.read_basicinfo'
-            return self.crt_user.has_perm(perm)
-        else:
-            return access
+    #def can_access_instance(self):
+        #access = super(BasicInfoFields,self).can_access_instance()
+        #if not access:
+            #perm = 'user_admin.read_basicinfo'
+            #return self.crt_user.has_perm(perm)
+        #else:
+            #return access
         
     # def get_readonly_fields(self):
         # access = super(BasicInfoFields,self).can_access_instance()
@@ -172,9 +171,10 @@ class UserGroupFields(ModelFields):
     def get_context(self):
         dc = super(UserGroupFields,self).get_context()
         group = self.instance
-        if not hasattr(group,'permitmodel'):
-            group.permitmodel=PermitModel.objects.create(group=group)
-        dc['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
+        #if not hasattr(group,'permitmodel'):
+            #group.permitmodel=PermitModel.objects.create(group=group)
+        if hasattr(group,'permitmodel'):
+            dc['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
         ls = []
         # for k1,v1 in apps.all_models.items():
             # for k2,v2 in v1.items():
