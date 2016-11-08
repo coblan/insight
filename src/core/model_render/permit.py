@@ -34,7 +34,7 @@ class Permit(object):
         else:
             return 'can__delete' in self.permit_list
     
-    def can_touch(self):
+    def can_access(self):
         if self.user.is_superuser:
             return True
         elif self.readable_fields() or self.changeable_fields():
@@ -43,7 +43,10 @@ class Permit(object):
             return False
 
     def readonly_fields(self):
-        return [x for x in self.readable_fields() if x not in self.changeable_fields()]
+        if self.user.is_superuser:
+            return []
+        else:
+            return [x for x in self.readable_fields() if x not in self.changeable_fields()]
     
     def readable_fields(self):
         ls =[]
@@ -53,8 +56,11 @@ class Permit(object):
         return list(set(ls))  
     
     def changeable_fields(self):
-        ls = []
-        for perm in self.permit_list:
-            if perm.endswith('__write'):
-                ls.append(perm[0:-7])
-        return list(set(ls))
+        if self.user.is_superuser:
+            return self.model._meta.get_all_field_names()
+        else:
+            ls = []
+            for perm in self.permit_list:
+                if perm.endswith('__write'):
+                    ls.append(perm[0:-7])
+            return list(set(ls))

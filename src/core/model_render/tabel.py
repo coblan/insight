@@ -186,7 +186,8 @@ class ModelTable(Table):
         for name in self.filters:
             tmp = []
             option =[]
-            label = filter(lambda x :x.name == name,self.model._meta.fields)[0]._verbose_name,
+            field = self.model._meta.get_field(name)
+            label = field._verbose_name
             value = self.arg_filter.get(name,'')
             for x in query: # get rid of duplicated row
                 if getattr(x,name) not in tmp:

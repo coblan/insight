@@ -7,7 +7,7 @@ from user_admin.models import SalaryRecords,BasicInfo,EmployeeInfo,User,Group
 def cant_touch(model):
     def _func(user):
         validator = Permit(model, user)
-        return not validator.can_touch()
+        return not validator.can_access()
     return _func
 
 

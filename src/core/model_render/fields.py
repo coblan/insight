@@ -115,15 +115,13 @@ class ModelFields(forms.ModelForm):
         """
         used to judge if self.crt_user has right to access self.instance
         """
-        if self.crt_user.is_superuser:
-            return True
         if not self.instance.pk:
             if self.permit.can_add():
                 return True
             else:
                 return False
-        elif self.permit.readable_fields() or self.permit.changeable_fields():
-            return True
+        else:
+            return self.permit.can_access()
         # perm = self.instance._meta.app_label+'.change_'+self.instance._meta.model_name
         # return self.crt_user.has_perm(perm)
     

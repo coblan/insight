@@ -68,7 +68,7 @@
 					location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))+'&next='+btoa(location.pathname+location.search)
 				}
 			},
-			compiled:function () {
+			mounted:function () {
 				var self=this;
 				var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
 								{fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
@@ -108,7 +108,7 @@
 	
 
 	<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
-	<paginator :nums='page_nums'></paginator>
+	<paginator :nums='page_nums' @goto_page='goto_page($event)'></paginator>
 	
 
 	<!--<del-info :infos='del_info'></del-info>-->
