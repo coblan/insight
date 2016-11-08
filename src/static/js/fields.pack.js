@@ -132,6 +132,21 @@
 		}
 	}
 
+	var watch_model = {
+		props: ['name', 'value', 'kw'],
+		data: function data() {
+			return {
+				model: this.value
+			};
+		},
+		watch: {
+			model: function model(v) {
+				this.$emit('input', v);
+				console.log('from mixin');
+			}
+		}
+	};
+
 	var field_base = {
 		props: {
 			name: {
@@ -168,25 +183,35 @@
 			}
 		},
 		components: {
-			text: {
-				props: ['name', 'model', 'kw'],
-				template: '<div>\n            \t\t\t<span v-text=\'model\' v-if=\'kw.readonly\'></span>\n            \t\t\t<input v-else type="text" class="form-control" v-model="model" :id="\'id_\'+name"\n                        \t:placeholder="kw.placeholder" :autofocus="kw.autofocus" :maxlength=\'kw.maxlength\'>\n                       </div>'
+			linetext: {
+				mixins: [watch_model],
+				template: '<div>\n            \t\t\t<span v-text=\'model\' v-if=\'kw.readonly\'></span>\n            \t\t\t<input v-else type="text" class="form-control" v-model="model" :id="\'id_\'+name"\n                        \t:placeholder="kw.placeholder" :autofocus="kw.autofocus" :maxlength=\'kw.maxlength\'>\n                       </div>',
+
+				watch: {
+					model: function model(v) {
+						console.log('from self');
+					}
+				}
 
 			},
 			number: {
-				props: ['name', 'model', 'kw'],
+				mixins: [watch_model],
+				//props: ['name','model','kw'],
 				template: '<input type="number" class="form-control" v-model="model" :id="\'id_\'+name"\n                        :placeholder="kw.placeholder" :autofocus="kw.autofocus" :readonly=\'kw.readonly\'>'
 			},
 			password: {
-				props: ['name', 'model', 'kw'],
+				mixins: [watch_model],
+				//props: ['name','model','kw'],
 				template: '<input type="password" :id="\'id_\'+name" class="form-control" v-model="model" :placeholder="kw.placeholder" :readonly=\'kw.readonly\'>'
 			},
-			area: {
-				props: ['name', 'model', 'kw'],
+			blocktext: {
+				mixins: [watch_model],
+				//props: ['name','model','kw'],
 				template: '<textarea class="form-control" rows="3" :id="\'id_\'+name" v-model="model" :placeholder="kw.placeholder" :readonly=\'kw.readonly\'></textarea>'
 			},
 			color: {
-				props: ['name', 'model', 'kw'],
+				mixins: [watch_model],
+				//props:['name','model','kw'],
 				template: '<input type="text" v-model="model" :id="\'id_\'+name" :readonly=\'kw.readonly\'>',
 				watch: {
 					'model': function model() {
@@ -206,7 +231,7 @@
 						});
 					}
 				},
-				compiled: function compiled() {
+				mounted: function mounted() {
 					var self = this;
 					(0, _pkg.load_css)('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.css');
 					(0, _pkg.load_js)('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.js', function () {
@@ -215,11 +240,13 @@
 				}
 			},
 			logo: {
-				props: ['name', 'model', 'kw'],
+				//props:['name','model','kw'],
+				mixins: [watch_model],
 				template: '<logo-input :up_url="kw.up_url" :web_url.sync="model" :id="\'id_\'+name"></logo-input>'
 			},
 			sim_select: {
-				props: ['name', 'model', 'kw'],
+				//props:['name','model','kw'],
+				mixins: [watch_model],
 				template: '<select v-model=\'model\'  :id="\'id_\'+name" :readonly=\'kw.readonly\' class="form-control">\n            \t<option :value=\'null\'>----</option>\n            \t<option v-for=\'opt in kw.options\' :value=\'opt.value\' v-text=\'opt.label\'></option>\n            </select>',
 				// 添加，修改，删除的按钮代码，暂时不用。
 				//`<div><select v-model='model'  :id="'id_'+name" :readonly='kw.readonly'>
@@ -294,7 +321,8 @@
 				}
 			},
 			tow_col: {
-				props: ['name', 'model', 'kw'],
+				//props:['name','model','kw'],
+				mixins: [watch_model],
 				template: '<div>\n\t        \t<ul v-if=\'kw.readonly\'><li v-for=\'value in model\' v-text=\'get_label(value)\'></li></ul>\n\t        \t<tow-col-sel v-else :selected.sync=\'model\' :id="\'id_\'+name" :choices=\'kw.options\' :size=\'kw.size\' ></tow-col-sel>\n\t        \t</div>',
 				methods: {
 					get_label: function get_label(value) {
@@ -308,7 +336,7 @@
 				}
 			},
 			bool: {
-				props: ['name', 'model', 'kw'],
+				mixins: [watch_model],
 				template: '<div class="checkbox">\n\t\t\t\t\t    <label><input type="checkbox" :id="\'id_\'+name" v-model=\'model\' disabled="kw.readonly">\n\t\t\t\t\t    \t<span v-text=\'kw.label\'></span>\n\t\t\t\t\t    </label>\n\t\t\t\t\t  </div>'
 			}
 		}
@@ -317,7 +345,7 @@
 	//'set.label_cls'   set.input_cls
 	Vue.component('field', {
 		mixins: [field_base],
-		template: '\n\t<div for=\'field\' class="form-group field" :class=\'{"error":error_data(name)}\'>\n\t<label :for="\'id_\'+name" v-text="head.label" class="control-label" v-if=\'!head.no_auto_label\'>\n\t\t<span class="req_star" v-if=\'head.required\'> *</span>\n\t</label>\n\t<div class="field_input">\n        <component :is=\'head.type\'\n            :model.sync=\'row[name]\'\n            :name=\'name\'\n            :kw=\'head\'>\n        </component>\n\t</div>\n\t<slot> </slot>\n\t<div v-text=\'error_data(name)\' class=\'error\'></div>\n    </div>\n'
+		template: '\n\t<div for=\'field\' class="form-group field" :class=\'{"error":error_data(name)}\'>\n\t<label :for="\'id_\'+name" v-text="head.label" class="control-label" v-if=\'!head.no_auto_label\'>\n\t\t<span class="req_star" v-if=\'head.required\'> *</span>\n\t</label>\n\t<div class="field_input">\n        <component :is=\'head.type\'\n            v-model=\'row[name]\'\n            :name=\'name\'\n            :kw=\'head\'>\n        </component>\n\t</div>\n\t<slot> </slot>\n\t<div v-text=\'error_data(name)\' class=\'error\'></div>\n    </div>\n'
 
 	});
 
@@ -514,7 +542,7 @@
 
 	if (!window.__uploading_mark) {
 		window.__uploading_mark = true;
-		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t    position: absolute;\n        top: 50%;\n        left: 50%;\n        transform: translate(-50%, -50%);\n        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t-webkit-transform:translate(-50%, -50%); /* Safari \uFFFD\uFFFD Chrome */\n\t\t-o-transform:translate(-50%, -50%); \n\t\t\n        text-align: center;\n\t\t/*display: table;*/\n        z-index: 1000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
+		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t    position: absolute;\n        top: 50%;\n        left: 50%;\n        transform: translate(-50%, -50%);\n        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t-webkit-transform:translate(-50%, -50%); /* Safari �� Chrome */\n\t\t-o-transform:translate(-50%, -50%); \n\t\t\n        text-align: center;\n\t\t/*display: table;*/\n        z-index: 1000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
 		$(function () {
 			$('body').append('<div class="popup" id="load_wrap"><div id=\'_upload_inn\' class="imiddle">\n\t\t<div  id="_upload_mark" class="imiddle"><i class="fa fa-spinner fa-spin fa-3x"></i></div></div></div>');
 		});
@@ -711,7 +739,7 @@
 		document.write('\n\t\n<style type="text/css" media="screen" id="test">\n._tow-col-sel .sel{\n\twidth:250px;\n\tdisplay: inline-block;\n\tvertical-align: middle;\n}\n._tow-col-sel .sel.right{\n\tborder-width:2px;\n}\n._tow-col-sel ._small_icon{\n\twidth:15px;\n}\n._tow-col-sel ._small_icon.deactive{\n\topacity: 0.5;\n\t-moz-opacity: 0.5;\n\tfilter:alpha(opacity=50);\n}\n</style>\n\n\t');
 	}
 
-	var temp_tow_col_sel = '\n<div class=\'_tow-col-sel\'>\n\t\t<select name="" id="" multiple="multiple" :size="size" class=\'sel left\' v-model=\'left_sel\' >\n\t\t\t<option v-for=\'opt in can_select |orderBy "label"\' :value="opt.value" v-text=\'opt.label\' @dblclick=\'add(opt)\' ></option>\n\t\t</select>\n\t\t<div style=\'display: inline-block;vertical-align: middle;\'>\n\t\t\t<img src="http://oe8wu3kqs.bkt.clouddn.com/image/right_02.png" alt="" \n\t\t\t\t:class=\'["_small_icon",{"deactive":left_sel.length==0}]\' @click=\'batch_add()\'>\n\t\t\t<br>\n\t\t\t<img src="http://oe8wu3kqs.bkt.clouddn.com/image/left_02.png" alt="" \n\t\t\t\t:class=\'["_small_icon",{"deactive":right_sel.length==0}]\' @click=\'batch_rm()\'>\n\t\t</div>\n\t\t\n\t\t<select name="" id="" multiple="multiple" :size="size" class=\'sel right\' v-model=\'right_sel\' >\n\t\t\t<option v-for=\'opt in selected__ |orderBy "label"\' :value="opt.value" v-text=\'opt.label\' @dblclick=\'rm(opt)\'></option>\n\t\t</select>\n</div>\n';
+	var temp_tow_col_sel = '\n<div class=\'_tow-col-sel\'>\n\t\t<select name="" id="" multiple="multiple" :size="size" class=\'sel left\' v-model=\'left_sel\' >\n\t\t\t<option v-for=\'opt in orderBy(can_select,"label")\' :value="opt.value" v-text=\'opt.label\' @dblclick=\'add(opt)\' ></option>\n\t\t</select>\n\t\t<div style=\'display: inline-block;vertical-align: middle;\'>\n\t\t\t<img src="http://oe8wu3kqs.bkt.clouddn.com/image/right_02.png" alt="" \n\t\t\t\t:class=\'["_small_icon",{"deactive":left_sel.length==0}]\' @click=\'batch_add()\'>\n\t\t\t<br>\n\t\t\t<img src="http://oe8wu3kqs.bkt.clouddn.com/image/left_02.png" alt="" \n\t\t\t\t:class=\'["_small_icon",{"deactive":right_sel.length==0}]\' @click=\'batch_rm()\'>\n\t\t</div>\n\t\t\n\t\t<select name="" id="" multiple="multiple" :size="size" class=\'sel right\' v-model=\'right_sel\' >\n\t\t\t<option v-for=\'opt in orderBy(selected__,"label")\' :value="opt.value" v-text=\'opt.label\' @dblclick=\'rm(opt)\'></option>\n\t\t</select>\n</div>\n';
 
 	Vue.component('tow-col-sel', {
 		template: temp_tow_col_sel,
@@ -732,7 +760,7 @@
 				right_sel: []
 			};
 		},
-		compiled: function compiled() {
+		mounted: function mounted() {
 			for (var x = 0; x < this.selected.length; x++) {
 				for (var y = 0; y < this.choices.length; y++) {
 					if (this.choices[y].value == this.selected[x]) {
@@ -743,7 +771,19 @@
 				}
 			}
 		},
+
 		methods: {
+			orderBy: function orderBy(array, key) {
+				return array.slice().sort(function (a, b) {
+					if (a[key] > b[key]) {
+						return 1;
+					} else if (a[key] < b[key]) {
+						return -1;
+					} else {
+						return 0;
+					}
+				});
+			},
 			add: function add(opt) {
 				this.selected__.push(opt);
 				this.selected.push(opt.value);

@@ -183,9 +183,9 @@ def form_to_head(form,include=None):
         dc = {'name':k,'label':unicode(v.label),'required':v.required,}
         if v.__class__==forms.fields.CharField:
             if v.max_length:
-                dc.update({'type':'text','maxlength':v.max_length})
+                dc.update({'type':'linetext','maxlength':v.max_length})
             else:
-                dc.update({'type':'area'})
+                dc.update({'type':'blocktext'})
         elif v.__class__==forms.fields.BooleanField:
             dc['type']='bool'
             dc['no_auto_label']=True
@@ -198,7 +198,7 @@ def form_to_head(form,include=None):
              isinstance(v.widget,forms.widgets.Select):
             dc['type'] = 'sim_select'
         else:
-            dc.update({'type':'text'})
+            dc.update({'type':'linetext'})
         out.append(dc)
     return out
 

@@ -43,10 +43,7 @@ if (!String.prototype.startsWith) {
   };
 }
 
-Array.prototype.each = function(fun) 
+Array.prototype.each = function(fn) 
 { 
-	for(var i=0;i<this.length;i++){
-		fun(this[i])
-	}
-//return this.length ? [fn(this.slice(0,1))].concat(this.slice(1).each(fn)) : []; 
+return this.length ? [fn(this.slice(0,1))].concat(this.slice(1).each(fn)) : []; 
 };
