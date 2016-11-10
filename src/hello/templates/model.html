@@ -65,7 +65,11 @@
 						}
 					}
 					
-					location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))+'&next='+btoa(location.pathname+location.search)
+					//location="{% url "model" "del_rows" %}?rows="+btoa(JSON.stringify(inst_ls))+'&next='+btoa(location.pathname+location.search)   
+					var path = '{% url "model" "del_rows" %}'
+					location=ex.template("{path}?rows={rows}&next={next}",{path:path,
+																		rows:btoa(JSON.stringify(inst_ls)),
+																		next:btoa(location.pathname+location.search)})
 				}
 			},
 			mounted:function () {
@@ -107,7 +111,7 @@
 	
 	
 
-	<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' :selected='selected'></sort-table>
+	<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>
 	<paginator :nums='page_nums' @goto_page='goto_page($event)'></paginator>
 	
 
