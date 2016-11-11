@@ -104,7 +104,7 @@ class UserFields(ModelFields):
     # age = forms.CharField(label='年龄')
     
     def pop_fields(self):
-        pass
+        self.fields.pop('user_permissions')
         # if not hasattr(self.instance,'basicinfo'):
             # self.fields.pop('age')
 

@@ -55,8 +55,8 @@
 
 	<div id='there'>
 		<h1>就要删除的记录是：</h1>
-		<div v-for='info in infos'>
-			<h3 v-text='$key'></h3>
+		<div v-for='(info,key) in infos'>
+			<h3 v-text='key'></h3>
 			<ul>
 				<li v-for='item in info'>
 					<span v-text='item.str'></span>
