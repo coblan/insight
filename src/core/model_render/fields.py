@@ -14,7 +14,9 @@ from authuser.models import LogModel
 
 class ModelFields(forms.ModelForm):
     """
-    Only @model is must
+    参数组合
+    1. pk,crt_user 开始编辑的时候
+    2. dc,crt_user 保存的时候
     """
 
     def __init__(self,dc={},pk=None,crt_user=None,*args,**kw):

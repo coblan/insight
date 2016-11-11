@@ -14,23 +14,6 @@ from core.container import evalue_container
 from base import model_dc,get_admin_name_by_model
 import ajax
 
-
-
-def get_url(name):
-    pass
-
-#def get_admin_name_by_model(model):
-    #if model:
-        #for k,v in model_dc.items():
-            #if v.get('model')==model:
-                #return k
-
-# def get_fields_by_name(name):
-    # for k,v in model_dc.items():
-        # if k.lower()==name.lower():
-            # return v.get('fields')
-        
-
 class Render(object):
     def __init__(self,request,url,table_temp,fields_temp,del_rows_temp,menu):
         """
