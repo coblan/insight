@@ -2,13 +2,18 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
-from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month,PermitModel
+from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
-from core.model_render import model_dc,ModelTable,ModelFields,SearchQuery,FieldsSet
-
+from director.model_admin.fields import ModelFields
+from director.model_admin.tabel import ModelTable 
+from director.model_admin.render import model_render_dc
+from director.model_admin.permit import permit_dc
+from director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
 import json
 import ajax
+
+
 
 
 # Register your models here.
@@ -19,7 +24,7 @@ admin.site.register(Fore)
 admin.site.register(EmployeeInfo)
 admin.site.register(SalaryRecords)
 admin.site.register(Month)
-admin.site.register(PermitModel)
+#admin.site.register(PermitModel)
 
 
 class BasicInfoTable(ModelTable):
@@ -169,12 +174,12 @@ class UserGroupFields(ModelFields):
                 # head['size']=20
         # return heads
     def get_context(self):
-        dc = super(UserGroupFields,self).get_context()
+        ctx = super(UserGroupFields,self).get_context()
         group = self.instance
         #if not hasattr(group,'permitmodel'):
             #group.permitmodel=PermitModel.objects.create(group=group)
         if hasattr(group,'permitmodel'):
-            dc['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
+            ctx['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
         ls = []
         # for k1,v1 in apps.all_models.items():
             # for k2,v2 in v1.items():
@@ -182,9 +187,9 @@ class UserGroupFields(ModelFields):
         for k,v in model_dc.items():
             if v.has_key('model'):
                 ls.append({'name':k,'label':v.get('label',k)})
-        dc['models']=ls
+        ctx['models']=ls
         
-        return dc
+        return ctx
 
 
 class EmployeeTable(ModelTable):
@@ -208,70 +213,70 @@ class EmployeeFields(ModelFields):
         model=EmployeeInfo
         fields=['employ_id','position','salary_level','baseinfo']
 
-class EmployeeSet(FieldsSet):
-    template='fieldsset.html'
-    def get_context(self):
-        ctx={}
-        if self.pk:
-            employee = EmployeeInfo.objects.get(pk=self.pk)
-        else:
-            employee= EmployeeInfo()
-        em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
-        em_context=em_form.get_context()
-        em_context['label']='员工信息'
+#class EmployeeSet(FieldsSet):
+    #template='fieldsset.html'
+    #def get_context(self):
+        #ctx={}
+        #if self.pk:
+            #employee = EmployeeInfo.objects.get(pk=self.pk)
+        #else:
+            #employee= EmployeeInfo()
+        #em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
+        #em_context=em_form.get_context()
+        #em_context['label']='员工信息'
       
-        ctx['employee_info']=em_context
+        #ctx['employee_info']=em_context
         
-        if hasattr(employee,'baseinfo') and employee.baseinfo:
-            bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
-            bs_context=bs.get_context()
-            bs_context['label']='基本信息'
-            ctx['bs_info']=bs_context
+        #if hasattr(employee,'baseinfo') and employee.baseinfo:
+            #bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
+            #bs_context=bs.get_context()
+            #bs_context['label']='基本信息'
+            #ctx['bs_info']=bs_context
             
-            if hasattr(employee.baseinfo,'user'):
-                user_form = UserFields(instance=employee.baseinfo.user,crt_user=self.crt_user)
-                user_context=user_form.get_context()
-                user_context['label']='账号信息'
+            #if hasattr(employee.baseinfo,'user'):
+                #user_form = UserFields(instance=employee.baseinfo.user,crt_user=self.crt_user)
+                #user_context=user_form.get_context()
+                #user_context['label']='账号信息'
 
-                ctx['user_account']=user_context   
-        return ctx
+                #ctx['user_account']=user_context   
+        #return ctx
 
 
-class EmployeeProd(FieldsSet):
-    template='user_admin/employee.html'
-    def get_context(self):
-        if self.pk:
-            employee = EmployeeInfo.objects.get(pk=self.pk)
-        else:
-            employee= EmployeeInfo()
-        em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
-        em_form.fields.pop('baseinfo')
-        em_context=em_form.get_context()
-        em_context['label']='员工信息'
+#class EmployeeProd(FieldsSet):
+    #template='user_admin/employee.html'
+    #def get_context(self):
+        #if self.pk:
+            #employee = EmployeeInfo.objects.get(pk=self.pk)
+        #else:
+            #employee= EmployeeInfo()
+        #em_form = EmployeeFields(instance=employee,crt_user=self.crt_user)
+        #em_form.fields.pop('baseinfo')
+        #em_context=em_form.get_context()
+        #em_context['label']='员工信息'
       
-        if not hasattr(employee,'baseinfo'):
-            employee.baseinfo=BasicInfo()
+        #if not hasattr(employee,'baseinfo'):
+            #employee.baseinfo=BasicInfo()
 
-        bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
-        bs_context=bs.get_context()
-        bs_context['label']='基本信息'
-        return {'employee_info':em_context,'bs_info':bs_context}
+        #bs = BasicInfoFields(instance=employee.baseinfo,crt_user=self.crt_user)
+        #bs_context=bs.get_context()
+        #bs_context['label']='基本信息'
+        #return {'employee_info':em_context,'bs_info':bs_context}
     
 
-class SalarySearch(SearchQuery):
-    def get_query(self,query,q,crt_user):
-        try:
-            return query.filter(empoyee__id__icontains=int(q))
-        except:
-            return query.filter(empoyee__baseinfo__name__icontains=q)
+#class SalarySearch(SearchQuery):
+    #def get_query(self,query,q,crt_user):
+        #try:
+            #return query.filter(empoyee__id__icontains=int(q))
+        #except:
+            #return query.filter(empoyee__baseinfo__name__icontains=q)
     
-    def get_placeholder(self):
-        return '员工ID或者姓名'
+    #def get_placeholder(self):
+        #return '员工ID或者姓名'
     
 class SalaryTabel(ModelTable):
     model=SalaryRecords
     include=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']
-    search_fields=[SalarySearch()]
+    #search_fields=[SalarySearch()]
     
     def get_heads(self):
         heads = super(SalaryTabel,self).get_heads()
@@ -295,10 +300,31 @@ class SalaryFields(ModelFields):
         fields=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']        
 
 
-model_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
-model_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
-model_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
-model_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
-model_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
-model_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
-model_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
+
+class BaseinfoTablePage(TablePage):
+    tableCls=BasicInfoTable
+    #def __init__(self,request):
+        #super(BaseinfoTablePage,self).__init__(request)
+    
+    #def get_context(self):
+        #return self.table.get_context()
+
+class BaseinfoFormPage(object):
+    template=''
+    def get_context(self):
+        return BasicInfoFields().get_context()
+    
+
+permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
+permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
+permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
+
+#model_render_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
+model_render_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
+model_render_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
+model_render_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
+#model_render_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
+#model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
+model_render_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
+
+model_render_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}

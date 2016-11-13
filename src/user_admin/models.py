@@ -5,10 +5,6 @@ from django.contrib.auth.models import User,Group
 from django.db import models
 
 
-class PermitModel(models.Model):
-    group = models.OneToOneField(Group,verbose_name='group')
-    # model = models.CharField('model',max_length=200, default='')
-    permit = models.TextField(verbose_name='permit',default='[]')
     
 
 

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib import auth 
 from core.db_tools import get_or_none,from_dict
-from forms import AuthForm,LoginForm
+from director.forms import AuthForm,LoginForm
 
 
 def get_globe():

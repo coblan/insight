@@ -13,9 +13,9 @@
 	sort={{sort | jsonify | default:'[]' }}
 	heads={{ heads | jsonify | default:'[]'}}
 	rows={{ rows | jsonify | default:'[]'}}
-	page_nums = {{ page_nums | jsonify}}
+	page_choice = {{ page_choice | jsonify}}
 	model ="{{ model }}"
-
+	url_args=ex.parseSearch()
 
 	$(function () {
 		new Vue({
@@ -26,7 +26,7 @@
 		        crt_page:{},
 		        filters:filters,
 		        sort:sort,
-		        page_nums:page_nums,
+		        page_choice:page_choice,
 		        q:q,
 		        placeholder:placeholder,
 		        selected:[],
@@ -34,7 +34,9 @@
 		        menu:menu,
 		        can_add:false,
 		        can_del:false,
-		        model:model
+		        model:model,
+		        url_args:url_args,
+		        
 			},
 			mixins:[build_table_args],
 			methods:{

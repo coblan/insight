@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from core.port import jsonpost
 from django.core.urlresolvers import reverse
-from ajax import get_globe
+import auth_user.ajax as auth_ajax
 import json
 from core.db_tools import form_to_head
 from forms import AuthForm
@@ -21,7 +21,7 @@ def login(request):
         return render(request,'authuser/login.html',context=dc)
   
     elif request.method=='POST':
-        return jsonpost(request,get_globe())
+        return jsonpost(request,auth_ajax.get_globe())
     
 @ensure_csrf_cookie
 def regist_user(request):
@@ -32,7 +32,7 @@ def regist_user(request):
         }
         return render(request,'authuser/regist.html',context=dc)
     elif request.method=='POST':
-        return jsonpost(request,get_globe()) 
+        return jsonpost(request,auth_ajax.get_globe()) 
 
 
 def logout(request):
@@ -49,6 +49,6 @@ def change_pswd(request):
         return render(request,'authuser/changepswd.html',context=dc)
     elif request.method=='POST':
         #try:
-        return jsonpost(request,get_globe())  
+        return jsonpost(request,auth_ajax.get_globe())  
         #except UserWarning as e:
             #return HttpResponse(json.dumps({'status':'fail','msg':str(e)}),content_type="application/json")

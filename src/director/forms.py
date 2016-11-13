@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from core.db_tools import get_or_none
+from db_tools import get_or_none
 from django.contrib import auth 
 
 class AuthForm(forms.ModelForm):
