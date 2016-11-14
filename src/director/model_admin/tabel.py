@@ -1,3 +1,5 @@
+# encoding:utf8
+
 from __future__ import unicode_literals
 
 from core.db_tools import to_dict,model_to_head,model_stringfy
@@ -45,30 +47,7 @@ class PageNum(object):
         return {'choice':page_nums,'crt_page':self.pageNumber}    
     
 
-class Table(object):
-    per_page=30
-    def __init__(self,page=1,sort=[],filter={},q='',crt_user=None):
-        self.page=page
-        self.sort=sort
-        self.arg_filter=filter 
-        self.q = q
-        self.crt_user=crt_user
-        
-    
-    def get_heads(self):
-        pass
-    def get_sort(self):
-        return self.sort
-    
-    def get_rows(self):
-        pass
-    
-    def get_page(self):
-        pass
-    
-    def get_options(self):
-        pass
-    
+  
 class ModelTable(object):
     """
     
@@ -80,10 +59,7 @@ class ModelTable(object):
     get_rows(self):
         return [{}]
     
-    get_page_nums(self):
-        return ['1','2_a','3']
-        this method should be called after **get_rows**.
-    
+
     over-load Method:
     =================
     inn_filter(self,query):
@@ -95,36 +71,45 @@ class ModelTable(object):
     sortable=[]
     include=[]
     perPage=30
-    search_fields=[]
+    search_names=[]
     placeholder=''
-    filters=[]
-    def __init__(self,page=1,sort=[],filter={},q={},crt_user=None):
+    filter_names=[]
+    def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None):
         self.page=page
-        self.sort=sort
-        self.arg_filter=filter 
-        self.q = q
+        self.row_sort=row_sort
+        self.row_filter=row_filter 
+        self.row_search = row_search
         self.crt_user=crt_user 
-        field_names = [x.name for x in self.model._meta.fields]
-        self.arg_filter={}
-        for k,v in filter.items():
-            if k in field_names:
-                self.arg_filter[k]=v
+        #field_names = [x.name for x in self.model._meta.fields]
+        self.row_filter=row_filter
         
         
         
     @classmethod
     def parse_request(cls,request):
+        """
+        传入参数的形式：
+        row_search: key=value&..
+        row_sort: _sort=key1,-key2
+        page: _page=1
+        row_filter:key=value&..
+        """
         kw = request.GET.dict()
         page = kw.pop('_page','1')
-        sort = kw.pop('_sort','').split(',')
-        q=kw.pop('_q','')
-        sort=filter(lambda x: x!='',sort)
-        arg_filter={}
-        for k in cls.filters:
+        row_sort = kw.pop('_sort','').split(',')
+        row_sort=filter(lambda x: x!='',row_sort)
+        row_search={}
+        for k in cls.search_names:
+            arg=kw.pop(k,None)
+            if arg:
+                row_search[k]=arg
+        
+        row_filter={}
+        for k in cls.filter_names:
             arg = kw.pop(k,None)
             if arg:
-                arg_filter[k]=arg
-        return cls(page,sort,arg_filter,q,request.user)    
+                row_filter[k]=arg
+        return cls(page,row_sort,row_filter,row_search,request.user)    
         
     def get_context(self):
         return {
@@ -179,7 +164,7 @@ class ModelTable(object):
     def search_filter(self,query):
         for field in self.search_fields:
             kw ={}
-            kw['%s__icontains'%field] =self.q            
+            kw['%s__icontains'%field] =self.row_search            
         return query
     
     def sort_filter(self,query):
@@ -187,24 +172,24 @@ class ModelTable(object):
         return query
     
     def out_filter(self,query):
-        if self.search_fields and self.q:
+        if self.search_fields and self.row_search:
             exp = None
             for field in self.search_fields:
                 if isinstance(field,SearchQuery):
-                    query=field.get_query(query,self.q,self.crt_user)
+                    query=field.get_query(query,self.row_search,self.crt_user)
                 else:
                     kw ={}
-                    kw['%s__icontains'%field] =self.q
+                    kw['%s__icontains'%field] =self.row_search
                     if exp is None:
                         exp = Q(**kw)
                     else:
                         exp = exp | Q(**kw)
             if exp:
                 query= query.filter(exp)
-        if self.sort:
-            return query.filter(**self.arg_filter).order_by(*self.sort)
+        if self.row_sort:
+            return query.filter(**self.row_filter).order_by(*self.row_sort)
         else:
-            return query.filter(**self.arg_filter)
+            return query.filter(**self.row_filter)
     
     def get_options(self):
         query = self.inn_filter(self.model.objects.all())
@@ -214,7 +199,7 @@ class ModelTable(object):
             option =[]
             field = self.model._meta.get_field(name)
             label = field._verbose_name
-            value = self.arg_filter.get(name,'')
+            value = self.row_filter.get(name,'')
             for x in query: # get rid of duplicated row
                 if getattr(x,name) not in tmp:
                     tmp.append(getattr(x,name))
