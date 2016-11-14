@@ -17,10 +17,13 @@ def get_or_none(model, **kw):
     except IndexError:
         return None
 
-def model_stringfy(model):
+def model_to_name(model):
+    """
+    @model: model or instance
+    """
     return model._meta.app_label+'.'+model._meta.model_name
 
-def model_parse(app_model_string):
+def name_to_model(app_model_string):
     return apps.get_model(app_model_string)
     
 

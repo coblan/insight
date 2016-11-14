@@ -1,7 +1,7 @@
 # encoding:utf-8
 from __future__ import unicode_literals
 from django import forms
-from core.db_tools import form_to_head,to_dict,get_or_none,delete_related_query,get_model_label,from_dict,model_stringfy
+from director.db_tools import form_to_head,to_dict,get_or_none,delete_related_query,model_to_name,from_dict,name_to_model
 from django.http import Http404
 import json
 from django.db import models
@@ -18,6 +18,7 @@ class ModelFields(forms.ModelForm):
     1. pk,crt_user 编辑，读取的时候
     2. instance,crt_user 编辑，读取的时候
     3. dc,crt_user 保存修改的时候
+    4. crt_user 新建的时候
     
     """
 
@@ -91,22 +92,7 @@ class ModelFields(forms.ModelForm):
             for head in heads:
                 if head['name']==name:
                     head['readonly']=True 
-        #for head in heads:
-            #field = self.instance._meta.get_field(head['name'])
-            #if isinstance(field,(models.OneToOneField,models.ForeignKey)):
-                #related = field.related_model
-                #app = related._meta.app_label
-                #model_name=related._meta.model_name
-                #admin_name = get_admin_name_by_model(related)
-                #if admin_name:
-                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
-                        #head['add_url']=reverse('model',args=(admin_name,))
-                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
-                        #head['change_url']=reverse('model',args=(admin_name,))
-                    #if self.crt_user.has_perm('%s.add_%s'%(app,model_name)):
-                        #head['del_url']=reverse('model',args=('del_rows/',))
-                        #head['_class']='%s.%s'%(app,model_name)
-            
+
         return heads
     
     def can_access_instance(self):
@@ -193,14 +179,18 @@ class ModelFields(forms.ModelForm):
         self.instance.save()
         
         if op:
-            log =LogModel(key='{model_label}.{pk}'.format(model_label=get_model_label(self.instance),pk=self.instance.pk),op=op,user=self.crt_user,detail=detail)
+            log =LogModel(key='{model_label}.{pk}'.format(model_label=model_to_name(self.instance),pk=self.instance.pk),kind=op,user=self.crt_user,detail=detail)
             log.save()
-        return {'status':'success','pk':self.instance.pk,'_class':get_model_label(self.instance)}
+        return {'status':'success','pk':self.instance.pk,'_class':model_to_name(self.instance)}
     
-    def del_instance(self):
-        del_perm = self.instance._meta.app_label+'.del_'+self.instance._meta.model_name
-        if self.crt_user.has_perm(del_perm):
-            self.instance.delete()
+    def del_form(self):
+        if self.permit.can_del():
+            self.instance.detete()
+        else:
+            raise PermissionDenied('No permission to delete %s'%str(self.instance))
+        # del_perm = self.instance._meta.app_label+'.del_'+self.instance._meta.model_name
+        # if self.crt_user.has_perm(del_perm):
+            # self.instance.delete()
 
     
     

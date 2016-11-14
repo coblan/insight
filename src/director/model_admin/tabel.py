@@ -5,6 +5,7 @@ import json
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from permit import Permit
+from director.db_tools import model_to_name
 #from forms import MobilePageForm
 
 
@@ -24,7 +25,7 @@ class PageNum(object):
     def get_choice(self):
         """
         rt: {'choice':[1,2,3,4,...,100],
-             'page':2
+             'crt_page':2
             }
         """
         choice_len = len(self.pagenator.page_range)
@@ -41,7 +42,7 @@ class PageNum(object):
         for i in range(len(page_nums)):
             num = page_nums[i]
         page_nums=[str(x) for x in page_nums]
-        return {'choice':page_nums,'page':self.pageNumber}    
+        return {'choice':page_nums,'crt_page':self.pageNumber}    
     
 
 class Table(object):
@@ -68,7 +69,7 @@ class Table(object):
     def get_options(self):
         pass
     
-class ModelTable(Table):
+class ModelTable(object):
     """
     
     Getter Method:
@@ -98,12 +99,17 @@ class ModelTable(Table):
     placeholder=''
     filters=[]
     def __init__(self,page=1,sort=[],filter={},q={},crt_user=None):
-        super(ModelTable,self).__init__(page,sort,filter,q,crt_user)
+        self.page=page
+        self.sort=sort
+        self.arg_filter=filter 
+        self.q = q
+        self.crt_user=crt_user 
         field_names = [x.name for x in self.model._meta.fields]
         self.arg_filter={}
         for k,v in filter.items():
             if k in field_names:
                 self.arg_filter[k]=v
+        
         
         
     @classmethod
@@ -120,7 +126,7 @@ class ModelTable(Table):
                 arg_filter[k]=arg
         return cls(page,sort,arg_filter,q,request.user)    
         
-    def get_context(self,user):
+    def get_context(self):
         return {
             'heads':self.get_heads(),
             'rows': self.get_rows(),
@@ -129,12 +135,12 @@ class ModelTable(Table):
             #'sort':self.get_sort(),
             #'q': self.q ,
             'placeholder':self.get_placeholder(),
-            'model':model_stringfy(self.model),
+            'model':model_to_name(self.model),
         }
        
     
     def permited_fields(self):
-        self.permit=Permit(model=self.model, user=crt_user)
+        self.permit=Permit(model=self.model, user=self.crt_user)
         return self.permit.readable_fields()
     
     def get_heads(self):

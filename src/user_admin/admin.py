@@ -6,7 +6,7 @@ from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
 from director.model_admin.fields import ModelFields
 from director.model_admin.tabel import ModelTable 
-from director.model_admin.render import model_render_dc
+from director.model_admin.render import model_page_dc,model_dc
 from director.model_admin.permit import permit_dc
 from director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
@@ -49,8 +49,8 @@ class BasicInfoTable(ModelTable):
                 row['salary']=baseinfo.employeeinfo.salary_level
         return rows        
     
-    def get_context(self, user):
-        dc = super(BasicInfoTable,self).get_context(user)
+    def get_context(self):
+        dc = super(BasicInfoTable,self).get_context()
         dc['hh']={'jj':'<div>yy</div>'}
         return dc
 
@@ -64,7 +64,6 @@ class BasicInfoFields(ModelFields):
         return ['name','age']
     
     def clean_name(self):
-        print('here')
         return self.cleaned_data['name']
     
     #def can_access_instance(self):
@@ -309,22 +308,23 @@ class BaseinfoTablePage(TablePage):
     #def get_context(self):
         #return self.table.get_context()
 
-class BaseinfoFormPage(object):
-    template=''
-    def get_context(self):
-        return BasicInfoFields().get_context()
+class BaseinfoFormPage(FormPage):
+    fieldsCls=BasicInfoFields
+    # def get_context(self):
+        # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
     
 
 permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
 permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
 permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
 
+model_dc[BasicInfo]={'fields':BasicInfoFields}
 #model_render_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
-model_render_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
-model_render_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
-model_render_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
+model_page_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
+model_page_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
+model_page_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
 #model_render_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
 #model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
-model_render_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
+model_page_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
 
-model_render_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
+model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}

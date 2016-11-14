@@ -1,11 +1,18 @@
-from __future__ import unicode_literals
+# encoding:utf8
 
+from __future__ import unicode_literals
+from director.db_tools import model_to_name
 from django.apps import apps
 import json
 
 permit_dc={}
 
 class Permit(object):
+    """
+    以json的形式存储于permitModel数据库
+    
+    [{'model':'app.App',}]
+    """
     def __init__(self,model,user):
         self.user=user
         if isinstance(model,(str,unicode)):
@@ -15,12 +22,12 @@ class Permit(object):
         self._init_perm()
     
     def _init_perm(self):
-        admin_name = get_admin_name_by_model(self.model)
+        model_name = model_to_name(self.model)
         for group in self.user.groups.all():
             if hasattr(group,'permitmodel'):
                 permits = json.loads( group.permitmodel.permit )
                 for permit in permits:
-                    if permit.get('admin_name') == admin_name:
+                    if permit.get('model') == model_name:
                         self.permit_list.extend(permit.get('row'))
         self.permit_list=list(set(self.permit_list))
                 

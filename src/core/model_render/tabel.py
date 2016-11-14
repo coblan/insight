@@ -123,7 +123,7 @@ class ModelTable(Table):
             'sort':self.get_sort(),
             'q': self.q ,
             'placeholder':self.get_placeholder(),
-            'model':model_stringfy(self.model),
+            'model':model_to_name(self.model),
         }
        
 
