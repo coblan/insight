@@ -15,16 +15,16 @@ from django.core.paginator import Paginator
 
 
 class PageNum(object):
-    def __init__(self,query,perPage=30,pageNumber=1):
-        self.pagenator = Paginator(query,perPage)
-        self.query = query
+    perPage=30
+    def __init__(self,pageNumber=1,kw={}):
         self.pageNumber = int(pageNumber)
-        self.perPage=perPage
     
-    def get_rows(self):
+    def get_query(self,query):
+        self.pagenator = Paginator(query,self.perPage)
+        self.query = query        
         return self.pagenator.page(self.pageNumber)
     
-    def get_choice(self):
+    def get_context(self):
         """
         rt: {'choice':[1,2,3,4,...,100],
              'crt_page':2
@@ -46,24 +46,109 @@ class PageNum(object):
         page_nums=[str(x) for x in page_nums]
         return {'choice':page_nums,'crt_page':self.pageNumber}    
     
-class SearchQuery(object):
+class RowSearch(object):
     names=[]
-    def __init__(self,dc,user,allowed_names):
-        self.search_args={}
+    model=''
+    def __init__(self,q,user,allowed_names,kw={}):
+        self.valid_name=[x for x in self.names if x in allowed_names]
+        self.crt_user=user
+        self._names=[x for x in self.names if x in allowed_names]        
+        self.q=q
+        #for k in self.names:
+            #v = dc.pop(k,None)
+            #if v:
+                #self.search_args[k]=v
+         
+    def get_context(self):
+        """
+        """
+        if self.valid_name:
+            ls=[]
+            for name in self.valid_name:
+                ls.append(self.model._meta.get_field(name).verbose_name)
+            return ','.join(ls)
+        else:
+            return None
+    
+    def get_query(self,query):
+        if self.q:
+            exp=None
+            for name in self.valid_name:
+                kw ={}
+                kw['%s__icontains'%name] =self.q    
+                if exp is None:
+                    exp = Q(**kw)
+                else:
+                    exp = exp | Q(**kw) 
+            return query.filter(exp)
+        else:
+            return query
+
+class RowFilter(object):
+    names=[]
+    def __init__(self,dc,user,allowed_names,kw={}):
+        self.valid_name=[x for x in self.names if x in allowed_names]
+        self.crt_user=user
+        self._names=[x for x in self.names if x in allowed_names]        
+        self.filter_args={}
         for k in self.names:
             v = dc.pop(k,None)
             if v:
-                self.search_args[k]=v
-        
-        self.crt_user=user
-        self._names=[x for x in self.names if x in allowed_names]
-            
+                self.filter_args[k]=v    
+    
     def get_context(self):
-        return 
+        ls=[]
+        for name in self.valid_name:
+            ls.append({'name':name,'option':self.get_options(name)})
+        return ls
+      
+    def get_query(self,query):
+        self.query=query
+        return query    
+    
+    def get_options(self,name):
+        ls = list(set(self.query.value_list(name)))
+        return ls
+    
+        #options=[]
+        #for name in self.valid_name:
+            #tmp = []
+            #option =[]
+            #field = self.model._meta.get_field(name)
+            #label = field._verbose_name
+            #value = self.row_filter.get(name,'')
+            #for x in self._query: # get rid of duplicated row
+                #if getattr(x,name) not in tmp:
+                    #tmp.append(getattr(x,name))
+                    #if value == getattr(x,name):
+                        #option.append({'label': '%s:%s'%(name,getattr(x,name)),'name':getattr(x,name)})
+                    #else:
+                        #option.append({'label': getattr(x,name),'name':getattr(x,name)})
+            #options.append({
+                #'name':name,
+                #'label':label,
+                #'value': value,
+                #'options':option,
+            #})
+        #return options      
+
+class RowSort(object):
+    """
+    row_sort: 'name1,-name2'
+    """
+    names=[]
+    def __init__(self,row_sort=[],user=None,allowed_names=[],kw={}):
+        self.valid_name=[x for x in self.names if x in allowed_names]
+        self.sort_args=[]
+        for x in row_sort:
+            if x.lstrip('-') in self.valid_name:
+                self.sort_args.append(x)
+        
+    def get_context(self):
+        return {'sortable':self.valid_name,'sorted':self.sort_args}
     
     def get_query(self,query):
-        return query
-
+        return query.order_by(*self.sort_args)
 
   
 class ModelTable(object):
@@ -87,21 +172,21 @@ class ModelTable(object):
     """
     model=''
     sortable=[]
-    include=[]
-    perPage=30
-    search_names=[]
-    filter_names=[]
-    def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None):
-        self.page=page
-        self.row_sort=row_sort
-        self.row_filter=row_filter 
-        self.row_search = row_search
+    #include=[]
+    sort=RowSort
+    search=RowSearch
+    filters=RowFilter
+    
+    def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None,kw={}):
         self.crt_user=crt_user 
-        #field_names = [x.name for x in self.model._meta.fields]
-        self.row_filter=row_filter
+        self.page=page
+        allowed_names=self.permited_fields()
         
-        
-        
+        self.row_sort=self.sort(row_sort,crt_user,allowed_names,kw)
+        self.row_filter=self.filters(row_filter, crt_user, allowed_names,kw) 
+        self.row_search = self.search( row_search,crt_user,allowed_names,kw)
+        self.pagenum = PageNum(pageNumber=self.page)
+
     @classmethod
     def parse_request(cls,request):
         """
@@ -115,46 +200,50 @@ class ModelTable(object):
         page = kw.pop('_page','1')
         row_sort = kw.pop('_sort','').split(',')
         row_sort=filter(lambda x: x!='',row_sort)
-        row_search={}
-        for k in cls.search_names:
-            arg=kw.pop(k,None)
-            if arg:
-                row_search[k]=arg
+        q=kw.pop('_q',None)
+        #row_search={}
+        #for k in cls.search.names:
+            #arg=kw.pop(k,None)
+            #if arg:
+                #row_search[k]=arg
         
         row_filter={}
-        for k in cls.filter_names:
+        for k in cls.filters.names:
             arg = kw.pop(k,None)
             if arg:
                 row_filter[k]=arg
-        return cls(page,row_sort,row_filter,row_search,request.user)    
+        return cls(page,row_sort,row_filter,q,request.user,kw)    
         
     def get_context(self):
         return {
             'heads':self.get_heads(),
             'rows': self.get_rows(),
-            'page_choice' : self.pagenum.get_choice(),
+            'row_pages' : self.pagenum.get_context(),
             # 'filters_options':self.get_options(),
-            'filters':self.get_filters(),
+            'row_sort':self.row_sort.get_context(),
+            'row_filters':self.row_filter.get_context(),
+            #'row_search':self.row_search.get_context(),
+            
             #'sort':self.get_sort(),
             #'q': self.q ,
-            # 'placeholder':self.get_placeholder(),
+            'placeholder':self.row_search.get_context(),
             'model':model_to_name(self.model),
         }
        
     
-    def get_filters(self):
-        """
-        rt:
-        [{name:field_name,label:field_label,option:[{value:xxx,label:xxx},]}]
-        """
-        return {}
+    #def get_filters(self):
+        #"""
+        #rt:
+        #[{name:field_name,label:field_label,option:[{value:xxx,label:xxx},]}]
+        #"""
+        #return {}
     
-    def get_search(self):
-        """
-        rt:
-        [{name:field_name,placeholder:xxx}]
-        """
-        return {}
+    #def get_search(self):
+        #"""
+        #rt:
+        #[{name:field_name,placeholder:xxx}]
+        #"""
+        #return {}
     
     def permited_fields(self):
         self.permit=Permit(model=self.model, user=self.crt_user)
@@ -166,9 +255,9 @@ class ModelTable(object):
         """
         ls = self.permited_fields()
         heads = model_to_head(self.model,include=ls)
-        for head in heads:
-            if head.get('name') in self.sortable:
-                head['sortable'] = True 
+        #for head in heads:
+            #if head.get('name') in self.sortable:
+                #head['sortable'] = True 
         return heads
     
     def get_rows(self):
@@ -177,15 +266,19 @@ class ModelTable(object):
         """
         query = self.inn_filter(self.model.objects.all())
         #query = self.out_filter(query)
-        query = self.search_filter(query)
-        query = self.sort_filter(query)
-        query = self.page_filter(query)
+        #query = self.search_filter(query)
+        
+        query=self.row_filter.get_query(query)
+        
+        query=self.row_search.get_query(query)
+        query = self.row_sort.get_query(query)
+        query = self.pagenum.get_query(query)
         return [to_dict(x, include=self.permited_fields()) for x in query] 
         
 
-    def page_filter(self,query):
-        self.pagenum = PageNum(query,perPage=self.perPage, pageNumber=self.page)
-        return self.pagenum.get_rows()
+    #def page_filter(self,query):
+        #self.pagenum = PageNum(query,perPage=self.perPage, pageNumber=self.page)
+        #return self.pagenum.get_query()
     
     def inn_filter(self,query):
         if not self.crt_user.is_superuser and not self.permit.readable_fields():
@@ -193,68 +286,69 @@ class ModelTable(object):
         else:
             return query
     
-    def search_filter(self,query):
-        for field in self.search_fields:
-            kw ={}
-            kw['%s__icontains'%field] =self.row_search            
-        return query
+    #def search_filter(self,query):
+        #return self.row_search.get_query(query)
+        #for field in self.search_fields:
+            #kw ={}
+            #kw['%s__icontains'%field] =self.row_search            
+        #return query
     
-    def sort_filter(self,query):
+    #def sort_filter(self,query):
         
-        return query
+        #return query
     
-    def out_filter(self,query):
-        if self.search_fields and self.row_search:
-            exp = None
-            for field in self.search_fields:
-                if isinstance(field,SearchQuery):
-                    query=field.get_query(query,self.row_search,self.crt_user)
-                else:
-                    kw ={}
-                    kw['%s__icontains'%field] =self.row_search
-                    if exp is None:
-                        exp = Q(**kw)
-                    else:
-                        exp = exp | Q(**kw)
-            if exp:
-                query= query.filter(exp)
-        if self.row_sort:
-            return query.filter(**self.row_filter).order_by(*self.row_sort)
-        else:
-            return query.filter(**self.row_filter)
+    #def out_filter(self,query):
+        #if self.search_fields and self.row_search:
+            #exp = None
+            #for field in self.search_fields:
+                #if isinstance(field,SearchQuery):
+                    #query=field.get_query(query,self.row_search,self.crt_user)
+                #else:
+                    #kw ={}
+                    #kw['%s__icontains'%field] =self.row_search
+                    #if exp is None:
+                        #exp = Q(**kw)
+                    #else:
+                        #exp = exp | Q(**kw)
+            #if exp:
+                #query= query.filter(exp)
+        #if self.row_sort:
+            #return query.filter(**self.row_filter).order_by(*self.row_sort)
+        #else:
+            #return query.filter(**self.row_filter)
     
-    def get_options(self):
-        query = self.inn_filter(self.model.objects.all())
-        options=[]
-        for name in self.filters:
-            tmp = []
-            option =[]
-            field = self.model._meta.get_field(name)
-            label = field._verbose_name
-            value = self.row_filter.get(name,'')
-            for x in query: # get rid of duplicated row
-                if getattr(x,name) not in tmp:
-                    tmp.append(getattr(x,name))
-                    if value == getattr(x,name):
-                        option.append({'label': '%s:%s'%(name,getattr(x,name)),'name':getattr(x,name)})
-                    else:
-                        option.append({'label': getattr(x,name),'name':getattr(x,name)})
-            options.append({
-                'name':name,
-                'label':label,
-                'value': value,
-                'options':option,
-            })
-        return options    
+    #def get_options(self):
+        #query = self.inn_filter(self.model.objects.all())
+        #options=[]
+        #for name in self.filters:
+            #tmp = []
+            #option =[]
+            #field = self.model._meta.get_field(name)
+            #label = field._verbose_name
+            #value = self.row_filter.get(name,'')
+            #for x in query: # get rid of duplicated row
+                #if getattr(x,name) not in tmp:
+                    #tmp.append(getattr(x,name))
+                    #if value == getattr(x,name):
+                        #option.append({'label': '%s:%s'%(name,getattr(x,name)),'name':getattr(x,name)})
+                    #else:
+                        #option.append({'label': getattr(x,name),'name':getattr(x,name)})
+            #options.append({
+                #'name':name,
+                #'label':label,
+                #'value': value,
+                #'options':option,
+            #})
+        #return options    
     
-    def get_placeholder(self):
-        ls=[]
-        for field in self.search_fields:
-            if isinstance(field,SearchQuery):
-                ls.append(field.get_placeholder())
-            else:
-                ls.append(self.model._meta.get_field(field).verbose_name)
-        return ','.join(ls)
+    #def get_placeholder(self):
+        #ls=[]
+        #for field in self.search_fields:
+            #if isinstance(field,SearchQuery):
+                #ls.append(field.get_placeholder())
+            #else:
+                #ls.append(self.model._meta.get_field(field).verbose_name)
+        #return ','.join(ls)
         # return ','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields])
 
 

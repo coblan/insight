@@ -5,7 +5,7 @@ from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
 from director.model_admin.fields import ModelFields
-from director.model_admin.tabel import ModelTable 
+from director.model_admin.tabel import ModelTable,RowSearch
 from director.model_admin.render import model_page_dc,model_dc
 from director.model_admin.permit import permit_dc
 from director.model_admin.render import TablePage,FormPage
@@ -27,13 +27,18 @@ admin.site.register(Month)
 #admin.site.register(PermitModel)
 
 
+class BaseSearch(RowSearch):
+    names=['name']
+    model=BasicInfo
+
 class BasicInfoTable(ModelTable):
     model = BasicInfo
-    filters=['name','age']
-    include = ['name','age']
-    sortable=['age']
-    per_page=2
-    search_fields=['age','name']
+    search=BaseSearch
+    #filters=['name','age']
+    #include = ['name','age']
+    #sortable=['age']
+    #per_page=2
+    #search_fields=['age','name']
     
     def get_heads(self):
         heads = super(BasicInfoTable,self).get_heads()

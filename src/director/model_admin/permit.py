@@ -57,16 +57,26 @@ class Permit(object):
         else:
             return [x for x in self.readable_fields() if x not in self.changeable_fields()]
     
+    def all_fields(self):
+        ls=[]
+        for field in self.model._meta.fields:
+            ls.append(field.name)   
+        return ls
+    
     def readable_fields(self):
-        ls =[]
-        for perm in self.permit_list:
-            if perm.endswith('__read'):
-                ls.append(perm[0:-6])
-        return list(set(ls))  
+        if self.user.is_superuser:
+            return self.all_fields()
+        else:
+            ls=[]
+            for perm in self.permit_list:
+                if perm.endswith('__read'):
+                    ls.append(perm[0:-6])
+            return list(set(ls))  
     
     def changeable_fields(self):
         if self.user.is_superuser:
-            return self.model._meta.get_all_field_names()
+            return self.all_fields()
+            #return self.model._meta.get_all_field_names()
         else:
             ls = []
             for perm in self.permit_list:
