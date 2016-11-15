@@ -46,6 +46,24 @@ class PageNum(object):
         page_nums=[str(x) for x in page_nums]
         return {'choice':page_nums,'crt_page':self.pageNumber}    
     
+class SearchQuery(object):
+    names=[]
+    def __init__(self,dc,user,allowed_names):
+        self.search_args={}
+        for k in self.names:
+            v = dc.pop(k,None)
+            if v:
+                self.search_args[k]=v
+        
+        self.crt_user=user
+        self._names=[x for x in self.names if x in allowed_names]
+            
+    def get_context(self):
+        return 
+    
+    def get_query(self,query):
+        return query
+
 
   
 class ModelTable(object):
@@ -72,7 +90,6 @@ class ModelTable(object):
     include=[]
     perPage=30
     search_names=[]
-    placeholder=''
     filter_names=[]
     def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None):
         self.page=page
@@ -116,13 +133,28 @@ class ModelTable(object):
             'heads':self.get_heads(),
             'rows': self.get_rows(),
             'page_choice' : self.pagenum.get_choice(),
-            'filters_options':self.get_options(),
+            # 'filters_options':self.get_options(),
+            'filters':self.get_filters(),
             #'sort':self.get_sort(),
             #'q': self.q ,
-            'placeholder':self.get_placeholder(),
+            # 'placeholder':self.get_placeholder(),
             'model':model_to_name(self.model),
         }
        
+    
+    def get_filters(self):
+        """
+        rt:
+        [{name:field_name,label:field_label,option:[{value:xxx,label:xxx},]}]
+        """
+        return {}
+    
+    def get_search(self):
+        """
+        rt:
+        [{name:field_name,placeholder:xxx}]
+        """
+        return {}
     
     def permited_fields(self):
         self.permit=Permit(model=self.model, user=self.crt_user)
@@ -148,7 +180,7 @@ class ModelTable(object):
         query = self.search_filter(query)
         query = self.sort_filter(query)
         query = self.page_filter(query)
-        return [to_dict(x) for x in query] 
+        return [to_dict(x, include=self.permited_fields()) for x in query] 
         
 
     def page_filter(self,query):
@@ -225,13 +257,7 @@ class ModelTable(object):
         return ','.join(ls)
         # return ','.join([self.model._meta.get_field(name).verbose_name for name in self.search_fields])
 
-class SearchQuery(object):
 
-    def get_query(self,query,q,crt_user):
-        return query
-
-    def get_placeholder(self):
-        return 'Search'
 
 # from models import MobilePage
 # class PageTable(ModelTable):
