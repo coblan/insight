@@ -215,6 +215,7 @@ def model_to_head(model,include=[],exclude=[]):
         out.append(dc)
     if include:
         out=[x for x in out if x.get('name') in include]
+        out.sort(key=lambda x : include.index(x.get('name')))
     else:
         out=[x for x in out if x.get('name') not in exclude]
     return out

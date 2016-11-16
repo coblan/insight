@@ -33,6 +33,7 @@ class BaseSearch(RowSearch):
 
 class BaseFilter(RowFilter):
     names=['name','age']
+    model=BasicInfo
 
 class BaseSort(RowSort):
     names=['name','age']
@@ -48,24 +49,28 @@ class BasicInfoTable(ModelTable):
     #per_page=2
     #search_fields=['age','name']
     
-    def get_heads(self):
-        heads = super(BasicInfoTable,self).get_heads()
-        heads.extend([{'name':'salary','label':'工资'},
-                      ])
-        return heads    
+    def permited_fields(self):
+        ls = super(BasicInfoTable,self).permited_fields()
+        inn=['name','age','user']
+        return [x for x in inn if x in ls]
+    #def get_heads(self):
+        #heads = super(BasicInfoTable,self).get_heads()
+        #heads.extend([{'name':'salary','label':'工资'},
+                      #])
+        #return heads    
     
-    def get_rows(self):
-        rows=super(BasicInfoTable,self).get_rows()   
-        for row in rows:
-            baseinfo = BasicInfo.objects.get(pk=row['pk'])
-            if hasattr(baseinfo,'employeeinfo'):
-                row['salary']=baseinfo.employeeinfo.salary_level
-        return rows        
+    #def get_rows(self):
+        #rows=super(BasicInfoTable,self).get_rows()   
+        #for row in rows:
+            #baseinfo = BasicInfo.objects.get(pk=row['pk'])
+            #if hasattr(baseinfo,'employeeinfo'):
+                #row['salary']=baseinfo.employeeinfo.salary_level
+        #return rows        
     
-    def get_context(self):
-        dc = super(BasicInfoTable,self).get_context()
-        dc['hh']={'jj':'<div>yy</div>'}
-        return dc
+    #def get_context(self):
+        #dc = super(BasicInfoTable,self).get_context()
+        #dc['hh']={'jj':'<div>yy</div>'}
+        #return dc
 
 class BasicInfoFields(ModelFields):
     

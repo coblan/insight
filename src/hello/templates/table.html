@@ -39,15 +39,26 @@
 		        
 			},
 			mixins:[table_fun],
-			methods:{
-				sort_col:function (name) {
-					var ls = this.toggle(row_sort.sorted,name)
-					this.url_args._sort=ls.join(',')
+			watch:{
+				'row_sort.sorted':function (v) {
+					this.url_args._sort=v.join(',')
 					this.search()
-				},
+				}
+			},
+			methods:{
+				//sort_col:function (name) {
+				//	var ls = this.toggle(row_sort.sorted,name)
+				//	this.url_args._sort=ls.join(',')
+				//	this.search()
+				//},
 				map:function (name,row) {
 					if(name==heads[0].name){
-			                return '<a href="edit/'+row.pk+'?next='+btoa(location.pathname+location.search)+'">'+row[name]+'</a>'
+						return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
+									{	pk:row.pk,
+										next:btoa(location.pathname+location.search),
+										value:row[name]
+									})
+			                //return '<a href="edit/'+row.pk+'?next='+btoa(location.pathname+location.search)+'">'+row[name]+'</a>'
 		                }else{
 			                return row[name]
 			        }
@@ -80,7 +91,8 @@
 																		next:btoa(location.pathname+location.search)})
 				},
 				search:function () {
-					location.search=ex.searchfy(this.url_args,'?')
+					location =ex.template('{path}{search}',{path:location.pathname,
+															search:ex.searchfy(this.url_args,'?')}) 
 				},
 			},
 			mounted:function () {
@@ -107,7 +119,7 @@
 			<select name="" id="" v-for='filter in row_filters' v-model='url_args[filter.name]' class='form-control'>
 			        <option :value="null" v-text='filter.label'></option>
 			        <option value="" >----</option>
-			        <option  v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
+			        <option v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
 			</select>
 			<button name="go" type="button" class="btn btn-info" @click='search()' style='position: absolute;right:-80px;top:-1px;width:70px;height:33px;'>提交</button>
 			<!--<input type="submit">-->
@@ -121,22 +133,25 @@
 		
 	</div>
 	
-	<table>
+	<table class='table'>
 		<thead>
 			<tr>
 				<td style='width:50px' v-if='selected'>
 					<input type="checkbox" name="test" value=""/>
 				</td>
-				<td v-for='head in heads' :class='"td_"+head.name'>
-					<span v-if='is_sel(row_sort.sortable,head.name)!=-1' v-text='head.label' class='clickable' @click='sort_col(head.name)'></span>
+				<td v-for='head in heads' :class='["td_"+head.name,{"selected":ig_ms_in(row_sort.sorted,head.name)}]'>
+					<span v-if='ig_ms_in(row_sort.sortable,head.name)' v-text='head.label' class='clickable' 
+						@click='toggle( row_sort.sorted,head.name)'></span>
 					<span v-else v-text='head.label'></span>
-					<sort-mark :sorted='row_sort.sorted' :name='head.name'></sort-mark>
+					<sort-mark class='sort-mark' :sorted='row_sort.sorted' :name='head.name'></sort-mark>
 				</td>
 			</tr>
 		</thead>
 		<tbody>
 			<tr v-for='row in rows'>
-				<td v-if='selected'><input type="checkbox" name="test" :value="row.pk" v-model='selected'/></td>
+				<td v-if='selected'>
+					<input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
+				</td>
 				<td v-for='head in heads' :class='"td_"+head.name'>
 					<span v-html='map(head.name,row)'></span>
 				</td>
@@ -163,6 +178,17 @@
 		margin-left:10px;
 		width:auto;
 		height:30px;
+	}
+	.sort-mark{
+		float: right;
+	}
+	.selected{
+		background-color: #DDD;
+	}
+	.clickable{
+		cursor: pointer;
+		font-size:120%;
+		color: #0099CC;
 	}
 </style>
 <!--<script type="text/javascript">

@@ -2,12 +2,12 @@
 
 from __future__ import unicode_literals
 
-from core.db_tools import to_dict,model_to_head,model_stringfy
+#from core.db_tools import to_dict,model_to_head,model_stringfy
 import json
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from permit import Permit
-from director.db_tools import model_to_name
+from director.db_tools import model_to_name,to_dict,model_to_head,model_to_name
 #from forms import MobilePageForm
 
 
@@ -86,6 +86,7 @@ class RowSearch(object):
 
 class RowFilter(object):
     names=[]
+    model=''
     def __init__(self,dc,user,allowed_names,kw={}):
         self.valid_name=[x for x in self.names if x in allowed_names]
         self.crt_user=user
@@ -99,7 +100,8 @@ class RowFilter(object):
     def get_context(self):
         ls=[]
         for name in self.valid_name:
-            ls.append({'name':name,'label':'XXX','option':self.get_options(name)})
+            f = self.model._meta.get_field(name)
+            ls.append({'name':name,'label':f.verbose_name,'option':self.get_options(name)})
         return ls
       
     def get_query(self,query):
