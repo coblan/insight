@@ -7,10 +7,10 @@
 <script src='{% static "js/table.pack.js" %}'></script>
 <script type="text/javascript">
 	
-	filters={{filters | jsonify }}
-	q='{{q | safe |default:""}}'
+	row_filters={{row_filters | jsonify }}
+	//q='{{q | safe |default:""}}'
 	placeholder = '{{placeholder |default:""}}'
-	sort={{sort | jsonify | default:'[]' }}
+	row_sort={{row_sort | jsonify | default:'[]' }}
 	heads={{ heads | jsonify | default:'[]'}}
 	rows={{ rows | jsonify | default:'[]'}}
 	row_pages = {{ row_pages | jsonify}}
@@ -24,10 +24,10 @@
 		        heads:heads,
 		        rows:rows,
 		        crt_page:{},
-		        filters:filters,
-		        sort:sort,
+		        row_filters:row_filters,
+		        row_sort:row_sort,
 		        row_pages:row_pages,
-		        q:q,
+		        //q:q,
 		        placeholder:placeholder,
 		        selected:[],
 		        del_info:[],
@@ -38,8 +38,13 @@
 		        url_args:url_args,
 		        
 			},
-			mixins:[build_table_args],
+			mixins:[table_fun],
 			methods:{
+				sort_col:function (name) {
+					var ls = this.toggle(row_sort.sorted,name)
+					this.url_args._sort=ls.join(',')
+					this.search()
+				},
 				map:function (name,row) {
 					if(name==heads[0].name){
 			                return '<a href="edit/'+row.pk+'?next='+btoa(location.pathname+location.search)+'">'+row[name]+'</a>'
@@ -73,7 +78,10 @@
 					location=ex.template("{path}?rows={rows}&next={next}",{path:path,
 																		rows:btoa(JSON.stringify(inst_ls)),
 																		next:btoa(location.pathname+location.search)})
-				}
+				},
+				search:function () {
+					location.search=ex.searchfy(this.url_args,'?')
+				},
 			},
 			mounted:function () {
 				var self=this;
@@ -95,15 +103,16 @@
 		<path-nav :menu='menu'></path-nav>
 		
 		<form class='button-group' autocomplete="on" v-if='placeholder || filters.length>0'>
-			<input v-if='placeholder' type="text" name="_q" v-model='q' :placeholder='placeholder' class='form-control'/>
-			<select name="" id="" v-for='filter in filters' v-model='filter.value' class='form-control'>
-			        <option value="" v-text='filter.label'></option>
+			<input v-if='placeholder' type="text" name="_q" v-model='url_args._q' :placeholder='placeholder' class='form-control'/>
+			<select name="" id="" v-for='filter in row_filters' v-model='url_args[filter.name]' class='form-control'>
+			        <option :value="null" v-text='filter.label'></option>
 			        <option value="" >----</option>
-			        <option  v-for='option in filter.options' :value="option.name" v-text='option.label'></option>
+			        <option  v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
 			</select>
 			<button name="go" type="button" class="btn btn-info" @click='search()' style='position: absolute;right:-80px;top:-1px;width:70px;height:33px;'>提交</button>
 			<!--<input type="submit">-->
 		</form>
+		
 		<div class='btn-group' style='float: right;'>
 			<!--<a href="#" class="btn btn-primary btn-lg active" role="button">Primary link</a>-->
 			<a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>
@@ -112,10 +121,31 @@
 		
 	</div>
 	
-	
+	<table>
+		<thead>
+			<tr>
+				<td style='width:50px' v-if='selected'>
+					<input type="checkbox" name="test" value=""/>
+				</td>
+				<td v-for='head in heads' :class='"td_"+head.name'>
+					<span v-if='is_sel(row_sort.sortable,head.name)!=-1' v-text='head.label' class='clickable' @click='sort_col(head.name)'></span>
+					<span v-else v-text='head.label'></span>
+					<sort-mark :sorted='row_sort.sorted' :name='head.name'></sort-mark>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for='row in rows'>
+				<td v-if='selected'><input type="checkbox" name="test" :value="row.pk" v-model='selected'/></td>
+				<td v-for='head in heads' :class='"td_"+head.name'>
+					<span v-html='map(head.name,row)'></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 	
 
-	<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>
+	<!--<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>-->
 	<paginator :nums='row_pages.choice' :crt='row_pages.crt_page' @goto_page='goto_page($event)'></paginator>
 	
 

@@ -5,7 +5,7 @@ from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
 from director.model_admin.fields import ModelFields
-from director.model_admin.tabel import ModelTable,RowSearch
+from director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
 from director.model_admin.render import model_page_dc,model_dc
 from director.model_admin.permit import permit_dc
 from director.model_admin.render import TablePage,FormPage
@@ -31,9 +31,17 @@ class BaseSearch(RowSearch):
     names=['name']
     model=BasicInfo
 
+class BaseFilter(RowFilter):
+    names=['name','age']
+
+class BaseSort(RowSort):
+    names=['name','age']
+    
 class BasicInfoTable(ModelTable):
     model = BasicInfo
     search=BaseSearch
+    filters = BaseFilter
+    sort=BaseSort
     #filters=['name','age']
     #include = ['name','age']
     #sortable=['age']

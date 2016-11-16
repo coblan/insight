@@ -99,15 +99,18 @@ class RowFilter(object):
     def get_context(self):
         ls=[]
         for name in self.valid_name:
-            ls.append({'name':name,'option':self.get_options(name)})
+            ls.append({'name':name,'label':'XXX','option':self.get_options(name)})
         return ls
       
     def get_query(self,query):
         self.query=query
+        query=query.filter(**self.filter_args)
         return query    
     
     def get_options(self,name):
-        ls = list(set(self.query.value_list(name)))
+        ls = list(set(self.query.values_list(name,flat=True)))
+        ls.sort()
+        ls=[{'value':x,'label':x} for x in ls]
         return ls
     
         #options=[]
