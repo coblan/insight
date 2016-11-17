@@ -36,7 +36,7 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
     
     注意，返回的字典，是可以json化的才行。
     """
-    fields=instance._meta.get_fields()
+    fields=instance._meta.fields
     if include:
         fields=filter(lambda field:field.name in include,fields)
     if exclude:
@@ -46,12 +46,13 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
     else:
         out={}
     for field in fields:
-        if field.name in out or\
-           isinstance(field,(models.ManyToManyRel,models.ManyToOneRel)):
+        if field.name in out: # or\
+           #isinstance(field,(models.ManyToManyRel,models.ManyToOneRel)):
             continue
         else:
-            if field_map.get(field.__class__):
-                out[field.name] = field_map.get(field.__class__)().to_dict(instance,field.name)
+            proxy_cls = field_map.get(field.__class__)
+            if proxy_cls:
+                out[field.name] = proxy_cls().to_dict(instance,field.name)
             else:
                 out[field.name]=field.get_prep_value( getattr(instance,field.name) )
     out['pk']=instance.pk

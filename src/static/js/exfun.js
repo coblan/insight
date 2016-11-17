@@ -128,6 +128,25 @@ ex={
 			func(array[i])
 		}
 	},
+	map:function (array,func) {
+		var out=[]
+		for(var i=0;i<array.length;i++){
+			out.push(func(array[i]))
+		}
+		return out
+	},
+	isin:function (obj,array) {
+		return array.indexOf(obj)!=-1
+	},
+	filter:function (array,func) {
+		var out=[]
+		for(var x=0;x<array.length;x++){
+			if(func(array[x])){
+				out.push(array[x])
+			}
+		}
+		return out
+	},
 	loadjs: function(src,success) {
 		success = success || function(){};
 		var name = btoa(src)

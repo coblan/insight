@@ -1,5 +1,8 @@
 #from core.model_render import save_row,model_dc
+from director.db_tools import name_to_model
 from director.models import PermitModel
+from director.model_admin.render import model_dc
+from django.contrib.auth.models import Group
 import json
 
 def get_globe():
@@ -19,29 +22,33 @@ def get_globe():
     
     #return dc    
 
-#def admin_fields(admin_name,user):
-    #fields = model_dc.get(admin_name).get('fields')
-    #ls=[]
-    #for k,v in fields(crt_user=user).fields.items():
-        #if hasattr(v.label,'title') and callable(v.label.title):
-            #label=v.label.title()
-        #else:
-            #label=v.label
+def model_permit_info(name,user):
+    model = name_to_model(name)
+    fields = model_dc.get(model).get('fields')
+    ls=[]
+    for k,v in fields(crt_user=user).fields.items():
+        if hasattr(v.label,'title') and callable(v.label.title):
+            label=v.label.title()
+        else:
+            label=v.label
             
-        #ls.append({'name':k,'label':label})
-    #return ls
+        ls.append({'name':k,'label':label})
+    return ls
 
 
-#def save_permit(row,permits,user):  #TODO .....
-    #group_form= save_row(row, user)
-    #group = group_form.instance
-    #if not hasattr(group,'permitmodel'):
-        #PermitModel.objects.create(group=group)
-    #group.permitmodel.permit=json.dumps(permits)
-    #group.permitmodel.save()
+def save_group_and_permit(row,permits,user): 
+    field_cls = model_dc.get(Group).get('fields')
+    group_form= field_cls(row, crt_user= user)
+    if group_form.is_valid():
+        group_form.save_form()
+    group = group_form.instance
+    if not hasattr(group,'permitmodel'):
+        PermitModel.objects.create(group=group)
+    group.permitmodel.permit=json.dumps(permits)
+    group.permitmodel.save()
     
-    ## perm={'group':group_form.instance.pk,'permit':permits}
-    ## perm_form = save_row(perm, user)
-    #return {'status':'success'}
+    # perm={'group':group_form.instance.pk,'permit':permits}
+    # perm_form = save_row(perm, user)
+    return {'status':'success'}
     
     

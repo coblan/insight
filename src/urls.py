@@ -20,6 +20,7 @@ from user_admin import urls as user_urls
 from director import urls as director_urls
 urlpatterns = [
     url(r'^d/',include(director_urls)),
+    url(r'^accounts/',include(director_urls)),
     url(r'^admin/', include(admin.site.urls)),
     url(r'hello/',include(hello_urls)),
     

@@ -4,15 +4,16 @@ from django import forms
 from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
+from director.db_tools import to_dict,model_to_name
 from director.model_admin.fields import ModelFields
 from director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
 from director.model_admin.render import model_page_dc,model_dc
-from director.model_admin.permit import permit_dc
+from director.model_admin.permit import permit_list
 from director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
 import json
 import ajax
-
+from django.db import models
 
 
 
@@ -43,16 +44,16 @@ class BasicInfoTable(ModelTable):
     search=BaseSearch
     filters = BaseFilter
     sort=BaseSort
+    include=['name','age','user']
     #filters=['name','age']
     #include = ['name','age']
     #sortable=['age']
     #per_page=2
     #search_fields=['age','name']
     
-    def permited_fields(self):
-        ls = super(BasicInfoTable,self).permited_fields()
-        inn=['name','age','user']
-        return [x for x in inn if x in ls]
+    def get_rows(self):
+        query=self.get_query()
+        return [to_dict(x,filt_attr=lambda x:{'user':str(x.user) if x.user else '---'}, include=self.permited_fields()) for x in query]         
     #def get_heads(self):
         #heads = super(BasicInfoTable,self).get_heads()
         #heads.extend([{'name':'salary','label':'工资'},
@@ -105,22 +106,22 @@ class BasicInfoFields(ModelFields):
         
 class UserTable(ModelTable):
     model=User
-    include=['username','first_name']
+    exclude=['password','id']
     
-    def get_heads(self):
-        heads = super(UserTable,self).get_heads()
-        heads.extend([{'name':'age','label':'年龄'},
-                      {'name':'_name','label':'姓名'}])
-        return heads
+    #def get_heads(self):
+        #heads = super(UserTable,self).get_heads()
+        #heads.extend([{'name':'age','label':'年龄'},
+                      #{'name':'_name','label':'姓名'}])
+        #return heads
     
-    def get_rows(self):
-        rows=super(UserTable,self).get_rows()
-        for user_dc in rows:
-            user = User.objects.get(pk=user_dc['pk'])
-            if hasattr(user,'basicinfo'):
-                user_dc['age']=user.basicinfo.age
-                user_dc['_name']=user.basicinfo.name
-        return rows
+    #def get_rows(self):
+        #rows=super(UserTable,self).get_rows()
+        #for user_dc in rows:
+            #user = User.objects.get(pk=user_dc['pk'])
+            #if hasattr(user,'basicinfo'):
+                #user_dc['age']=user.basicinfo.age
+                #user_dc['_name']=user.basicinfo.name
+        #return rows
 
 class UserFields(ModelFields):
     # age = forms.CharField(label='年龄')
@@ -175,7 +176,7 @@ class UserFields(ModelFields):
 
 class UserGroupTable(ModelTable):
     model=Group
-    include=['name','permissions']
+    names=['name','permissions']
 
 
 class UserGroupFields(ModelFields):
@@ -197,14 +198,19 @@ class UserGroupFields(ModelFields):
             #group.permitmodel=PermitModel.objects.create(group=group)
         if hasattr(group,'permitmodel'):
             ctx['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
+        else:
+            ctx['permits']=[]
         ls = []
         # for k1,v1 in apps.all_models.items():
             # for k2,v2 in v1.items():
                 # ls.append({'name':'%s.%s'%(k1,k2),'label':'%s.%s'%(k1,k2)})
-        for k,v in model_dc.items():
-            if v.has_key('model'):
-                ls.append({'name':k,'label':v.get('label',k)})
-        ctx['models']=ls
+        for v in permit_list:
+            if issubclass(v,models.Model):
+                ls.append({'name':model_to_name(v),'label':v._meta.verbose_name})
+            #model = v.get('model')
+            #if model:
+                #ls.append({'name':k,'label':v.get('label',k)})
+        ctx['model_permits']=ls
         
         return ctx
 
@@ -330,19 +336,37 @@ class BaseinfoFormPage(FormPage):
     fieldsCls=BasicInfoFields
     # def get_context(self):
         # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
-    
 
-permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
-permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
-permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
+class GroupTablePage(TablePage):
+    tableCls=UserGroupTable
+
+class GroupFormPage(FormPage):
+    template='user_admin/permit.html'
+    fieldsCls=UserGroupFields
+    ajax_scope=ajax.get_globe()
+
+class UserTablePage(TablePage):
+    tableCls=UserTable
+
+#permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
+#permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
+#permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
+permit_list.append(BasicInfo)
+permit_list.append(EmployeeInfo)
+permit_list.append(SalaryRecords)
 
 model_dc[BasicInfo]={'fields':BasicInfoFields}
+model_dc[EmployeeInfo]={'fields':EmployeeFields}
+model_dc[SalaryRecords]={'fields':SalaryFields}
+model_dc[Group]={'fields':UserGroupFields}
 #model_render_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
-model_page_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
-model_page_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
-model_page_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
-#model_render_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
-#model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
-model_page_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
+#model_page_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
+#model_page_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
+#model_page_dc['employee']={'model':EmployeeInfo,'table':EmployeeTable,'fields':EmployeeFields,'label':'工作信息'}
+##model_render_dc['employee_set']={'table':EmployeeTable,'fields':EmployeeSet,}
+##model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
+#model_page_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
 
+model_page_dc['user']={'table':UserTablePage,'form':GroupFormPage,}
+model_page_dc['group']={'table':GroupTablePage,'form':GroupFormPage,}
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}

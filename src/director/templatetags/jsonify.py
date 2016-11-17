@@ -9,10 +9,11 @@ import json
 register = Library()
 
 def jsonify(obj):
-    if obj:
-        return mark_safe( json.dumps(obj) )
-    else:
+    if obj is None:
         return ''
+    else:
+        return mark_safe( json.dumps(obj) )
+
     #if isinstance(object, ValuesListQuerySet):
         #return mark_safe(json.dumps(list(object)))
     #if isinstance(object, QuerySet):

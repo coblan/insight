@@ -13,6 +13,8 @@ def cant_touch(model):
         return not validator.can_access()
     return _func
 
+def page(name):
+    return reverse('model_table',kwargs={'name':name})
 
 #menus=[
     #{'name':'hello','label':'hello','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
@@ -31,8 +33,8 @@ menus=[
     {'name':'hello','label':'hello','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
     {'name':'basice','label':'用户相关','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
      'submenu':[{'name':'basice','label':'basicinfo','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'})},
-                {'name':'user','label':'用户管理','url':'/hello/model/user/','invalid':cant_touch(User)},
-                {'name':'group','label':'用户组','url':'/hello/model/group/','invalid':cant_touch(Group)},
+                {'name':'user','label':'用户管理','url':lambda: page('user'),'invalid':cant_touch(User)},
+                {'name':'group','label':'用户组','url':lambda:page('group')},
                 {'name':'employee_set','label':'employee','url':'/hello/model/employee_set/','invalid':cant_touch(Group)},
                 ]},
 

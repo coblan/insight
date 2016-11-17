@@ -13,9 +13,11 @@ import inspect
 from director.container import evalue_container
 from director.port import jsonpost
 import ajax
+from django.contrib.auth.decorators import login_required
 
 from base import model_dc,render_dc,model_page_dc
 
+@login_required
 def table_view(request,name):
     page_cls = model_page_dc.get(name).get('table')
     if request.method=='GET':
@@ -27,6 +29,7 @@ def table_view(request,name):
         ajax_scope.update(page_cls.ajax_scope)
         return jsonpost(request, ajax_scope)
 
+@login_required
 def form_view(request,name,pk=None):
     page_cls = model_page_dc.get(name).get('form')
     if request.method=='GET':
@@ -38,7 +41,7 @@ def form_view(request,name,pk=None):
         ajax_scope.update(page_cls.ajax_scope)        
         return jsonpost(request, ajax_scope)
         
-
+@login_required
 def del_rows(request):
     """
     rows = base64([{pk:1,_class:app.model}])

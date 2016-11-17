@@ -9,17 +9,17 @@
         
         heads={{ heads | jsonify }}
 		row = {{ row | jsonify }}
-		permits={{permits | jsonify |default:"[]"  }}
-		models = {{ models | jsonify}}
+		permits={{permits | jsonify }}
+		model_permits = {{ model_permits | jsonify}}
 		errors={}
 
         $(function () {
                 haha= new Vue({
                         el:'#there',
                         data:{
-                                models:models,
+                                model_permits:model_permits,
                                 permits:permits,
-                                selected_admin_name:'',
+                                sld_md_name:'',
                                 kw:{
 	                                heads:heads,
 	                                row:row,
@@ -27,58 +27,51 @@
                                 }
                         },
                         methods:{
-                                add:function (name) {
+                                add_model_permit:function (name) {
 	                                if(!name){
 		                                return 
 	                                }
 	                                var self=this;
-                                    var post_data=[{fun:'admin_fields',admin_name:this.selected_admin_name}]
+                                    var post_data=[{fun:'model_permit_info',name:this.sld_md_name}]
                                     $.post('',JSON.stringify(post_data),function (data) {
 	                                    //var row={'can__create':false,'can__delete':false}
-	                                    var heads=data.admin_fields
+	                                    var heads=data.model_permit_info
 	                                    //for (var i=0;i<heads.length;i++){
 		                                   // var head=heads[i]
 		                                   // row[head.name+'__read']=false
 		                                   // row[head.name+'__write']=false
 	                                    //}
-                                    	permits.push({heads:data.admin_fields,
-                                    					admin_name:self.selected_admin_name,
+                                    	permits.push({	heads:heads,
+                                    					name:self.sld_md_name,
                                     					row:[],
                                     					})
                                     })
                                 },
-                                get_admin_label:function (name) {
-                                	for(var i=0;i<this.models.length;i++){
-	                                	if(this.models[i].name==name){
-		                                	return this.models[i].label
-	                                	}
-                                	}
+                                get_label:function (name) {
+	                                var model =ex.findone(this.model_permits,{name:name})
+	                                return model.label
+                                	//for(var i=0;i<this.models.length;i++){
+	                                //	if(this.models[i].name==name){
+		                               // 	return this.models[i].label
+	                                //	}
+                                	//}
                                 },
-                                get_left_models:function () {
-	                                var ls=[]
-                                	for(var i=0;i<this.models.length;i++){
-	                                	var model=this.models[i]
-	                                	var find=false;
-	                                	for(var j=0;j<this.permits.length;j++){
-		                                	var permit = this.permits[j]
-		                                	if(permit.admin_name==model.name){
-			                                	find=true
-			                                	break
-		                                	}
-	                                	}
-	                                	if(!find){
-		                                	ls.push(model)
-	                                	}
-                                	}
-                                	return ls
+                                get_left_model:function () {
+	                                var sld_model_names = ex.map(this.permits,function (permit) {
+	                                	return permit.name
+	                                })
+	                                var ls =ex.filter(this.model_permits,function (model) {
+		                                	return !ex.isin(model.name,sld_model_names)
+		                                })
+		                            return ls
                                 },
                                 submit:function () {
                                         var self=this;
                                         show_upload()
-                                        var post_data=[{fun:'save_permit',row:this.kw.row,permits:this.permits}]
+                                        var post_data=[{fun:'save_group_and_permit',row:this.kw.row,permits:this.permits}]
                                         $.post('',JSON.stringify(post_data),function (data) {
-                                                if(data.save_permit.errors){
-                                                        this.kw.errors=data.save_permit.errors
+                                                if(data.save_group_and_permit.errors){
+                                                        this.kw.errors=data.save_group_and_permit.errors
                                                 }
                                    
                                                 setTimeout(function () {
@@ -100,15 +93,15 @@
         
         <field name='name' :kw='kw'></field>
         <div>
-            <select name="" id="" v-model='selected_admin_name'>
-	            <option v-for='item in get_left_models()' :value="item.name" v-text='item.label'></option>
+            <select name="" id="" v-model='sld_md_name'>
+	            <option v-for='item in get_left_model()' :value="item.name" v-text='item.label'></option>
             </select>
-            <button name="test" type="button" value="val" @click='add(selected_admin_name)'>添加</button>
+            <button name="test" type="button" value="val" @click='add_model_permit(sld_md_name)'>添加</button>
         </div>
         <div  class='row'>
 	        <table class='table'>
 	        	<tr v-for='permit in permits'>
-		        	<td><span v-text='get_admin_label(permit.admin_name)'></span></td>
+		        	<td><span v-text='get_label(permit.name)'></span></td>
 		        	<td>
 			        	<table >
 				        	<tr class='select_cell'>
@@ -119,26 +112,26 @@
 				        	</tr>
 				        	<tr class='select_cell'>
 					        	<td><input type="checkbox" name="test" value="" /></td>
-					        	<td><input type="checkbox" :id="permit.admin_name+'can__create'" value="can__create" v-model='permit.row'/>
-									<label :for="permit.admin_name+'can__create'">创建</label>
+					        	<td><input type="checkbox" :id="permit.name+'can__create'" value="can__create" v-model='permit.row'/>
+									<label :for="permit.name+'can__create'">创建</label>
 									</td>
-								<td><input type="checkbox" :id="permit.admin_name+'can__log'" value="can__log" v-model='permit.row'/>
-									<label :for="permit.admin_name+'can__log'">允许</label>
+								<td><input type="checkbox" :id="permit.name+'can__log'" value="can__log" v-model='permit.row'/>
+									<label :for="permit.name+'can__log'">允许</label>
 									</td>
-								<td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__read'" 
+								<td v-for='head in permit.heads'><input type="checkbox" :id="permit.name+head.name+'__read'" 
 										:value="head.name+'__read'" v-model="permit.row" />
-									<label :for="permit.admin_name+head.name+'__read'">读</label>
+									<label :for="permit.name+head.name+'__read'">读</label>
 									</td>
 				        	</tr>
 				        	<tr class='select_cell'>
 					        	<td><input type="checkbox" value='' ></td>
-					        	<td><input type="checkbox" :id="permit.admin_name+'can__delete'"  value='can__delete' v-model='permit.row'>
-							       <label :for="permit.admin_name+'.can__delete'">删除</label>
+					        	<td><input type="checkbox" :id="permit.name+'can__delete'"  value='can__delete' v-model='permit.row'>
+							       <label :for="permit.name+'.can__delete'">删除</label>
 							       </td>
 							    <td></td>
-							    <td v-for='head in permit.heads'><input type="checkbox" :id="permit.admin_name+head.name+'__write'" 
+							    <td v-for='head in permit.heads'><input type="checkbox" :id="permit.name+head.name+'__write'" 
 						           	:value="head.name+'__write'" v-model="permit.row">
-						           	<label :for="permit.admin_name+head.name+'__write'">写</label>
+						           	<label :for="permit.name+head.name+'__write'">写</label>
 						           	</td>
 				        	</tr>
 				        </table>  

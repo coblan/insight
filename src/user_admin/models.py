@@ -33,6 +33,9 @@ class EmployeeInfo(models.Model):
             return self.baseinfo.name
         else:
             return self.employ_id
+    
+    class Meta:
+        verbose_name='员工信息'
 
 class SalaryRecords(models.Model):
     empoyee=models.ForeignKey(EmployeeInfo,verbose_name='员工',blank=True,null=True)

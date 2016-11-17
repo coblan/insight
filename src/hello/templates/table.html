@@ -114,7 +114,7 @@
 		
 		<path-nav :menu='menu'></path-nav>
 		
-		<form class='button-group' autocomplete="on" v-if='placeholder || filters.length>0'>
+		<form class='button-group' autocomplete="on" v-if='placeholder || row_filters.length>0'>
 			<input v-if='placeholder' type="text" name="_q" v-model='url_args._q' :placeholder='placeholder' class='form-control'/>
 			<select name="" id="" v-for='filter in row_filters' v-model='url_args[filter.name]' class='form-control'>
 			        <option :value="null" v-text='filter.label'></option>
@@ -126,7 +126,6 @@
 		</form>
 		
 		<div class='btn-group' style='float: right;'>
-			<!--<a href="#" class="btn btn-primary btn-lg active" role="button">Primary link</a>-->
 			<a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>
 			<button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>
 		</div>

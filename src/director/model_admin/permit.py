@@ -5,7 +5,7 @@ from director.db_tools import model_to_name
 from django.apps import apps
 import json
 
-permit_dc={}
+permit_list=[]
 
 class Permit(object):
     """

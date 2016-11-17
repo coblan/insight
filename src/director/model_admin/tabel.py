@@ -115,28 +115,6 @@ class RowFilter(object):
         ls=[{'value':x,'label':x} for x in ls]
         return ls
     
-        #options=[]
-        #for name in self.valid_name:
-            #tmp = []
-            #option =[]
-            #field = self.model._meta.get_field(name)
-            #label = field._verbose_name
-            #value = self.row_filter.get(name,'')
-            #for x in self._query: # get rid of duplicated row
-                #if getattr(x,name) not in tmp:
-                    #tmp.append(getattr(x,name))
-                    #if value == getattr(x,name):
-                        #option.append({'label': '%s:%s'%(name,getattr(x,name)),'name':getattr(x,name)})
-                    #else:
-                        #option.append({'label': getattr(x,name),'name':getattr(x,name)})
-            #options.append({
-                #'name':name,
-                #'label':label,
-                #'value': value,
-                #'options':option,
-            #})
-        #return options      
-
 class RowSort(object):
     """
     row_sort: 'name1,-name2'
@@ -176,12 +154,11 @@ class ModelTable(object):
         
     """
     model=''
-    sortable=[]
-    #include=[]
     sort=RowSort
     search=RowSearch
     filters=RowFilter
-    
+    include=None
+    exclude=[]
     def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None,kw={}):
         self.crt_user=crt_user 
         self.page=page
@@ -190,6 +167,10 @@ class ModelTable(object):
         self.row_sort=self.sort(row_sort,crt_user,allowed_names,kw)
         self.row_filter=self.filters(row_filter, crt_user, allowed_names,kw) 
         self.row_search = self.search( row_search,crt_user,allowed_names,kw)
+        if not self.row_filter.model:
+            self.row_filter.model=self.model
+        if not self.row_search.model:
+            self.row_search.model=self.model
         self.pagenum = PageNum(pageNumber=self.page)
 
     @classmethod
@@ -252,7 +233,12 @@ class ModelTable(object):
     
     def permited_fields(self):
         self.permit=Permit(model=self.model, user=self.crt_user)
-        return self.permit.readable_fields()
+        ls = self.permit.readable_fields()
+        if self.include:
+            return [x for x in self.include if x in ls]
+        if self.exclude:
+            return [x for x in ls if x not in self.exclude]
+        return ls
     
     def get_heads(self):
         """
@@ -269,18 +255,17 @@ class ModelTable(object):
         """
         return: [{"name": "heyul0", "age": "32", "user": null, "pk": 1, "_class": "user_admin.BasicInfo", "id": 1}]
         """
-        query = self.inn_filter(self.model.objects.all())
-        #query = self.out_filter(query)
-        #query = self.search_filter(query)
-        
-        query=self.row_filter.get_query(query)
-        
-        query=self.row_search.get_query(query)
-        query = self.row_sort.get_query(query)
-        query = self.pagenum.get_query(query)
+        query=self.get_query()
         return [to_dict(x, include=self.permited_fields()) for x in query] 
         
-
+    def get_query(self):
+        query = self.inn_filter(self.model.objects.all())
+        query=self.row_filter.get_query(query)
+    
+        query=self.row_search.get_query(query)
+        query = self.row_sort.get_query(query)
+        query = self.pagenum.get_query(query)  
+        return query
     #def page_filter(self,query):
         #self.pagenum = PageNum(query,perPage=self.perPage, pageNumber=self.page)
         #return self.pagenum.get_query()
