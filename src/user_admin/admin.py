@@ -6,7 +6,7 @@ from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
 from director.db_tools import to_dict,model_to_name
 from director.model_admin.fields import ModelFields
-from director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
+from director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
 from director.model_admin.render import model_page_dc,model_dc
 from director.model_admin.permit import permit_list
 from director.model_admin.render import TablePage,FormPage
@@ -38,6 +38,9 @@ class BaseFilter(RowFilter):
 
 class BaseSort(RowSort):
     names=['name','age']
+
+class Twopage(PageNum):
+    perPage=3
     
 class BasicInfoTable(ModelTable):
     model = BasicInfo
@@ -45,6 +48,7 @@ class BasicInfoTable(ModelTable):
     filters = BaseFilter
     sort=BaseSort
     include=['name','age','user']
+    pagenator=Twopage
     #filters=['name','age']
     #include = ['name','age']
     #sortable=['age']
@@ -79,8 +83,8 @@ class BasicInfoFields(ModelFields):
         model=BasicInfo
         fields=['name','age','user'] 
     
-    def get_fields(self):
-        return ['name','age']
+    #def get_fields(self):
+        #return ['name','age']
     
     def clean_name(self):
         return self.cleaned_data['name']
@@ -126,15 +130,15 @@ class UserTable(ModelTable):
 class UserFields(ModelFields):
     # age = forms.CharField(label='年龄')
     
-    def pop_fields(self):
-        self.fields.pop('user_permissions')
+    #def pop_fields(self):
+        #self.fields.pop('user_permissions')
         # if not hasattr(self.instance,'basicinfo'):
             # self.fields.pop('age')
 
         #self.fields.pop('username')       
     
-    def init_value(self):
-        super(UserFields,self).init_value()
+    #def init_value(self):
+        #super(UserFields,self).init_value()
         # ls =['age']
         # for k in ls:
             # if k in self.fields:
@@ -142,77 +146,39 @@ class UserFields(ModelFields):
     
     class Meta:
         model=User
-        fields=['username','first_name','is_active','is_staff','is_superuser','email','groups','user_permissions']
+        fields=['username','first_name','is_active','is_staff','is_superuser','email','groups']
     
-    def get_row(self):
-        row = super(UserFields,self).get_row()
-        if row['pk']:
-            user = User.objects.get(pk= row['pk'])
-            if hasattr(user,'basicinfo'):
-                if 'age' in self.fields:
-                    row['age']=user.basicinfo.age
-        return row
+    #def get_row(self):
+        #row = super(UserFields,self).get_row()
+        #if row['pk']:
+            #user = User.objects.get(pk= row['pk'])
+            #if hasattr(user,'basicinfo'):
+                #if 'age' in self.fields:
+                    #row['age']=user.basicinfo.age
+        #return row
     
-    def can_access_instance(self):
-        return self.crt_user.has_perm('auth.change_user') or self.crt_user.has_perm('user_admin.read_basicinfo')
+    #def can_access_instance(self):
+        #return self.crt_user.has_perm('auth.change_user') or self.crt_user.has_perm('user_admin.read_basicinfo')
     
-    def get_readonly_fields(self):
-        if not self.crt_user.has_perm('auth.change_user') and\
-           self.crt_user.has_perm('user_admin.read_basicinfo'):
-            return self.fields.keys()
-        else:
-            return []
+    #def get_readonly_fields(self):
+        #if not self.crt_user.has_perm('auth.change_user') and\
+           #self.crt_user.has_perm('user_admin.read_basicinfo'):
+            #return self.fields.keys()
+        #else:
+            #return []
     
-    def get_input_type(self):
-        return {'age':'text'}
+    #def get_input_type(self):
+        #return {'age':'text'}
     
-    def get_options(self):
-        return super(UserFields,self).get_options()
+    #def get_options(self):
+        #return super(UserFields,self).get_options()
     
-    def clean_age(self):
-        print('in age function')
-        return self.cleaned_data['age']
+    #def clean_age(self):
+        #print('in age function')
+        #return self.cleaned_data['age']
     
 
-class UserGroupTable(ModelTable):
-    model=Group
-    names=['name','permissions']
 
-
-class UserGroupFields(ModelFields):
-    template='user_admin/permit.html'
-    class Meta:
-        model=Group
-        fields=['name',]
-        
-    # def get_heads(self):
-        # heads = super(UserGroupFields,self).get_heads()
-        # for head in heads:
-            # if head['name']==:
-                # head['size']=20
-        # return heads
-    def get_context(self):
-        ctx = super(UserGroupFields,self).get_context()
-        group = self.instance
-        #if not hasattr(group,'permitmodel'):
-            #group.permitmodel=PermitModel.objects.create(group=group)
-        if hasattr(group,'permitmodel'):
-            ctx['permits']=json.loads(group.permitmodel.permit) #[{'model':x.model,'permit': json.loads(x.permit)} for x in self.instance.per.all()]
-        else:
-            ctx['permits']=[]
-        ls = []
-        # for k1,v1 in apps.all_models.items():
-            # for k2,v2 in v1.items():
-                # ls.append({'name':'%s.%s'%(k1,k2),'label':'%s.%s'%(k1,k2)})
-        for v in permit_list:
-            if issubclass(v,models.Model):
-                ls.append({'name':model_to_name(v),'label':v._meta.verbose_name})
-            #model = v.get('model')
-            #if model:
-                #ls.append({'name':k,'label':v.get('label',k)})
-        ctx['model_permits']=ls
-        
-        return ctx
 
 
 class EmployeeTable(ModelTable):
@@ -337,16 +303,14 @@ class BaseinfoFormPage(FormPage):
     # def get_context(self):
         # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
 
-class GroupTablePage(TablePage):
-    tableCls=UserGroupTable
-
-class GroupFormPage(FormPage):
-    template='user_admin/permit.html'
-    fieldsCls=UserGroupFields
-    ajax_scope=ajax.get_globe()
 
 class UserTablePage(TablePage):
     tableCls=UserTable
+
+class UserFormPage(FormPage):
+    fieldsCls=UserFields
+
+
 
 #permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
 #permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
@@ -354,11 +318,17 @@ class UserTablePage(TablePage):
 permit_list.append(BasicInfo)
 permit_list.append(EmployeeInfo)
 permit_list.append(SalaryRecords)
+permit_list.append({'name':'spcial','label':'特殊权限','fields':[
+                        {'name':'sp1','label':'jjyy','type':'bool'},
+                        {'name':'sp2','label':'yyjj','type':'bool'}
+                    ]})
+
 
 model_dc[BasicInfo]={'fields':BasicInfoFields}
 model_dc[EmployeeInfo]={'fields':EmployeeFields}
 model_dc[SalaryRecords]={'fields':SalaryFields}
-model_dc[Group]={'fields':UserGroupFields}
+model_dc[User]={'fields':UserFields}
+
 #model_render_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
 #model_page_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
 #model_page_dc['group']={'model':Group,'table':UserGroupTable,'fields':UserGroupFields,'ajax':ajax.get_globe(),}
@@ -367,6 +337,6 @@ model_dc[Group]={'fields':UserGroupFields}
 ##model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
 #model_page_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
 
-model_page_dc['user']={'table':UserTablePage,'form':GroupFormPage,}
-model_page_dc['group']={'table':GroupTablePage,'form':GroupFormPage,}
+model_page_dc['user']={'table':UserTablePage,'form':UserFormPage}
+
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}

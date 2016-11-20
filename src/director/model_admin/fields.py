@@ -95,7 +95,7 @@ class ModelFields(forms.ModelForm):
 
         return heads
     
-    def can_access_instance(self):
+    def can_access(self):
         """
         used to judge if self.crt_user has right to access self.instance
         """
@@ -119,7 +119,7 @@ class ModelFields(forms.ModelForm):
         convert self.instance to dict.
         Note:Only convert Meta.fields ,not All fields
         """
-        if not self.can_access_instance():
+        if not self.can_access():
             raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name
         
         include = [x for x in self._meta.fields if x in self.fields]
@@ -149,7 +149,7 @@ class ModelFields(forms.ModelForm):
                 if not self.permit.changeable_fields():
                     raise PermissionDenied,'you have no Permission changed %s'%self.instance._meta.model_name 
             else:
-                if not self.can_access_instance():
+                if not self.can_access():
                     raise PermissionDenied,'you have no Permission access %s'%self.instance._meta.model_name  
             # table_perm = self.instance._meta.app_label+'.%s_'%op+self.instance._meta.model_name
             # if not self.crt_user.has_perm(table_perm):

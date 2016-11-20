@@ -36,7 +36,7 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
     
     注意，返回的字典，是可以json化的才行。
     """
-    fields=instance._meta.fields
+    fields=instance._meta.get_fields() # 如果用  instance._meta.fields 没有 manytomany (测试过) ,可能也没有 onetoone
     if include:
         fields=filter(lambda field:field.name in include,fields)
     if exclude:

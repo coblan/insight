@@ -26,7 +26,7 @@ class PageNum(object):
     
     def get_context(self):
         """
-        rt: {'choice':[1,2,3,4,...,100],
+        rt: {'options':[1,2,3,4,...,100],
              'crt_page':2
             }
         """
@@ -44,7 +44,7 @@ class PageNum(object):
         for i in range(len(page_nums)):
             num = page_nums[i]
         page_nums=[str(x) for x in page_nums]
-        return {'choice':page_nums,'crt_page':self.pageNumber}    
+        return {'options':page_nums,'crt_page':self.pageNumber}    
     
 class RowSearch(object):
     names=[]
@@ -122,16 +122,21 @@ class RowSort(object):
     names=[]
     def __init__(self,row_sort=[],user=None,allowed_names=[],kw={}):
         self.valid_name=[x for x in self.names if x in allowed_names]
-        self.sort_args=[]
+        ls=[]
         for x in row_sort:
             if x.lstrip('-') in self.valid_name:
-                self.sort_args.append(x)
+                ls.append(x)
+        self.sort_str=','.join(ls)
         
     def get_context(self):
-        return {'sortable':self.valid_name,'sorted':self.sort_args}
+        return {'sortable':self.valid_name,'sort_str':self.sort_str}
     
     def get_query(self,query):
-        return query.order_by(*self.sort_args)
+        if self.sort_str:
+            ls=self.sort_str.split(',')
+            return query.order_by(*ls)
+        else:
+            return query
 
   
 class ModelTable(object):
@@ -159,6 +164,7 @@ class ModelTable(object):
     filters=RowFilter
     include=None
     exclude=[]
+    pagenator=PageNum
     def __init__(self,page=1,row_sort=[],row_filter={},row_search={},crt_user=None,kw={}):
         self.crt_user=crt_user 
         self.page=page
@@ -171,7 +177,7 @@ class ModelTable(object):
             self.row_filter.model=self.model
         if not self.row_search.model:
             self.row_search.model=self.model
-        self.pagenum = PageNum(pageNumber=self.page)
+        self.pagenum = self.pagenator(pageNumber=self.page)
 
     @classmethod
     def parse_request(cls,request):
@@ -205,32 +211,13 @@ class ModelTable(object):
             'heads':self.get_heads(),
             'rows': self.get_rows(),
             'row_pages' : self.pagenum.get_context(),
-            # 'filters_options':self.get_options(),
             'row_sort':self.row_sort.get_context(),
             'row_filters':self.row_filter.get_context(),
-            #'row_search':self.row_search.get_context(),
-            
-            #'sort':self.get_sort(),
-            #'q': self.q ,
             'placeholder':self.row_search.get_context(),
             'model':model_to_name(self.model),
         }
        
-    
-    #def get_filters(self):
-        #"""
-        #rt:
-        #[{name:field_name,label:field_label,option:[{value:xxx,label:xxx},]}]
-        #"""
-        #return {}
-    
-    #def get_search(self):
-        #"""
-        #rt:
-        #[{name:field_name,placeholder:xxx}]
-        #"""
-        #return {}
-    
+
     def permited_fields(self):
         self.permit=Permit(model=self.model, user=self.crt_user)
         ls = self.permit.readable_fields()

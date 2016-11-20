@@ -8,7 +8,6 @@
 <script type="text/javascript">
 	
 	row_filters={{row_filters | jsonify }}
-	//q='{{q | safe |default:""}}'
 	placeholder = '{{placeholder |default:""}}'
 	row_sort={{row_sort | jsonify | default:'[]' }}
 	heads={{ heads | jsonify | default:'[]'}}
@@ -16,7 +15,7 @@
 	row_pages = {{ row_pages | jsonify}}
 	model ="{{ model }}"
 	url_args=ex.parseSearch()
-
+	//	search字段从 url_args._q 来取值
 	$(function () {
 		new Vue({
 			el:'#there',
@@ -27,7 +26,6 @@
 		        row_filters:row_filters,
 		        row_sort:row_sort,
 		        row_pages:row_pages,
-		        //q:q,
 		        placeholder:placeholder,
 		        selected:[],
 		        del_info:[],
@@ -36,12 +34,12 @@
 		        can_del:false,
 		        model:model,
 		        url_args:url_args,
-		        
+		        ex:ex,
 			},
 			mixins:[table_fun],
 			watch:{
-				'row_sort.sorted':function (v) {
-					this.url_args._sort=v.join(',')
+				'row_sort.sort_str':function (v) {
+					this.url_args._sort=v
 					this.search()
 				}
 			},
@@ -58,14 +56,25 @@
 										next:btoa(location.pathname+location.search),
 										value:row[name]
 									})
-			                //return '<a href="edit/'+row.pk+'?next='+btoa(location.pathname+location.search)+'">'+row[name]+'</a>'
 		                }else{
 			                return row[name]
 			        }
 				},
+				//sorted_list:function (sorted) {
+				//	var array=sorted.split(',')
+				//	return ex.map(array,function (v) {
+				//		if(v.startsWith('-'){
+				//			return v.slice(1)
+				//		}else{
+				//			return v
+				//		}
+				//},
+				goto_page:function (page) {
+					this.url_args._page=page
+					this.search()
+				},
 				add_new:function () {
 					return 'edit/?next='+btoa(location.pathname+location.search)
-					//location='edit/?next='+btoa(location.pathname+location.search)
 				},
 				del_item:function () {
 					
@@ -131,18 +140,18 @@
 		</div>
 		
 	</div>
-	
+
 	<table class='table'>
 		<thead>
-			<tr>
+			<tr >
 				<td style='width:50px' v-if='selected'>
 					<input type="checkbox" name="test" value=""/>
 				</td>
-				<td v-for='head in heads' :class='["td_"+head.name,{"selected":ig_ms_in(row_sort.sorted,head.name)}]'>
-					<span v-if='ig_ms_in(row_sort.sortable,head.name)' v-text='head.label' class='clickable' 
-						@click='toggle( row_sort.sorted,head.name)'></span>
+				<td v-for='head in heads' :class='["td_"+head.name,{"selected":is_sorted(row_sort.sort_str ,head.name )}]'>
+					<span v-if='ex.isin(head.name,row_sort.sortable)' v-text='head.label' class='clickable' 
+						@click='row_sort.sort_str = toggle( row_sort.sort_str,head.name)'></span>
 					<span v-else v-text='head.label'></span>
-					<sort-mark class='sort-mark' :sorted='row_sort.sorted' :name='head.name'></sort-mark>
+					<sort-mark class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>
 				</td>
 			</tr>
 		</thead>
@@ -160,7 +169,7 @@
 	
 
 	<!--<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>-->
-	<paginator :nums='row_pages.choice' :crt='row_pages.crt_page' @goto_page='goto_page($event)'></paginator>
+	<paginator :nums='row_pages.options' :crt='row_pages.crt_page' @goto_page='goto_page($event)'></paginator>
 	
 
 	<!--<del-info :infos='del_info'></del-info>-->

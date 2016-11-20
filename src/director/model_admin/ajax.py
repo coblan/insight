@@ -1,4 +1,9 @@
 # encoding:Utf8
+"""
+这里的ajax函数是被所有由render生成的页面共用的。
+如果TablePage或者FormPage的ajax_scope中有相同名字的函数，则优先调用。
+
+"""
 from __future__ import unicode_literals
 
 from permit import Permit
@@ -14,7 +19,6 @@ def get_globle():
 def model_perm(user,perm,model):
     validator = Permit(model, user)
     return getattr(validator,perm)()
-
 
 
 def save(row,user):

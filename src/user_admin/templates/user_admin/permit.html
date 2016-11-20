@@ -11,14 +11,16 @@
 		row = {{ row | jsonify }}
 		permits={{permits | jsonify }}
 		model_permits = {{ model_permits | jsonify}}
+		permit_heads={{permit_heads | jsonify}}
 		errors={}
-
+		
         $(function () {
                 haha= new Vue({
                         el:'#there',
                         data:{
-                                model_permits:model_permits,
-                                permits:permits,
+	                        	permit_heads:permit_heads,
+	                        	selected_heads:[],
+                                permits: permits?permits:{},
                                 sld_md_name:'',
                                 kw:{
 	                                heads:heads,
@@ -26,44 +28,27 @@
 	                                errors:{},
                                 }
                         },
+                        mounted: function(){
+	                        var self=this
+	                        this.selected_heads=ex.remove(this.permit_heads,function (head) {
+	                        		return self.permits[head.name]
+	                        })
+                        },
                         methods:{
-                                add_model_permit:function (name) {
+                                add_permit:function (name) {
 	                                if(!name){
 		                                return 
 	                                }
-	                                var self=this;
-                                    var post_data=[{fun:'model_permit_info',name:this.sld_md_name}]
-                                    $.post('',JSON.stringify(post_data),function (data) {
-	                                    //var row={'can__create':false,'can__delete':false}
-	                                    var heads=data.model_permit_info
-	                                    //for (var i=0;i<heads.length;i++){
-		                                   // var head=heads[i]
-		                                   // row[head.name+'__read']=false
-		                                   // row[head.name+'__write']=false
-	                                    //}
-                                    	permits.push({	heads:heads,
-                                    					name:self.sld_md_name,
-                                    					row:[],
-                                    					})
-                                    })
+	                                this.selected_heads=this.selected_heads.concat(ex.remove(this.permit_heads,function (head) {
+	                                	return name==head.name
+	                                }))
                                 },
-                                get_label:function (name) {
-	                                var model =ex.findone(this.model_permits,{name:name})
-	                                return model.label
-                                	//for(var i=0;i<this.models.length;i++){
-	                                //	if(this.models[i].name==name){
-		                               // 	return this.models[i].label
-	                                //	}
-                                	//}
-                                },
-                                get_left_model:function () {
-	                                var sld_model_names = ex.map(this.permits,function (permit) {
-	                                	return permit.name
-	                                })
-	                                var ls =ex.filter(this.model_permits,function (model) {
-		                                	return !ex.isin(model.name,sld_model_names)
-		                                })
-		                            return ls
+                                delet_permit:function (name) {
+	                                this.permit_heads = this.permit_heads.concat(ex.remove(this.selected_heads,function (head) {
+	                                		return head.name==name
+	                                }))
+                                	Vue.delete(this.permits,name)
+                                	
                                 },
                                 submit:function () {
                                         var self=this;
@@ -73,7 +58,6 @@
                                                 if(data.save_group_and_permit.errors){
                                                         this.kw.errors=data.save_group_and_permit.errors
                                                 }
-                                   
                                                 setTimeout(function () {
                                                     hide_upload()
                                                 },2000)
@@ -93,48 +77,24 @@
         
         <field name='name' :kw='kw'></field>
         <div>
-            <select name="" id="" v-model='sld_md_name'>
-	            <option v-for='item in get_left_model()' :value="item.name" v-text='item.label'></option>
+	        <span><b>可用权限:</b></span>
+            <select name="" id="available_permit" v-model='sld_md_name' class="form-control">
+	            <option v-for='item in permit_heads' :value="item.name" v-text='item.label'></option>
             </select>
-            <button name="test" type="button" value="val" @click='add_model_permit(sld_md_name)'>添加</button>
+            <button name="test" type="button" value="val" @click='add_permit(sld_md_name)'>添加</button>
         </div>
         <div  class='row'>
 	        <table class='table'>
-	        	<tr v-for='permit in permits'>
-		        	<td><span v-text='get_label(permit.name)'></span></td>
+	        	<tr v-for='(head,index) in selected_heads'>
 		        	<td>
-			        	<table >
-				        	<tr class='select_cell'>
-					        	<td><span >快捷</span></td>
-					        	<td><span >整表</span></td>
-					        	<td><span>查看日志</span></td>
-					        	<td v-for='head in permit.heads'><span v-text='head.label'></span></td>
-				        	</tr>
-				        	<tr class='select_cell'>
-					        	<td><input type="checkbox" name="test" value="" /></td>
-					        	<td><input type="checkbox" :id="permit.name+'can__create'" value="can__create" v-model='permit.row'/>
-									<label :for="permit.name+'can__create'">创建</label>
-									</td>
-								<td><input type="checkbox" :id="permit.name+'can__log'" value="can__log" v-model='permit.row'/>
-									<label :for="permit.name+'can__log'">允许</label>
-									</td>
-								<td v-for='head in permit.heads'><input type="checkbox" :id="permit.name+head.name+'__read'" 
-										:value="head.name+'__read'" v-model="permit.row" />
-									<label :for="permit.name+head.name+'__read'">读</label>
-									</td>
-				        	</tr>
-				        	<tr class='select_cell'>
-					        	<td><input type="checkbox" value='' ></td>
-					        	<td><input type="checkbox" :id="permit.name+'can__delete'"  value='can__delete' v-model='permit.row'>
-							       <label :for="permit.name+'.can__delete'">删除</label>
-							       </td>
-							    <td></td>
-							    <td v-for='head in permit.heads'><input type="checkbox" :id="permit.name+head.name+'__write'" 
-						           	:value="head.name+'__write'" v-model="permit.row">
-						           	<label :for="permit.name+head.name+'__write'">写</label>
-						           	</td>
-				        	</tr>
-				        </table>  
+			        	<span v-text='head.label'></span>
+			        	<span @click='delet_permit(head.name)'>delete</span>
+			        </td>
+		        	<td >
+			        	<model-fields v-if='head.type=="model"' :fields='head.fields' 
+			        		v-model='permits[head.name]' :uni_name='index'></model-fields>
+			        	<special-fields v-else :fields='head.fields' 
+			        		v-model='permits[head.name]' :uni_name='index'></special-fields>
 		        	</td>
 	        	</tr>
 	        </table>
@@ -152,8 +112,117 @@
 	.select_cell label{
 		font-weight:normal;
 	}
+	#available_permit{
+		min-width:200px;
+		max-width:350px;
+		display: inline-block;
+	}
 </style>
 
+<script type="text/javascript">
+	Vue.component('model-fields',{
+		template:'#model-fields',
+		props:['fields','value','uni_name'],
+		data:function () {
+			return {
+				permit:this.value?this.value:[],
+				first_row_mark_all:false,
+				second_row_mark_all:false,
+			}
+		},
+		watch:{
+			permit:function (v) {
+				this.$emit('input',v)
+			},
+			first_row_mark_all:function (v) {
+				ex.remove(this.permit,function (item) {
+					return item.endsWith('__read') || ex.isin(item,['can__create','can__log'])
+				})
+				if(v){
+					this.permit= this.permit.concat(['can__create','can__log'])
+					this.permit=this.permit.concat(ex.map(this.fields,function (field) {
+							return field.name+'__read'
+					}))
+				}
+			},
+			second_row_mark_all:function (v) {
+				ex.remove(this.permit,function (item) {
+					return item.endsWith('__write') || ex.isin(item,['can__delete'])
+				})
+				if(v){
+					this.permit=this.permit.concat(['can__delete'])
+					this.permit=this.permit.concat(ex.map(this.fields,function (field) {
+							return field.name+'__write'
+					}))
+				}
+			},
+		},
+	})
+</script>
+
+<template id='model-fields'>
+	<table >
+    	<tr class='select_cell'>
+        	<td><span >快捷</span></td>
+        	<td><span >整表</span></td>
+        	<td><span>查看日志</span></td>
+        	<td v-for='field in fields'><span v-text='field.label'></span></td>
+    	</tr>
+    	<tr class='select_cell'>
+        	<td><input type="checkbox" name="test" value="" v-model='first_row_mark_all' /></td>
+        	<td><input type="checkbox" :id="uni_name+'can__create'" value="can__create" v-model='permit'/>
+				<label :for="uni_name+'can__create'">创建</label>
+				</td>
+			<td><input type="checkbox" :id="uni_name+'can__log'" value="can__log" v-model='permit'/>
+				<label :for="uni_name+'can__log'">允许</label>
+				</td>
+			<td v-for='field in fields'><input type="checkbox" :id="uni_name+field.name+'__read'" 
+					:value="field.name+'__read'" v-model="permit" />
+				<label :for="uni_name+field.name+'__read'">读</label>
+				</td>
+    	</tr>
+    	<tr class='select_cell'>
+        	<td><input type="checkbox" value='' v-model='second_row_mark_all'></td>
+        	<td><input type="checkbox" :id="uni_name+'can__delete'"  value='can__delete' v-model='permit'>
+		       <label :for="uni_name+'.can__delete'">删除</label>
+		       </td>
+		    <td></td>
+		    <td v-for='field in fields'><input type="checkbox" :id="uni_name+field.name+'__write'" 
+	           	:value="field.name+'__write'" v-model="permit">
+	           	<label :for="uni_name+field.name+'__write'">写</label>
+	           	</td>
+    	</tr>
+    </table> 
+</template>
+
+<script type="text/javascript">
+	Vue.component('special-fields',{
+		template:'#special-fields',
+		props:['fields','value','uni_name'],
+		data:function () {
+			return {
+				permit:this.value?this.value:[],
+				
+			}
+		},
+		watch:{
+			permit:function (v) {
+				this.$emit('input',v)
+			},
+			
+		}
+	})
+</script>
+<template id='special-fields'>
+	<table>
+		<tr>
+			<td v-for='field in fields'><input type="checkbox" :id="uni_name+field.name" 
+				:value="field.name" v-model="permit" />
+			<label :for="uni_name+field.name" v-text='field.label'></label>
+			</td>
+		</tr>
+	</table>
+</template>
 <script type="text/javascript">
         Vue.component('pure_form',{
                 template:'#pure_form',

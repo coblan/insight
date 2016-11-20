@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from director.db_tools import model_to_name
 from django.apps import apps
 import json
-
+from django.db import models
+from base import model_dc
 permit_list=[]
 
 class Permit(object):
@@ -26,11 +27,27 @@ class Permit(object):
         for group in self.user.groups.all():
             if hasattr(group,'permitmodel'):
                 permits = json.loads( group.permitmodel.permit )
-                for permit in permits:
-                    if permit.get('model') == model_name:
-                        self.permit_list.extend(permit.get('row'))
+                permit= permits.get(model_name,[])
+                self.permit_list.extend(permit)
         self.permit_list=list(set(self.permit_list))
-                
+    
+    def get_heads(self):
+        ls=[]
+        for v in permit_list:
+            if not isinstance(v,dict) and issubclass(v,models.Model):
+                ls.append({'name':model_to_name(v),
+                           'label':v._meta.verbose_name,
+                           'type':'model',
+                           'fields':model_permit_info(v,self.user)})
+        
+        for v in permit_list:
+            if isinstance(v,dict):
+                ls.append(v)
+        return ls
+    
+    def get_rows(self):
+        pass
+    
     def can_add(self):
         if self.user.is_superuser:
             return True
@@ -83,3 +100,16 @@ class Permit(object):
                 if perm.endswith('__write'):
                     ls.append(perm[0:-7])
             return list(set(ls))
+
+
+
+def model_permit_info(model,user):
+    fields = model_dc.get(model).get('fields')
+    ls=[]
+    for k,v in fields(crt_user=user).fields.items():
+        if hasattr(v.label,'title') and callable(v.label.title):
+            label=v.label.title()
+        else:
+            label=v.label
+        ls.append({'name':k,'label':label})
+    return ls
