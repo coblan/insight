@@ -76,8 +76,9 @@ class Permit(object):
     
     def all_fields(self):
         ls=[]
-        for field in self.model._meta.fields:
-            ls.append(field.name)   
+        for field in self.model._meta.get_fields():
+            if isinstance(field,models.Field):
+                ls.append(field.name)   
         return ls
     
     def readable_fields(self):

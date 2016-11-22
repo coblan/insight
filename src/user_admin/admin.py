@@ -108,9 +108,9 @@ class BasicInfoFields(ModelFields):
     
         
         
-class UserTable(ModelTable):
-    model=User
-    exclude=['password','id']
+#class UserTable(ModelTable):
+    #model=User
+    #exclude=['password','id']
     
     #def get_heads(self):
         #heads = super(UserTable,self).get_heads()
@@ -127,7 +127,7 @@ class UserTable(ModelTable):
                 #user_dc['_name']=user.basicinfo.name
         #return rows
 
-class UserFields(ModelFields):
+#class UserFields(ModelFields):
     # age = forms.CharField(label='年龄')
     
     #def pop_fields(self):
@@ -144,9 +144,9 @@ class UserFields(ModelFields):
             # if k in self.fields:
                 # self.fields[k].initial=self.instance.basicinfo.age
     
-    class Meta:
-        model=User
-        fields=['username','first_name','is_active','is_staff','is_superuser','email','groups']
+    #class Meta:
+        #model=User
+        #fields=['username','first_name','is_active','is_staff','is_superuser','email','groups']
     
     #def get_row(self):
         #row = super(UserFields,self).get_row()
@@ -304,11 +304,11 @@ class BaseinfoFormPage(FormPage):
         # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
 
 
-class UserTablePage(TablePage):
-    tableCls=UserTable
+#class UserTablePage(TablePage):
+    #tableCls=UserTable
 
-class UserFormPage(FormPage):
-    fieldsCls=UserFields
+#class UserFormPage(FormPage):
+    #fieldsCls=UserFields
 
 
 
@@ -327,7 +327,7 @@ permit_list.append({'name':'spcial','label':'特殊权限','fields':[
 model_dc[BasicInfo]={'fields':BasicInfoFields}
 model_dc[EmployeeInfo]={'fields':EmployeeFields}
 model_dc[SalaryRecords]={'fields':SalaryFields}
-model_dc[User]={'fields':UserFields}
+#model_dc[User]={'fields':UserFields}
 
 #model_render_dc['basicinfo'] ={'model':BasicInfo,'table':BasicInfoTable,'fields':BasicInfoFields,'ajax':ajax.get_globe(),'label':'员工基本信息'}
 #model_page_dc['user'] = {'model':User,'table':UserTable,'fields':UserFields,'label':'账号数据'}
@@ -337,6 +337,6 @@ model_dc[User]={'fields':UserFields}
 ##model_render_dc['employee_prod'] ={'table':EmployeeTable,'fields':EmployeeProd,'ajax':ajax.get_globe()}
 #model_page_dc['salary_records']={'table':SalaryTabel,'fields':SalaryFields,'model':SalaryRecords}
 
-model_page_dc['user']={'table':UserTablePage,'form':UserFormPage}
+#model_page_dc['user']={'table':UserTablePage,'form':UserFormPage}
 
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}

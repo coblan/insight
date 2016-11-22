@@ -37,6 +37,7 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
     注意，返回的字典，是可以json化的才行。
     """
     fields=instance._meta.get_fields() # 如果用  instance._meta.fields 没有 manytomany (测试过) ,可能也没有 onetoone
+    fields=[field for field in fields if isinstance(field,models.Field)]
     if include:
         fields=filter(lambda field:field.name in include,fields)
     if exclude:
@@ -208,12 +209,13 @@ def form_to_head(form,include=None):
 
 def model_to_head(model,include=[],exclude=[]):
     out = []
-    for field in model._meta.fields:
-        if isinstance(field._verbose_name, (str,unicode)):
-            dc = {'name':field.name,'label':field._verbose_name,}
-        else:
-            dc= {'name':field.name,'label':field.name,}
-        out.append(dc)
+    for field in model._meta.get_fields():
+        if isinstance(field,models.Field):
+            if isinstance(field._verbose_name, (str,unicode)):
+                dc = {'name':field.name,'label':field._verbose_name,}
+            else:
+                dc= {'name':field.name,'label':field.name,}
+            out.append(dc)
     if include:
         out=[x for x in out if x.get('name') in include]
         out.sort(key=lambda x : include.index(x.get('name')))
