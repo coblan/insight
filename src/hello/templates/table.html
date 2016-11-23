@@ -17,12 +17,11 @@
 	url_args=ex.parseSearch()
 	//	search字段从 url_args._q 来取值
 	$(function () {
-		new Vue({
+	table=new Vue({
 			el:'#there',
 			data:{
 		        heads:heads,
 		        rows:rows,
-		        crt_page:{},
 		        row_filters:row_filters,
 		        row_sort:row_sort,
 		        row_pages:row_pages,
@@ -44,31 +43,19 @@
 				}
 			},
 			methods:{
-				//sort_col:function (name) {
-				//	var ls = this.toggle(row_sort.sorted,name)
-				//	this.url_args._sort=ls.join(',')
-				//	this.search()
-				//},
+			{% block map %}
 				map:function (name,row) {
 					if(name==heads[0].name){
 						return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
 									{	pk:row.pk,
 										next:btoa(location.pathname+location.search),
 										value:row[name]
-									})
-		                }else{
+							})
+		            }else{
 			                return row[name]
 			        }
 				},
-				//sorted_list:function (sorted) {
-				//	var array=sorted.split(',')
-				//	return ex.map(array,function (v) {
-				//		if(v.startsWith('-'){
-				//			return v.slice(1)
-				//		}else{
-				//			return v
-				//		}
-				//},
+			{% endblock %}
 				goto_page:function (page) {
 					this.url_args._page=page
 					this.search()
@@ -199,24 +186,6 @@
 		color: #0099CC;
 	}
 </style>
-<!--<script type="text/javascript">
-	Vue.component('del-info',{
-		template:'#del-info',
-		props:['infos'],
-	})
-</script>
-<template id='del-info'>
-	<div>
-		<div v-for='info in infos'>
-			<h3 v-text='$key'></h3>
-			<ul>
-				<li v-for='item in info'>
-					<span v-text='item.str'></span>
-				</li>
-			</ul>
-		</div>
-		
-	</div>
-	
-</template>-->
+{% block extra %}
+{% endblock %}
 {% endblock %}

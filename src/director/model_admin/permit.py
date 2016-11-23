@@ -1,4 +1,4 @@
-# encoding:utf8
+# encoding:utf-8
 
 from __future__ import unicode_literals
 from director.db_tools import model_to_name

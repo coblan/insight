@@ -5,6 +5,7 @@ from django.apps import apps
 from django import forms
 import json
 from datetime import datetime
+from django.utils.translation import ugettext as _
 
 #from django.db.models.fields import related_descriptors
 
@@ -185,7 +186,7 @@ def form_to_head(form,include=None):
     for k,v in form.fields.items():
         if isinstance(include,(tuple,list)) and k not in include:
             continue
-        dc = {'name':k,'label':unicode(v.label),'required':v.required,}
+        dc = {'name':k,'label':_(v.label),'required':v.required,}
         if v.__class__==forms.fields.CharField:
             if v.max_length:
                 dc.update({'type':'linetext','maxlength':v.max_length})
@@ -211,10 +212,10 @@ def model_to_head(model,include=[],exclude=[]):
     out = []
     for field in model._meta.get_fields():
         if isinstance(field,models.Field):
-            if isinstance(field._verbose_name, (str,unicode)):
-                dc = {'name':field.name,'label':field._verbose_name,}
-            else:
-                dc= {'name':field.name,'label':field.name,}
+            #if isinstance(field._verbose_name, (str,unicode)):
+                #dc = {'name':field.name,'label':_(field._verbose_name),}
+            #else:
+            dc= {'name':field.name,'label':unicode(field.verbose_name)}
             out.append(dc)
     if include:
         out=[x for x in out if x.get('name') in include]

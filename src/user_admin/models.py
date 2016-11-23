@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import User,Group
 from django.db import models
-
+from django.utils.translation import ugettext as _
 
     
 
@@ -11,9 +11,9 @@ from django.db import models
 # Create your models here.
 class BasicInfo(models.Model):
     # , on_delete=models.SET_NULL
-    user = models.OneToOneField(User, blank=True, null=True)
-    name = models.CharField('姓名', max_length=50, blank=True)
-    age = models.CharField('年龄', max_length=50, blank=True)
+    user = models.OneToOneField(User,verbose_name=_('user'), blank=True, null=True)
+    name = models.CharField(_('name'), max_length=50, blank=True)
+    age = models.CharField(_('age'), max_length=50, blank=True)
     
     def __unicode__(self):
         return self.name

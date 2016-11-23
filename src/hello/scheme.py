@@ -30,13 +30,16 @@ def page(name):
 #]
   
 menus=[
-    {'name':'hello','label':'hello','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
-    {'name':'basice','label':'用户相关','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
-     'submenu':[{'name':'basice','label':'basicinfo','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'})},
+    {'name':'hello','label':'home','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
+    {'name':'basice','label':'账号管理','url':lambda: reverse('model_table',kwargs={'name':'user'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+     'submenu':[
                 {'name':'user','label':'用户管理','url':lambda: page('user'),'invalid':cant_touch(User)},
                 {'name':'group','label':'用户组','url':lambda:page('group')},
-                {'name':'employee_set','label':'employee','url':'/hello/model/employee_set/','invalid':cant_touch(Group)},
                 ]},
+    {'name':'employee','label':'员工信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+     'submenu':[{'name':'basice','label':'基本信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'})},
+                {'name':'employee_set','label':'employee','url':'/hello/model/employee_set/','invalid':cant_touch(Group)},
+         ]},
 
 ]
 

@@ -14,6 +14,7 @@ from django.contrib.auth.models import User,Group
 import json
 import ajax
 from django.db import models
+from django.db.models import Q
 
 
 
@@ -88,6 +89,22 @@ class BasicInfoFields(ModelFields):
     
     def clean_name(self):
         return self.cleaned_data['name']
+    
+    
+    def get_options(self):
+        options = super(BasicInfoFields,self).get_options()
+        
+        qs = User.objects.filter( Q(basicinfo__isnull=True)|Q(basicinfo = self.instance) )
+        
+        options['user']=[{'value':user.pk,'label':user.username} for user in qs]
+        return options
+        #for name,field in self.fields.items():
+            #if isinstance(field,forms.models.ModelMultipleChoiceField):
+                #options[name]=[{'value':x[0],'label':x[1]} for x in field.choices]            
+            #elif isinstance(field,forms.models.ModelChoiceField):
+                #options[name]=[{'value':x[0],'label':x[1]} for x in list(field.choices)[1:]]
+            
+        #return options    
     
     #def can_access_instance(self):
         #access = super(BasicInfoFields,self).can_access_instance()

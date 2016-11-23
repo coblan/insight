@@ -1,4 +1,4 @@
-# encoding:utf8
+# encoding:utf-8
 from __future__ import unicode_literals
 
 from model_admin.render import TablePage,FormPage
@@ -55,6 +55,7 @@ class UserTable(ModelTable):
             
 
 class UserTablePage(TablePage):
+    template='authuser/user_table.html'
     tableCls=UserTable
 
 class UserFormPage(FormPage):
