@@ -88,7 +88,8 @@ class BasicInfoFields(ModelFields):
         #return ['name','age']
     
     def clean_name(self):
-        return self.cleaned_data['name']
+        raise forms.ValidationError('jjyy')
+        #return self.cleaned_data['name']
     
     
     def get_options(self):

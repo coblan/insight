@@ -194,7 +194,7 @@ def form_to_head(form,include=None):
                 dc.update({'type':'blocktext'})
         elif v.__class__==forms.fields.BooleanField:
             dc['type']='bool'
-            dc['no_auto_label']=True
+            #dc['no_auto_label']=True
         elif v.__class__ in [forms.fields.IntegerField,forms.fields.FloatField]:
             dc['type']='number'
         elif v.__class__ ==forms.models.ModelMultipleChoiceField and \
