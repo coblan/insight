@@ -1,10 +1,10 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from core.port import jsonpost
+from port import jsonpost
 from django.core.urlresolvers import reverse
 import auth_user.ajax as auth_ajax
 import json
-from core.db_tools import form_to_head
+from db_tools import form_to_head
 from forms import AuthForm
 from django.contrib import auth 
 from django.views.decorators.csrf import ensure_csrf_cookie

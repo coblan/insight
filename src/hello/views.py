@@ -5,7 +5,7 @@ from django.http import HttpResponse
 #from core.model_render import Render
 from scheme import menus
 from django.contrib.auth.decorators import login_required
-from director.container import evalue_container
+from helpers.director.container import evalue_container
 from scheme import menus
 # from core.port import jsonpost
 # Create your views here.

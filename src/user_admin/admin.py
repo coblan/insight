@@ -4,12 +4,13 @@ from django import forms
 from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
 from django.apps import apps
-from director.db_tools import to_dict,model_to_name
-from director.model_admin.fields import ModelFields
-from director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
-from director.model_admin.render import model_page_dc,model_dc
-from director.model_admin.permit import permit_list
-from director.model_admin.render import TablePage,FormPage
+
+from helpers.director.db_tools import to_dict,model_to_name
+from helpers.director.model_admin.fields import ModelFields
+from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
+from helpers.director.model_admin.render import model_page_dc,model_dc
+from helpers.director.model_admin.permit import permit_list
+from helpers.director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
 import json
 import ajax

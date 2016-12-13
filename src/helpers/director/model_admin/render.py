@@ -3,16 +3,122 @@ from django.shortcuts import render,Http404
 #from tabel import ModelTable
 #from fields import ModelFields
 from django.forms import ModelForm
-from core.db_tools import model_form_save,from_dict,delete_related_query,to_dict
-from core.port import jsonpost
+from ..db_tools import model_form_save,from_dict,delete_related_query,to_dict
+from ..port import jsonpost
 import json
 from django.apps import apps
 import re
 import base64
 import inspect
-from core.container import evalue_container
-from base import model_dc,get_admin_name_by_model
+from ..container import evalue_container
 import ajax
+from django.contrib.auth.decorators import login_required
+
+from base import model_dc,render_dc,model_page_dc
+
+@login_required
+def table_view(request,name):
+    page_cls = model_page_dc.get(name).get('table')
+    if request.method=='GET':
+        page=page_cls(request)
+        return render(request,page.template,context=page.get_context())
+    elif request.is_ajax():
+        ajax_scope={}
+        ajax_scope.update(ajax.get_globle())
+        ajax_scope.update(page_cls.ajax_scope)
+        return jsonpost(request, ajax_scope)
+
+@login_required
+def form_view(request,name,pk=None):
+    page_cls = model_page_dc.get(name).get('form')
+    if request.method=='GET':
+        page=page_cls(request,pk)
+        return render(request,page.template,context=page.get_context())
+    elif request.is_ajax():
+        ajax_scope={}
+        ajax_scope.update(ajax.get_globle())
+        ajax_scope.update(page_cls.ajax_scope)        
+        return jsonpost(request, ajax_scope)
+        
+@login_required
+def del_rows(request):
+    """
+    rows = base64([{pk:1,_class:app.model}])
+    """
+    page_cls = render_dc.get('del_rows') 
+    if request.method=='GET':
+        page = page_cls(request) 
+        return render(request,page.template,context=page.get_context())
+    elif request.is_ajax():
+        ajax_scope={}
+        ajax_scope.update(ajax.get_globle())
+        ajax_scope.update(page_cls.ajax_scope)
+        return jsonpost(request,ajax_scope)
+
+
+class TablePage(object):
+    template='table.html'
+    tableCls=''
+    ajax_scope={}
+    def __init__(self,request):
+        self.request=request
+        self.table = self.tableCls.parse_request(request)
+       
+    def get_context(self):
+        ctx = self.table.get_context()
+        pop = self.request.GET.get('_pop')
+        if not pop:
+            ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)        
+
+        return ctx
+
+class FormPage(object):
+    template='fields.html'
+    fieldsCls=''
+    ajax_scope={}
+    def __init__(self,request,pk):
+        self.request=request
+        self.pk=pk
+        self.fields = self.fieldsCls(pk=self.pk,crt_user=request.user)
+        
+    def get_context(self):
+        ctx = self.fields.get_context()
+        pop = self.request.GET.get('_pop')
+        if not pop:
+            ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)  
+        return ctx
+
+class DelPage(object):
+    template='del_rows.html'
+    ajax_scope={}
+    def __init__(self,request):
+        self.request=request
+    
+    def get_context(self):
+        ctx = {}
+        pop = self.request.GET.get('_pop')
+        if not pop:
+            ctx['menu']=evalue_container(render_dc.get('menu',{}),user=self.request.user) 
+            
+        ls_str = self.request.GET.get('rows')
+        rows = json.loads(base64.b64decode(ls_str))
+        
+        infos = {}
+        for row in rows:
+            model = apps.get_model(row['_class'])
+            model_util= model_dc.get(model)
+            fields_cls = model_util.get('fields') #,self._get_new_fields_cls())
+            
+            dc={'pk':row['pk'],'crt_user':self.request.user}
+            fields_obj= fields_cls(**dc)
+            infos.update(fields_obj.get_del_info())
+            
+        ctx['infos']=infos
+        ctx['rows']=rows       
+        return ctx        
+
+render_dc['del_rows']=DelPage
+
 
 class Render(object):
     def __init__(self,request,url,table_temp,fields_temp,del_rows_temp,menu):
@@ -53,7 +159,7 @@ class Render(object):
                 dc={'crt_user':self.request.user}
             
             if admin_name:
-                model_item =model_dc.get(admin_name)                  
+                model_item =model_page_dc.get(admin_name)                  
                 ajax_scope= model_item.get('ajax',{})
                 function_scope.update(ajax_scope)
                 
@@ -67,17 +173,17 @@ class Render(object):
             elif re.search('^(\w+)/?$', self.url):
                 browse = re.search('^(\w+)/?$', self.url)
                 self.name=browse.group(1)
-                self.model_item =model_dc.get(self.name)
+                self.model_item =model_page_dc.get(self.name)
                 temp,context = self.browse()
             elif re.search('^(\w+)/edit/?$',self.url):
                 edit = re.search('^(\w+)/edit/?$',self.url)
                 self.name=edit.group(1)
-                self.model_item =model_dc.get(self.name)  
+                self.model_item =model_page_dc.get(self.name)  
                 temp, context = self.edit(name=edit.group(1),pk=None)            
             elif re.search('^(\w+)/edit/(\w*)/?$',self.url):
                 edit = re.search('^(\w+)/edit/(\w*)/?$',self.url)
                 self.name=edit.group(1)
-                self.model_item =model_dc.get(self.name)  
+                self.model_item =model_page_dc.get(self.name)  
                 temp, context = self.edit(name=edit.group(1),pk=edit.group(2))
                 
             if temp is None:
@@ -120,7 +226,7 @@ class Render(object):
         for row in rows:
             model = apps.get_model(row['_class'])
             admin_name = get_admin_name_by_model(model)
-            model_item = model_dc.get(admin_name)
+            model_item = model_page_dc.get(admin_name)
             fields_cls = model_item.get('fields') #,self._get_new_fields_cls())
             
             dc={'pk':row['pk'],'crt_user':self.request.user}
@@ -180,7 +286,7 @@ class Render(object):
             edit = re.search('^(\w+)/edit/',self.url)
             admin_name= edit.group(1)
             
-        self.model_item = model_dc.get(admin_name) 
+        self.model_item = model_page_dc.get(admin_name) 
         fields_cls = self.model_item.get('fields') 
         row['crt_user']=user
         fields_obj=fields_cls(row,crt_user=user)
@@ -215,9 +321,9 @@ class Render(object):
         """
         if model:
             admin_name = get_admin_name_by_model(model)
-            fields= model_dc.get(admin_name).get('fields')
+            fields= model_page_dc.get(admin_name).get('fields')
         elif name:
-            fields = model_dc.get(name).get('fields')
+            fields = model_page_dc.get(name).get('fields')
         return fields(pk=pk,crt_user=self.crt_user).get_context()
     
 

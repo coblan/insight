@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from hello import urls as hello_urls
 from user_admin import urls as user_urls
-from director import urls as director_urls
+from helpers.director import urls as director_urls
 urlpatterns = [
     
     url(r'^accounts/',include(director_urls)),

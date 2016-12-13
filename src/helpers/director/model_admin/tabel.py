@@ -7,7 +7,7 @@ import json
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from permit import Permit
-from director.db_tools import model_to_name,to_dict,model_to_head,model_to_name
+from ..db_tools import model_to_name,to_dict,model_to_head,model_to_name
 #from forms import MobilePageForm
 
 

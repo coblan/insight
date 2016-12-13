@@ -6,6 +6,7 @@ Usage:
     python sync_webcode.py
     
 """
+from __future__ import unicode_literals
 import sys
 import os
 sys.path.append(r'D:\coblan\py2')
@@ -19,12 +20,14 @@ def func(src,dst):
         return False
     #if src.endswith(tp):
         #return True
-    return True
+    else:
+        return True
 
 dc={
-    'dirs':[(ur'D:\coblan\webcode\core',ur'D:\coblan\web\insight\src\core'),
+    'dirs':[(ur'D:\coblan\webcode\helpers',ur'D:\coblan\web\insight\src\helpers'),
             (ur'D:\coblan\webcode\res',ur'D:\coblan\web\insight\src\static\res'),],
     'include_file':func,
     }
 
-sync(dc)
+if __name__=='__main__':
+    sync(dc)

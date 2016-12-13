@@ -1,7 +1,7 @@
 # encoding:utf-8
 
 from __future__ import unicode_literals
-from director.db_tools import model_to_name
+from ..db_tools import model_to_name
 from django.apps import apps
 import json
 from django.db import models

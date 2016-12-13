@@ -29,6 +29,14 @@ def name_to_model(app_model_string):
     
 
 def to_dict(instance,filt_attr=None,include=None,exclude=None):
+    out=sim_dict(instance,filt_attr,include,exclude)
+    out['pk']=instance.pk
+    out['_class']= instance._meta.app_label+'.'+instance._meta.model_name
+    out['_label']=unicode(instance)
+    return out
+
+
+def sim_dict(instance,filt_attr=None,include=None,exclude=None):
     """
     fields=['name','age'] 虽然中函数中fields是django中的model.field对象，但是这里为了方便，接受外部
                          输入是字段的名字
@@ -56,14 +64,8 @@ def to_dict(instance,filt_attr=None,include=None,exclude=None):
             if proxy_cls:
                 out[field.name] = proxy_cls().to_dict(instance,field.name)
             else:
-                out[field.name]=field.get_prep_value( getattr(instance,field.name) )
-    out['pk']=instance.pk
-    out['_class']= instance._meta.app_label+'.'+instance._meta.model_name
-    out['_label']=unicode(instance)
+                out[field.name]=field.get_prep_value( getattr(instance,field.name) )   
     return out
-
-
-#def stringfy_model(model):
     
 
 class DatetimeProc(object):

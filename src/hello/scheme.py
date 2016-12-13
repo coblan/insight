@@ -1,9 +1,9 @@
 # encoding:utf-8
 from __future__ import unicode_literals
 
-from director.model_admin.permit import Permit
+from helpers.director.model_admin.permit import Permit
 from user_admin.models import SalaryRecords,BasicInfo,EmployeeInfo,User,Group
-from director.model_admin.render import render_dc
+from helpers.director.model_admin.render import render_dc
 from django.core.urlresolvers import reverse
 #from django.urls import reverse
 

@@ -1,7 +1,7 @@
 #from core.model_render import save_row,model_dc
-from director.db_tools import name_to_model
-from director.models import PermitModel
-from director.model_admin.render import model_dc
+from helpers.director.db_tools import name_to_model
+from helpers.director.models import PermitModel
+from helpers.director.model_admin.render import model_dc
 from django.contrib.auth.models import Group
 import json
 
