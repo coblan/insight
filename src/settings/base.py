@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'helpers.director',
     'hello',
-    'user_admin'
+    'user_admin',
+    'workload',
 )
 
 MIDDLEWARE_CLASSES = (

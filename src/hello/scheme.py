@@ -38,8 +38,13 @@ menus=[
                 ]},
     {'name':'employee','label':'员工信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
      'submenu':[{'name':'basice','label':'基本信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'})},
-                {'name':'employee_set','label':'employee','url':'/hello/model/employee_set/','invalid':cant_touch(Group)},
+                {'name':'employee_set','label':'employee','url':lambda: reverse('model_table',kwargs={'name':'employee'}),'invalid':cant_touch(Group)},
          ]},
+    {'name':'workload','label':'工作量统计','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+     'submenu':[{'name':'task','label':'任务','url':lambda: reverse('model_table',kwargs={'name':'task'})},
+                {'name':'workload','label':'工作','url':lambda: reverse('model_table',kwargs={'name':'workloads'})}
+                ]
+     }
 
 ]
 

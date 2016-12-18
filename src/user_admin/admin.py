@@ -323,6 +323,12 @@ class BaseinfoFormPage(FormPage):
         # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
 
 
+class EmployeeTablePage(TablePage):
+    tableCls=EmployeeTable
+    
+class EmployeeFormPage(FormPage):
+    fieldsCls=EmployeeFields
+    
 #class UserTablePage(TablePage):
     #tableCls=UserTable
 
@@ -359,3 +365,4 @@ model_dc[SalaryRecords]={'fields':SalaryFields}
 #model_page_dc['user']={'table':UserTablePage,'form':UserFormPage}
 
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
+model_page_dc['employee']={'table':EmployeeTablePage,'form':EmployeeFormPage}
