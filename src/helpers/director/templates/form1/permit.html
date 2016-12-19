@@ -3,6 +3,7 @@
 {% load jsonify %}
 
 {% block page_content %}
+<script src='{% static "js/exfun.js" %}'></script>
 <script src='{% static "js/fields.pack.js" %}'></script>
 <script src='{% static "js/uis.pack.js" %}'></script>
 <script type="text/javascript">
@@ -18,15 +19,16 @@
                 haha= new Vue({
                         el:'#there',
                         data:{
-	                        	permit_heads:permit_heads,
-	                        	selected_heads:[],
-                                permits: permits?permits:{},
-                                sld_md_name:'',
-                                kw:{
-	                                heads:heads,
-	                                row:row,
-	                                errors:{},
-                                }
+	                        menu:menu,
+                        	permit_heads:permit_heads,
+                        	selected_heads:[],
+                            permits: permits?permits:{},
+                            sld_md_name:'',
+                            kw:{
+                                heads:heads,
+                                row:row,
+                                errors:{},
+                            }
                         },
                         mounted: function(){
 	                        var self=this
@@ -63,6 +65,12 @@
                                                 },2000)
                                         })
                                 },
+                                cancel:function () {
+									var search =ex.parseSearch();
+									if(search.next){
+										location=atob(search.next)
+									}
+								}
                         },
                 })
         })
@@ -72,23 +80,38 @@
         //}
 </script>
 <div id='there'>
-		
-        <button name="test" type="button" value="val" @click='submit()'>Save</button>
+	<path-nav :menu='menu'>
+		<li><span>编辑</span></li>
+	</path-nav>
+	
+		<div class="btn-group" style='float: right;'>
+			<button name="test" type="button" class="btn btn-default" @click='submit()'>Save</button>
+       		<button name="test" type="button" class="btn btn-default" @click='cancel()'>Cancel</button>
+		</div>
         
-        <field name='name' :kw='kw'></field>
+        <div style='margin-top:50px;'>
+	         <field name='name' :kw='kw'></field>
+        </div>
+       
         <div>
-	        <span><b>可用权限:</b></span>
+	        <span style='width:100px;display: inline-block;text-align: right;margin-right:20px;'><b>可用权限:</b></span>
             <select name="" id="available_permit" v-model='sld_md_name' class="form-control">
+	            <option value="">---</option>
 	            <option v-for='item in permit_heads' :value="item.name" v-text='item.label'></option>
             </select>
-            <button name="test" type="button" value="val" @click='add_permit(sld_md_name)'>添加</button>
+            <button name="test" type="button" class='btn btn-default btn-sm' @click='add_permit(sld_md_name)'>添加</button>
         </div>
+        
         <div  class='row'>
 	        <table class='table'>
-	        	<tr v-for='(head,index) in selected_heads'>
-		        	<td>
+	        	<tr :class='["permit-table",{"info":head.type!="model"}]' v-for='(head,index) in selected_heads'>
+		        	<td style='width:200px;'>
+			        	<span @click='delet_permit(head.name)' class='del_btn'>
+				        	<span class="glyphicon glyphicon-trash"></span>
+				        </span>
+				        
 			        	<span v-text='head.label'></span>
-			        	<span @click='delet_permit(head.name)'>delete</span>
+			        	
 			        </td>
 		        	<td >
 			        	<model-fields v-if='head.type=="model"' :fields='head.fields' 
@@ -113,9 +136,32 @@
 		font-weight:normal;
 	}
 	#available_permit{
-		min-width:200px;
+		min-width:100px;
 		max-width:350px;
 		display: inline-block;
+	}
+	.control-label{
+		display: inline-block;
+		text-align: right;
+		margin-right:20px;
+		width:100px;
+	}
+	.field_input{
+		display: inline-block;
+	}
+	.row{
+		margin: 20px 0px 0px 120px;
+	}
+	td{
+		padding: 5px 10px;
+	}
+
+	.permit-table:nth-child(2n+1){
+		background-color: #FDFDFD;
+	}
+	.del_btn{
+		cursor: pointer;
+		color: #FF0000;
 	}
 </style>
 

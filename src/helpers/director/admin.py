@@ -14,7 +14,7 @@ class UserGroupTable(ModelTable):
     include=['name']
 
 class UserGroupFields(ModelFields):
-    template='user_admin/permit.html'
+    #template='user_admin/permit.html'
     class Meta:
         model=Group
         fields=['name',]
@@ -33,7 +33,7 @@ class GroupTablePage(TablePage):
     tableCls=UserGroupTable
 
 class GroupFormPage(FormPage):
-    template='user_admin/permit.html'
+    template='form1/permit.html'
     fieldsCls=UserGroupFields
     ajax_scope=ajax.get_globe()
     
