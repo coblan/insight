@@ -3,6 +3,7 @@
 {% load jsonify %}
 
 {% block page_content %}
+<script src='{% static "js/exfun.js" %}'></script>
 <script src='{% static "js/fields.pack.js" %}'></script>
 <script src='{% static "js/table.pack.js" %}'></script>
 <script type="text/javascript">
@@ -36,7 +37,7 @@
 					})
 				},
 				next_page:function () {
-					var search =parseSearch()
+					var search = ex.parseSearch()
 					if(search._pop){
 						window.close()
 					}

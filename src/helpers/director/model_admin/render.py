@@ -39,11 +39,16 @@ def form_view(request,name,pk=None):
         ajax_scope.update(ajax.get_globle())
         ajax_scope.update(page_cls.ajax_scope)        
         return jsonpost(request, ajax_scope)
-        
+
+@login_required
+def form_history(request,name,pk):
+    pass
+
 @login_required
 def del_rows(request):
     """
-    rows = base64([{pk:1,_class:app.model}])
+    obj_str =json([{pk:1,_class:app.model}])
+    rows = base64(obj_str)
     """
     page_cls = render_dc.get('del_rows') 
     if request.method=='GET':

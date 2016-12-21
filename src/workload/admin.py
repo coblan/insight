@@ -23,6 +23,17 @@ class TaskTable(ModelTable):
     model=TaskModel
     search=TaskSearch
     include=['name','parent','owner']
+    
+    def get_rows(self):
+        query=self.get_query()
+        ls=[]
+        for row in query:
+            dc={
+                'parent':str(row.parent) if row.parent else '---',
+                'owner':str(row.owner) if row.owner else '---'
+            }
+            ls.append(to_dict(row,filt_attr=lambda x: dc,include=self.permited_fields()))
+        return ls    
 
 class TaskTablePage(TablePage):
     tableCls=TaskTable

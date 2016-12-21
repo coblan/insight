@@ -23,3 +23,5 @@ class WorkModel(models.Model):
     short_desp=models.CharField('工作简介',max_length=200,blank=True)
     long_desp=models.TextField('详细介绍',blank=True)
     
+    def __unicode__(self):
+        return unicode(self.task) + '_' + str(self.worker)

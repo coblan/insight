@@ -3,6 +3,7 @@
 {% load jsonify %}
 
 {% block page_content %}
+<script src='{% static "js/exfun.js" %}'></script>
 <script src='{% static "js/fields.pack.js" %}'></script>
 <script type="text/javascript">
 	
@@ -23,6 +24,7 @@
 				menu:menu,
 				can_save:false,
 				can_delete:false,
+				can_log:false,
 			},
 			methods:{
 				submit:function () {
@@ -58,6 +60,19 @@
 					if(search.next){
 						location=atob(search.next)
 					}
+				},
+				del_row:function () {
+					if(!confirm('真的删除吗?'))
+						return
+					var obj={
+						pk:this.kw.row.pk,
+						_class:this.kw.row._class
+					}
+					var obj_str=JSON.stringify([obj])
+					var path = '{% url "del_rows" %}'
+					location=ex.template('{path}?rows={rows}&next={next}',{path:path,
+																rows:btoa(obj_str),
+																next:btoa(location.pathname)})
 				}
 			},
 			mounted:function () {
@@ -66,10 +81,12 @@
 				var app_label=ls[0]
 				var model_name=ls[1]
 				var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
-								{fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'}]
+								{fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'},
+								{fun:'model_perm',perm:'can_log',model:row._class,_rt_key:'can_log'}]
 				$.post('',JSON.stringify(post_data),function (data) {
 					self.can_save=data.can_save
 					self.can_delete=data.can_delete
+					self.can_log=data.can_log
 				})
 			}
 		})
@@ -77,15 +94,18 @@
 </script>
 
 <div id='there'>
-	
+
+	<div style='float: right;padding: 5px 20px;'>
+		<a href="ss">History</a>
+	</div>
 	<path-nav :menu='menu'>
 		<li><span>编辑</span></li>
 	</path-nav>
-
+	
 	<div style='overflow: hidden;'>
 		<div class="btn-group" style='float: right;'>
 			<button type="button" class="btn btn-default" @click='submit()' v-if='can_save'>Save</button>
-			<button type="button" class="btn btn-default" v-if='can_delete'>删除</button>
+			<button type="button" class="btn btn-default" v-if='can_delete' @click='del_row()'>删除</button>
 			<button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
 		</div>
 	</div>

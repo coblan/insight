@@ -59,6 +59,11 @@ class Permit(object):
             return True
         else:
             return 'can__delete' in self.permit_list
+    def can_log(self):
+        if self.user.is_superuser:
+            return True
+        else:
+            return 'can__log' in self.permit_list        
     
     def can_access(self):
         if self.user.is_superuser:

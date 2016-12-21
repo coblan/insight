@@ -19,11 +19,12 @@ class BasicInfo(models.Model):
         return self.name
     
     class Meta:
+        verbose_name='基本信息'
         permissions = (('read_basicinfo','At leaset read the records'),
                        )
 
 class EmployeeInfo(models.Model):
-    baseinfo=models.OneToOneField(BasicInfo,blank=True,null=True,on_delete=models.SET_NULL)
+    baseinfo=models.OneToOneField(BasicInfo,verbose_name='基本信息',blank=True,null=True,on_delete=models.SET_NULL)
     employ_id = models.CharField('职员ID',max_length=50,blank=True)
     position = models.CharField('职位',max_length=100,blank=True)
     salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)
@@ -35,7 +36,7 @@ class EmployeeInfo(models.Model):
             return self.employ_id
     
     class Meta:
-        verbose_name='员工信息'
+        verbose_name='工作信息'
 
 class SalaryRecords(models.Model):
     empoyee=models.ForeignKey(EmployeeInfo,verbose_name='员工',blank=True,null=True)
@@ -52,6 +53,9 @@ class SalaryRecords(models.Model):
             return '{employee} 的工资'.format(employee=self.empoyee.baseinfo.name)
         except AttributeError:
             return '某人工资'
+    
+    class Meta:
+        verbose_name='工资记录'    
     
 
 class Month(models.Model):

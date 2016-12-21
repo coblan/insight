@@ -71,7 +71,8 @@ class ModelFields(forms.ModelForm):
     
     def init_value(self):
         if self.instance.pk:
-            for f in self.instance._meta.get_all_field_names():
+            for field in self.instance._meta.get_fields(): #get_all_field_names():
+                f=field.name
                 if f in self.fields:
                     value = getattr(self.instance,f)
                     if hasattr(value,'all'):
