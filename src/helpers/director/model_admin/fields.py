@@ -186,7 +186,7 @@ class ModelFields(forms.ModelForm):
     
     def del_form(self):
         if self.permit.can_del():
-            self.instance.detete()
+            self.instance.delete()
         else:
             raise PermissionDenied('No permission to delete %s'%str(self.instance))
         # del_perm = self.instance._meta.app_label+'.del_'+self.instance._meta.model_name

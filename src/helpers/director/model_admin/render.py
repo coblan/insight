@@ -73,7 +73,8 @@ class TablePage(object):
         ctx = self.table.get_context()
         pop = self.request.GET.get('_pop')
         if not pop:
-            ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)        
+            menu_list=list( render_dc.get('menu') )
+            ctx['menu']=evalue_container(menu_list,user=self.request.user)        
 
         return ctx
 
