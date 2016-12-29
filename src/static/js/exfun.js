@@ -90,6 +90,9 @@ ex={
 			dst[key]=src[key]
 		}
 	},
+	copy:function (obj) {
+		return JSON.parse(JSON.stringify(obj))
+	},
 	findone:function (collection,obj) {
 		for(var i=0;i<collection.length;i++){
 			var now_obj=collection[i]
@@ -191,27 +194,39 @@ ex={
 		}
 		return rm_item
 	},
-	loadjs: function(src,success) {
+	load_js: function(src,success) {
 		success = success || function(){};
-		var name = btoa(src)
-		if(window['__src_'+name]){
-			return success()
+		var name = src //btoa(src)
+		if(!window['__js_hook_'+name]){
+			window['__js_hook_'+name]=[]
 		}
-		window['__src_'+name]=true
-
-		var domScript = document.createElement('script');
-		  domScript.src = src;
-		  domScript.onload = domScript.onreadystatechange = function() {
-		    if (!this.readyState || 'loaded' === this.readyState || 'complete' === this.readyState) {
-		      success();
-		      this.onload = this.onreadystatechange = null;
-		      this.parentNode.removeChild(this);
-		    }
-		  }
-		  document.getElementsByTagName('head')[0].appendChild(domScript);
+		window['__js_hook_'+name].push(success)
+		var hooks=window['__js_hook_'+name]
+		if(window['__js_loaded_'+name]){
+			while (hooks.length>0){
+				hooks.pop()()
+			}
+		}
+		if(! window['__js_'+name]){
+			window['__js_'+name]=true
+			var domScript = document.createElement('script');
+			  domScript.src = src;
+			  domScript.onload = domScript.onreadystatechange = function() {
+			    if (!this.readyState || 'loaded' === this.readyState || 'complete' === this.readyState) {
+				  window['__js_loaded_'+name]=true
+			      while (hooks.length>0){
+						hooks.pop()()
+					}
+			      this.onload = this.onreadystatechange = null;
+			      this.parentNode.removeChild(this);
+			    }
+			  }
+			  document.getElementsByTagName('head')[0].appendChild(domScript);
+		}
+		
 		
 	},
-	loadcss:function (src) {
+	load_css:function (src) {
 		var name = btoa(src)
 		if(window['__src_'+name]){
 			return
@@ -266,12 +281,16 @@ if (!String.prototype.startsWith) {
       position = position || 0;
       return this.substr(position, searchString.length) === searchString;
   };
+  String.prototype.endsWith = function(str){
+	return (this.match(str+"$")==str)
+	};
 }
 
 Array.prototype.each = function(fn) 
 { 
 return this.length ? [fn(this.slice(0,1))].concat(this.slice(1).each(fn)) : []; 
 };
+
 
  /*两种调用方式
  var template1="我是{0}，今年{1}了";

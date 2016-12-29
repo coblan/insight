@@ -51,25 +51,22 @@
 	});
 	exports.merge = merge;
 
-	var _pkg = __webpack_require__(1);
+	var _ajax_fun = __webpack_require__(1);
 
-	var _ajax_fun = __webpack_require__(2);
-
-	var _file = __webpack_require__(3);
+	var _file = __webpack_require__(2);
 
 	var f = _interopRequireWildcard(_file);
 
-	var _ckeditor = __webpack_require__(4);
+	var _ckeditor = __webpack_require__(3);
 
 	var ck = _interopRequireWildcard(_ckeditor);
 
-	var _multi_sel = __webpack_require__(5);
+	var _multi_sel = __webpack_require__(4);
 
 	var multi = _interopRequireWildcard(_multi_sel);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-	(0, _ajax_fun.hook_ajax_msg)();
 	/*
 	基本内容
 	==============
@@ -114,7 +111,8 @@
 	*/
 
 	//import {use_color} from '../dosome/color.js'
-
+	//import {load_js,load_css} from '../dosome/pkg.js'
+	(0, _ajax_fun.hook_ajax_msg)();
 	(0, _ajax_fun.hook_ajax_csrf)();
 
 	function is_valid(form_fun_rt, errors_obj, callback) {
@@ -221,8 +219,8 @@
 				},
 				mounted: function mounted() {
 					var self = this;
-					(0, _pkg.load_css)('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.css');
-					(0, _pkg.load_js)('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.js', function () {
+					ex.load_css('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.css');
+					ex.load_js('http://cdn.bootcss.com/spectrum/1.8.0/spectrum.min.js', function () {
 						self.init_and_listen();
 					});
 				}
@@ -386,53 +384,6 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.load_js = load_js;
-	exports.load_css = load_css;
-	function load_js(src, success) {
-		success = success || function () {};
-
-		var name = btoa(src);
-		if (window['__src_' + name]) {
-			return success();
-		}
-		window['__src_' + name] = true;
-
-		var domScript = document.createElement('script');
-		domScript.src = src;
-
-		domScript.onload = domScript.onreadystatechange = function () {
-			if (!this.readyState || 'loaded' === this.readyState || 'complete' === this.readyState) {
-				success();
-				this.onload = this.onreadystatechange = null;
-				this.parentNode.removeChild(this);
-			}
-		};
-		document.getElementsByTagName('head')[0].appendChild(domScript);
-	}
-
-	function load_css(src) {
-		var name = btoa(src);
-		if (window['__src_' + name]) {
-			return;
-		}
-		window['__src_' + name] = true;
-		$('head').append('<link rel="stylesheet" href="' + src + '" type="text/css" />');
-	}
-
-	//var s = document.createElement("script");
-	//s.type = "text/javascript";
-	//s.src = "http://somedomain.com/somescript";
-	//$("head").append(s);
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
 	exports.hook_ajax_msg = hook_ajax_msg;
 	exports.hook_ajax_csrf = hook_ajax_csrf;
 	exports.show_upload = show_upload;
@@ -441,7 +392,24 @@
 	 * Created by zhangrong on 2016/8/6.
 	 */
 
-	function def_proc_port_msg(data) {
+	/*
+	新增一个wrap函数，用户封装调用函数
+	*/
+	function proc_msg(func) {
+		function _inn(data) {
+			if (data.status && data.status != 'success') {
+				if (data.msg) {
+					alert(data.msg);
+				}
+			} else {
+				func(data);
+			}
+		}
+		return _inn;
+	}
+	window.proc_msg = proc_msg;
+
+	function def_proc_port_msg(data, event) {
 		var rt = data.responseJSON;
 		if (rt && rt.msg) {
 			alert(rt.msg);
@@ -476,9 +444,10 @@
 			window.iclosed = true;
 		});
 
-		$(document).ajaxSuccess(function (event, data) {
-			window.__proc_port_error(data);
-		}).ajaxError(function (event, jqxhr, settings, thrownError) {
+		//$(document).ajaxSuccess(function (event,data) {
+		//    window.__proc_port_error(data,event)
+		//})
+		$(document).ajaxError(function (event, jqxhr, settings, thrownError) {
 			window.__proc_ajax_error(jqxhr);
 		});
 		//hook_ajax_csrf()
@@ -530,21 +499,22 @@
 		}
 	}
 
-	if (!window.__font_awesome) {
-		window.__font_awesome = true;
-		document.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">');
-	}
+	ex.load_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css');
+	//if(!window.__font_awesome){
+	//	window.__font_awesome=true
+	//	document.write(`<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">`)
+	//}
 
 	if (!window.__uploading_mark) {
 		window.__uploading_mark = true;
-		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t\tz-index: 9000;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\tz-index: 9500;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t\t    position: absolute;\n\t        top: 50%;\n\t        left: 50%;\n\t        transform: translate(-50%, -50%);\n\t        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t\t-webkit-transform:translate(-50%, -50%); /* Safari \uFFFD\uFFFD Chrome */\n\t\t\t-o-transform:translate(-50%, -50%); \n\t\t\t\n\t        text-align: center;\n\t\t\t/*display: table;*/\n\t        z-index: 10000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
+		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t\tz-index: 9000;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\tz-index: 9500;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t\t    position: absolute;\n\t        top: 50%;\n\t        left: 50%;\n\t        transform: translate(-50%, -50%);\n\t        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t\t-webkit-transform:translate(-50%, -50%); /* Safari \u548C Chrome */\n\t\t\t-o-transform:translate(-50%, -50%); \n\t\t\t\n\t        text-align: center;\n\t\t\t/*display: table;*/\n\t        z-index: 10000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
 		$(function () {
 			$('body').append('<div class="popup" id="load_wrap"><div id=\'_upload_inn\' class="imiddle">\n\t\t<div  id="_upload_mark" class="imiddle"><i class="fa fa-spinner fa-spin fa-3x"></i></div></div></div>');
 		});
 	}
 
 /***/ },
-/* 3 */
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -631,12 +601,19 @@
 	};
 
 	Vue.component('file-input', {
-	    template: "<input type='file' @change='on_change($event)'>",
+	    template: "<input class='file-input' type='file' @change='on_change($event)'>",
 	    props: ['value'],
 	    data: function data() {
 	        return {
 	            files: []
 	        };
+	    },
+	    watch: {
+	        value: function value(v) {
+	            if (v == '') {
+	                this.$el.value = v;
+	            }
+	        }
 	    },
 	    methods: {
 	        on_change: function on_change(event) {
@@ -756,7 +733,7 @@
 	window.fl = fl;
 
 /***/ },
-/* 4 */
+/* 3 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -810,7 +787,7 @@
 	});
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';

@@ -88,7 +88,7 @@
 				},
 				search:function () {
 					location =ex.template('{path}{search}',{path:location.pathname,
-															search:ex.searchfy(this.url_args,'?')}) 
+															search: encodeURI(ex.searchfy(this.url_args,'?')) }) 
 				},
 			},
 			mounted:function () {

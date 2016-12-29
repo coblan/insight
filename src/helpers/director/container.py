@@ -25,15 +25,16 @@ def evalue_container(container,**kw):
         return container
 
 def evalue_dict(dc,**kw):
+    out_dc={}
     for k,v in dc.items():
-        dc[k]=evalue_container(v,**kw)
-    return dc
+        out_dc[k]=evalue_container(v,**kw)
+    return out_dc
 
 def evalue_list(ls,**kw):
     new_ls=[]
     for item in ls:
         tmp=evalue_container(item,**kw)
-        if isinstance(tmp,dict) and tmp.get('invalid'):
+        if isinstance(tmp,dict) and tmp.has_key('visible') and tmp.get('visible')==False:
             continue
         new_ls.append(tmp)
     return new_ls

@@ -8,23 +8,9 @@ from django.utils.translation import ugettext as _
     
 
 
-# Create your models here.
-class BasicInfo(models.Model):
-    # , on_delete=models.SET_NULL
-    user = models.OneToOneField(User,verbose_name=_('user'), blank=True, null=True)
-    name = models.CharField(_('name'), max_length=50, blank=True)
-    age = models.CharField(_('age'), max_length=50, blank=True)
-    
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name='基本信息'
-        permissions = (('read_basicinfo','At leaset read the records'),
-                       )
-
-class EmployeeInfo(models.Model):
-    baseinfo=models.OneToOneField(BasicInfo,verbose_name='基本信息',blank=True,null=True,on_delete=models.SET_NULL)
+class EmployeeModel(models.Model):
+    user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
+    baseinfo=models.OneToOneField('BasicInfo',verbose_name='基本信息',blank=True,null=True,on_delete=models.SET_NULL)
     employ_id = models.CharField('职员ID',max_length=50,blank=True)
     position = models.CharField('职位',max_length=100,blank=True)
     salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)
@@ -38,8 +24,23 @@ class EmployeeInfo(models.Model):
     class Meta:
         verbose_name='工作信息'
 
+# Create your models here.
+class BasicInfo(models.Model):
+    # , on_delete=models.SET_NULL
+    name = models.CharField(_('name'), max_length=50, blank=True)
+    age = models.CharField(_('age'), max_length=50, blank=True)
+    
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name='基本信息'
+        permissions = (('read_basicinfo','At leaset read the records'),
+                       )
+
+
 class SalaryRecords(models.Model):
-    empoyee=models.ForeignKey(EmployeeInfo,verbose_name='员工',blank=True,null=True)
+    empoyee=models.ForeignKey(EmployeeModel,verbose_name='员工',blank=True,null=True)
     base_salary = models.FloatField('基本工资',blank=True,null=True)
     merit_pay = models.FloatField('绩效工资',blank=True,null=True)
     allowance = models.FloatField('补贴',blank=True,null=True)

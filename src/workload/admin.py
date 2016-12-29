@@ -50,9 +50,9 @@ class WorkSearch(RowSearch):
             exp=Q()
             kw={}
             if 'worker' in self.valid_name:
-                exp= exp | Q(worker__username__icontains=self.q)
+                exp= exp | Q(worker__baseinfo__name__icontains=self.q)
             if 'manager' in self.valid_name:
-                exp = exp | Q(manager__username__icontains=self.q)
+                exp = exp | Q(manager__baseinfo__name__icontains=self.q)
             return query.filter(exp)
         else:
             return query    

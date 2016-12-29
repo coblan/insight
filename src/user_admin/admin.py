@@ -2,14 +2,14 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib import admin
-from models import BasicInfo,MM,Fore,EmployeeInfo,SalaryRecords,Month
+from models import BasicInfo,MM,Fore,EmployeeModel,SalaryRecords,Month
 from django.apps import apps
 
 from helpers.director.db_tools import to_dict,model_to_name
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
 from helpers.director.model_admin.render import model_page_dc,model_dc
-from helpers.director.model_admin.permit import permit_list
+from helpers.director.model_admin.permit import permit_list,Permit
 from helpers.director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
 import json
@@ -24,7 +24,7 @@ from django.db.models import Q
 admin.site.register(BasicInfo)
 admin.site.register(MM)
 admin.site.register(Fore)
-admin.site.register(EmployeeInfo)
+admin.site.register(EmployeeModel)
 admin.site.register(SalaryRecords)
 admin.site.register(Month)
 #admin.site.register(PermitModel)
@@ -57,9 +57,12 @@ class BasicInfoTable(ModelTable):
     #per_page=2
     #search_fields=['age','name']
     
-    def get_rows(self):
-        query=self.get_query()
-        return [to_dict(x,filt_attr=lambda x:{'user':str(x.user) if x.user else '---'}, include=self.permited_fields()) for x in query]         
+    #def get_rows(self):
+        #query=self.get_query()
+        #ls=[]
+        #for info in query:
+            #info.employeemodel.user
+        #return [to_dict(x,filt_attr=lambda x:{'user':str(x.user) if x.user else '---'}, include=self.permited_fields()) for x in query]         
     #def get_heads(self):
         #heads = super(BasicInfoTable,self).get_heads()
         #heads.extend([{'name':'salary','label':'工资'},
@@ -83,7 +86,7 @@ class BasicInfoFields(ModelFields):
     
     class Meta:
         model=BasicInfo
-        fields=['name','age','user'] 
+        fields=['name','age'] 
     
     #def get_fields(self):
         #return ['name','age']
@@ -93,13 +96,14 @@ class BasicInfoFields(ModelFields):
         #return self.cleaned_data['name']
     
     
-    def get_options(self):
-        options = super(BasicInfoFields,self).get_options()
+    #def get_options(self):
+        #options = super(BasicInfoFields,self).get_options()
         
-        qs = User.objects.filter( Q(basicinfo__isnull=True)|Q(basicinfo = self.instance) )
+        #qs = User.objects.filter( Q(basicinfo__isnull=True)|Q(basicinfo = self.instance) )
         
-        options['user']=[{'value':user.pk,'label':user.username} for user in qs]
-        return options
+        #options['user']=[{'value':user.pk,'label':user.username} for user in qs]
+        #return options
+    
         #for name,field in self.fields.items():
             #if isinstance(field,forms.models.ModelMultipleChoiceField):
                 #options[name]=[{'value':x[0],'label':x[1]} for x in field.choices]            
@@ -197,11 +201,31 @@ class BasicInfoFields(ModelFields):
         #return self.cleaned_data['age']
     
 
+class EmploySearch(RowSearch):
+    model=EmployeeModel
+    
+    def get_context(self):
+        return '姓名'
 
-
+    def get_query(self,query):
+        if self.q:
+            exp=None
+            return query.filter(baseinfo__name__icontains=self.q)
+            #for name in self.valid_name:
+                #kw ={}
+                #kw['%s__icontains'%name] =self.q    
+                #if exp is None:
+                    #exp = Q(**kw)
+                #else:
+                    #exp = exp | Q(**kw) 
+            #return query.filter(exp)
+        else:
+            return query
+    
 
 class EmployeeTable(ModelTable):
-    model=EmployeeInfo
+    model=EmployeeModel
+    search=EmploySearch
     include=['employ_id','position','salary_level']
     def get_heads(self):
         heads = super(EmployeeTable,self).get_heads()
@@ -211,15 +235,24 @@ class EmployeeTable(ModelTable):
     def get_rows(self):
         rows = super(EmployeeTable,self).get_rows()
         for row in rows:
-            emp = EmployeeInfo.objects.get(pk=row['pk'])
-            row['name']=emp.baseinfo.name
+            emp = EmployeeModel.objects.get(pk=row['pk'])
+            if emp.baseinfo:
+                row['name']=emp.baseinfo.name
         return rows
         
 
 class EmployeeFields(ModelFields):
     class Meta:
-        model=EmployeeInfo
+        model=EmployeeModel
         fields=['employ_id','position','salary_level','baseinfo']
+    
+    def get_options(self):
+        options = super(EmployeeFields,self).get_options()
+        
+        qs = BasicInfo.objects.filter( Q(employeemodel__isnull=True)|Q(employeemodel = self.instance) )
+        
+        options['baseinfo']=[{'value':baseinfo.pk,'label':baseinfo.name} for baseinfo in qs]
+        return options    
 
 #class EmployeeSet(FieldsSet):
     #template='fieldsset.html'
@@ -295,7 +328,7 @@ class SalaryTabel(ModelTable):
     def get_rows(self):
         rows=super(SalaryTabel,self).get_rows()
         for salary_dc in rows:
-            emp = EmployeeInfo.objects.get(pk=salary_dc['empoyee'])
+            emp = EmployeeModel.objects.get(pk=salary_dc['empoyee'])
             salary_dc['empoyee']=emp.employ_id
             if emp.baseinfo:
                 salary_dc['name']=emp.baseinfo.name
@@ -341,7 +374,7 @@ class EmployeeFormPage(FormPage):
 #permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
 #permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
 permit_list.append(BasicInfo)
-permit_list.append(EmployeeInfo)
+permit_list.append(EmployeeModel)
 permit_list.append(SalaryRecords)
 permit_list.append({'name':'spcial','label':'特殊权限','fields':[
                         {'name':'sp1','label':'jjyy','type':'bool'},
@@ -350,7 +383,7 @@ permit_list.append({'name':'spcial','label':'特殊权限','fields':[
 
 
 model_dc[BasicInfo]={'fields':BasicInfoFields}
-model_dc[EmployeeInfo]={'fields':EmployeeFields}
+model_dc[EmployeeModel]={'fields':EmployeeFields}
 model_dc[SalaryRecords]={'fields':SalaryFields}
 #model_dc[User]={'fields':UserFields}
 
