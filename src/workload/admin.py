@@ -6,6 +6,7 @@ from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,Ro
 from helpers.director.model_admin.render import model_page_dc,model_dc,FormPage,TablePage
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.db_tools import to_dict
+from helpers.director.model_admin.permit import permit_list,has_permit
 
 from models import WorkModel,TaskModel
 
@@ -60,7 +61,7 @@ class WorkSearch(RowSearch):
 class WorkloadField(ModelFields):
     class Meta:
         model=WorkModel
-        fields=['task','worker','quality','quantity','creative','short_desp','long_desp']
+        fields=['task','worker','quality','quantity','creative','short_desp','long_desp','manager']
     
     def save_form(self):
         if not self.instance.pk:
@@ -84,6 +85,12 @@ class WorkTable(ModelTable):
             ls.append(to_dict(row,filt_attr=lambda x: dc,include=self.permited_fields()))
         return ls
         #return [to_dict(x,filt_attr=lambda x:{'worker':str(x.worker) if x.worker else '---'}, include=self.permited_fields()) for x in query]    
+        
+    def inn_filter(self, query):
+        if has_permit(self.crt_user,'workload.view_all_task'):
+            return query
+        else:
+            return query.filter(Q(worker__user=self.crt_user)|Q(manager__user=self.crt_user))
 
 class WorkTablePage(TablePage):
     tableCls=WorkTable
@@ -99,3 +106,12 @@ model_dc[TaskModel]={'fields':TaskField}
 # 该字典制定了配套的table页面和form页面，利用该字典，一般在table的第一个字段会生成指向form页面的链接。
 model_page_dc['workloads']={'table':WorkTablePage,'form':WorkFormPage}
 model_page_dc['task']={'table':TaskTablePage,'form':TaskFormPage}
+
+
+permit_list.append({'name':'workload','label':'人员负荷','fields':[
+    {'name':'view_all_task','label':'查看所有负荷','type':'bool'},
+    {'name':'sp2','label':'工作统计','type':'bool'}
+]})
+
+permit_list.append(WorkModel)
+permit_list.append(TaskModel)

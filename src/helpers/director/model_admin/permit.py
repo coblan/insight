@@ -8,6 +8,22 @@ from django.db import models
 from base import model_dc
 permit_list=[]
 
+def has_permit(user,name):
+    """
+    special.sp1
+    """
+    if user.is_superuser:
+        return True    
+    
+    cls,perm=name.split('.')
+    for group in user.groups.all():
+            if hasattr(group,'permitmodel'):
+                permit_dc = json.loads( group.permitmodel.permit )
+                sp_permit_list= permit_dc.get(cls,[])
+                if perm in sp_permit_list:
+                    return True
+    return False
+
 class Permit(object):
     """
     以json的形式存储于permitModel数据库
@@ -110,6 +126,11 @@ class Permit(object):
 
 
 def model_permit_info(model,user):
+    """
+    返回model权限字段，
+    
+    [{u'name': u'task', u'label': u'\u6240\u5c5e\u4efb\u52a1'},]
+    """
     fields = model_dc.get(model).get('fields')
     ls=[]
     for k,v in fields(crt_user=user).fields.items():

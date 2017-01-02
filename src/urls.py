@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from hello import urls as hello_urls
+#from hello import urls as hello_urls
+from hello import views as hello_view
 from user_admin import urls as user_urls
 from helpers.director import urls as director_urls
 urlpatterns = [
@@ -23,7 +24,8 @@ urlpatterns = [
     url(r'^accounts/',include(director_urls)),
     url(r'^d/',include(director_urls)),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'hello/',include(hello_urls)),
+    url(r'^$',hello_view.home),
+    #url(r'hello/',include(hello_urls)),
     
     url(r'user/',include(user_urls),name='user_admin')
 ]

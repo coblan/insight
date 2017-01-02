@@ -92,8 +92,18 @@ class BasicInfoFields(ModelFields):
         #return ['name','age']
     
     def clean_name(self):
-        raise forms.ValidationError('jjyy')
-        #return self.cleaned_data['name']
+        #raise forms.ValidationError('jjyy')
+        name = self.cleaned_data['name']
+        if not name:
+            raise forms.ValidationError('need name')
+        return name
+    
+    def save_form(self):
+        rt = super(BasicInfoFields,self).save_form()
+        if self.instance.employeemodel:
+            self.instance.employeemodel.user.first_name=self.instance.name
+            self.instance.employeemodel.user.save()
+        return rt
     
     
     #def get_options(self):
@@ -244,7 +254,7 @@ class EmployeeTable(ModelTable):
 class EmployeeFields(ModelFields):
     class Meta:
         model=EmployeeModel
-        fields=['employ_id','position','salary_level','baseinfo']
+        fields=['employ_id','position','salary_level','baseinfo','user']
     
     def get_options(self):
         options = super(EmployeeFields,self).get_options()
@@ -253,6 +263,13 @@ class EmployeeFields(ModelFields):
         
         options['baseinfo']=[{'value':baseinfo.pk,'label':baseinfo.name} for baseinfo in qs]
         return options    
+    
+    def save_form(self):
+        rt = super(EmployeeFields,self).save_form()
+        if self.instance.user and self.instance.baseinfo:
+            self.instance.user.first_name=self.instance.baseinfo.name
+            self.instance.user.save()
+        return rt
 
 #class EmployeeSet(FieldsSet):
     #template='fieldsset.html'
@@ -376,10 +393,10 @@ class EmployeeFormPage(FormPage):
 permit_list.append(BasicInfo)
 permit_list.append(EmployeeModel)
 permit_list.append(SalaryRecords)
-permit_list.append({'name':'spcial','label':'特殊权限','fields':[
-                        {'name':'sp1','label':'jjyy','type':'bool'},
-                        {'name':'sp2','label':'yyjj','type':'bool'}
-                    ]})
+#permit_list.append({'name':'spcial','label':'工作权限','fields':[
+                        #{'name':'sp1','label':'所有工作','type':'bool'},
+                        #{'name':'sp2','label':'工作统计','type':'bool'}
+                    #]})
 
 
 model_dc[BasicInfo]={'fields':BasicInfoFields}

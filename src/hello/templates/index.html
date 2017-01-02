@@ -44,10 +44,16 @@
 	    <div id='head'>
 		    <div class='crt_user'>
 			    {% if user.is_authenticated %}
-			    <span>Welcome &nbsp{{ user.username }}</span>&nbsp/&nbsp
-			    <a href="/accounts/logout/?next=/hello/model/basicinfo/">退出</a>
+			    <span>Welcome &nbsp
+			    {% if user.first_name %}
+			    	{{ user.first_name}}
 			    {% else %}
-			    <a href="/accounts/login/?next=/hello/model/basicinfo/">登陆</a>
+			    	{{ user.username}}
+			    {% endif %}
+			    </span>&nbsp/&nbsp
+			    <a href="/accounts/logout/?next=/">退出</a>
+			    {% else %}
+			    <a href="/accounts/login/?next=/">登陆</a>
 				<a href="/accounts/regist/">注册</a>
 			    {% endif %}
 		    </div>
