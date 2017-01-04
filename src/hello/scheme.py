@@ -14,6 +14,14 @@ def can_touch(model):
         return validator.can_access()
     return _func
 
+def can_list(ls):
+    def _func(user):
+        for model in ls:
+            validator = Permit(model, user)
+            if validator.can_access():
+                return True
+    return _func    
+
 def page(name):
     return reverse('model_table',kwargs={'name':name})
 
@@ -31,19 +39,19 @@ def page(name):
 #]
   
 menus=[
-    {'name':'hello','label':'home','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
-    {'name':'basice','label':'账号管理','url':lambda: reverse('model_table',kwargs={'name':'user'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+    {'name':'hello','label':'home','url':'/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
+    {'name':'basice','label':'账号管理','url':lambda: reverse('model_table',kwargs={'name':'user'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((User,Group)),
      'submenu':[
                 {'name':'user','label':'用户管理','url':lambda: page('user'),'visible':can_touch(User)},
                 {'name':'group','label':'用户组','url':lambda:page('group'),'visible':can_touch(Group)},
                 ]},
-    {'name':'employee','label':'员工管理','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+    {'name':'employee','label':'员工管理','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((BasicInfo,EmployeeModel)),
      'submenu':[
          {'name':'basice','label':'人员信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'visible':can_touch(BasicInfo)},    
          {'name':'employee_set','label':'员工名册','url':lambda: reverse('model_table',kwargs={'name':'employee'}),'visible':can_touch(EmployeeModel)},
         
          ]},
-    {'name':'workload','label':'工作量统计','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+    {'name':'workload','label':'工作量统计','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((TaskModel,WorkModel)),
      'submenu':[{'name':'task','label':'任务','url':lambda: reverse('model_table',kwargs={'name':'task'}),'visible':can_touch(TaskModel)},
                 {'name':'workload','label':'工作','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'visible':can_touch(WorkModel)}
                 ]

@@ -21,8 +21,9 @@ class PageNum(object):
     
     def get_query(self,query):
         self.pagenator = Paginator(query,self.perPage)
-        self.query = query        
-        return self.pagenator.page(self.pageNumber)
+        self.query = query  
+        page_num=min(self.pagenator.num_pages,abs(int( self.pageNumber)))
+        return self.pagenator.page(page_num)
     
     def get_context(self):
         """

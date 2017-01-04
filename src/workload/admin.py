@@ -64,8 +64,8 @@ class WorkloadField(ModelFields):
         fields=['task','worker','quality','quantity','creative','short_desp','long_desp','manager']
     
     def save_form(self):
-        if not self.instance.pk:
-            self.instance.manager=self.crt_user
+        #if not self.instance.pk and self.crt_user.employeemodel_set.exists():
+            #self.instance.manager=self.crt_user.employeemodel_set.first()
         rt = super(WorkloadField,self).save_form()
         return rt
     

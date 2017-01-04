@@ -34,7 +34,7 @@ def evalue_list(ls,**kw):
     new_ls=[]
     for item in ls:
         tmp=evalue_container(item,**kw)
-        if isinstance(tmp,dict) and tmp.has_key('visible') and tmp.get('visible')==False:
+        if isinstance(tmp,dict) and tmp.has_key('visible') and not tmp.get('visible'):
             continue
         new_ls.append(tmp)
     return new_ls

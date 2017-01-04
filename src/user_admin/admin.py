@@ -42,7 +42,7 @@ class BaseSort(RowSort):
     names=['name','age']
 
 class Twopage(PageNum):
-    perPage=3
+    perPage=20
     
 class BasicInfoTable(ModelTable):
     model = BasicInfo
@@ -100,7 +100,7 @@ class BasicInfoFields(ModelFields):
     
     def save_form(self):
         rt = super(BasicInfoFields,self).save_form()
-        if self.instance.employeemodel:
+        if hasattr(self.instance,'employeemodel'):
             self.instance.employeemodel.user.first_name=self.instance.name
             self.instance.employeemodel.user.save()
         return rt
