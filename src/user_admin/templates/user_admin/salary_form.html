@@ -10,7 +10,11 @@
 	row = {{ row | jsonify }}
 
 	errors={}
-
+	ex.each(heads,function(head){
+		if(head.name=='base_salary'){
+			head.readonly=true
+		}
+	})
 	$(function () {
 		new Vue({
 			el:'#there',
