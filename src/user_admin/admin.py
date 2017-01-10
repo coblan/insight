@@ -330,10 +330,32 @@ class EmployeeFields(ModelFields):
     
     #def get_placeholder(self):
         #return '员工ID或者姓名'
-    
+
+
+class SalarySearch(RowSearch):
+    model=SalaryRecords
+    def get_context(self):
+        return '员工姓名'
+
+    def get_query(self,query):
+        if self.q:
+            exp=None
+            return query.filter(empoyee__baseinfo__name__icontains=self.q)
+            #for name in self.valid_name:
+                #kw ={}
+                #kw['%s__icontains'%name] =self.q    
+                #if exp is None:
+                    #exp = Q(**kw)
+                #else:
+                    #exp = exp | Q(**kw) 
+            #return query.filter(exp)
+        else:
+            return query    
+
 class SalaryTabel(ModelTable):
     model=SalaryRecords
     include=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']
+    search=SalarySearch
     #search_fields=[SalarySearch()]
     
     def get_heads(self):
@@ -358,6 +380,12 @@ class SalaryFields(ModelFields):
         fields=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']        
 
 
+    
+class SalaryTablePage(TablePage):
+    tableCls=SalaryTabel
+
+class SalaryFormPage(FormPage):
+    fieldsCls=SalaryFields
 
 class BaseinfoTablePage(TablePage):
     tableCls=BasicInfoTable
@@ -416,3 +444,4 @@ model_dc[SalaryRecords]={'fields':SalaryFields}
 
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
 model_page_dc['employee']={'table':EmployeeTablePage,'form':EmployeeFormPage}
+model_page_dc['salary']={'table':SalaryTablePage,'form':SalaryFormPage}

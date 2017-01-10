@@ -49,7 +49,7 @@ menus=[
      'submenu':[
          {'name':'basice','label':'人员信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'visible':can_touch(BasicInfo)},    
          {'name':'employee_set','label':'员工名册','url':lambda: reverse('model_table',kwargs={'name':'employee'}),'visible':can_touch(EmployeeModel)},
-        
+        {'name':'salary','label':'工资记录','url':lambda: reverse('model_table',kwargs={'name':'salary'}),'visible':can_touch(SalaryRecords)},
          ]},
     {'name':'workload','label':'工作量统计','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((TaskModel,WorkModel)),
      'submenu':[{'name':'task','label':'任务','url':lambda: reverse('model_table',kwargs={'name':'task'}),'visible':can_touch(TaskModel)},
