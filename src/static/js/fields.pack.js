@@ -183,7 +183,7 @@
 		components: {
 			linetext: {
 				props: ['name', 'row', 'kw'],
-				template: '<div>\n            \t\t\t<span v-text=\'row[name]\' v-if=\'kw.readonly\'></span>\n            \t\t\t<input v-else type="text" class="form-control" v-model="row[name]" :id="\'id_\'+name"\n                        \t:placeholder="kw.placeholder" :autofocus="kw.autofocus" :maxlength=\'kw.maxlength\'>\n                       </div>'
+				template: '<div>\n            \t\t\t<span v-if=\'kw.readonly\' v-text=\'row[name]\'></span>\n            \t\t\t<input v-else type="text" class="form-control" v-model="row[name]" :id="\'id_\'+name"\n                        \t:placeholder="kw.placeholder" :autofocus="kw.autofocus" :maxlength=\'kw.maxlength\'>\n                       </div>'
 			},
 			number: {
 				props: ['name', 'row', 'kw'],
@@ -196,7 +196,7 @@
 			},
 			blocktext: {
 				props: ['name', 'row', 'kw'],
-				template: '<textarea class="form-control" rows="3" :id="\'id_\'+name" v-model="row[name]" :placeholder="kw.placeholder" :readonly=\'kw.readonly\'></textarea>'
+				template: '<div>\n            <span v-if=\'kw.readonly\' v-text=\'row[name]\'></span>\n            <textarea v-else class="form-control" rows="3" :id="\'id_\'+name" v-model="row[name]" :placeholder="kw.placeholder" :readonly=\'kw.readonly\'></textarea>\n            </div>'
 			},
 			color: {
 				props: ['name', 'row', 'kw'],
@@ -236,7 +236,7 @@
 						model: this.row[this.name]
 					};
 				},
-				template: '<select v-model=\'row[name]\'  :id="\'id_\'+name" :readonly=\'kw.readonly\' class="form-control">\n            \t<option :value=\'null\'>----</option>\n            \t<option v-for=\'opt in kw.options\' :value=\'opt.value\' v-text=\'opt.label\'></option>\n            </select>',
+				template: '<div>\n            <span v-if=\'kw.readonly\' v-text=\'get_label(kw.options,row[name])\'></span>\n            <select v-else v-model=\'row[name]\'  :id="\'id_\'+name" :readonly=\'kw.readonly\' class="form-control">\n            \t<option :value=\'null\'>----</option>\n            \t<option v-for=\'opt in kw.options\' :value=\'opt.value\' v-text=\'opt.label\'></option>\n            </select>\n            </div>',
 				// 添加，修改，删除的按钮代码，暂时不用。
 				//`<div><select v-model='model'  :id="'id_'+name" :readonly='kw.readonly'>
 				//	<option :value='null'>----</option>
@@ -247,6 +247,14 @@
 				//<span v-if='kw.del_url' @click='del_row()'><img src='http://res.enjoyst.com/image/delete.png' /></a>
 				//</div>`,
 				methods: {
+					get_label: function get_label(options, value) {
+						var option = ex.findone(options, { value: value });
+						if (!option) {
+							return '---';
+						} else {
+							return option.label;
+						}
+					},
 					add: function add() {
 						var self = this;
 						window.open(this.kw.add_url + 'edit/?_pop=1', location.pathname, 'height=500,width=800,resizable=yes,scrollbars=yes,top=200,left=300');
@@ -395,19 +403,31 @@
 	/*
 	新增一个wrap函数，用户封装调用函数
 	*/
-	function proc_msg(func) {
-		function _inn(data) {
-			if (data.status && data.status != 'success') {
-				if (data.msg) {
-					alert(data.msg);
-				}
-			} else {
-				func(data);
+	//function proc_msg(func) {
+	//	function _inn(data) {
+	//		if(data.status && data.status!='success'){
+	//			if(data.msg){
+	//				alert(data.msg)
+	//			}
+	//		}else{
+	//			func(data)
+	//		}
+	//	}
+	//	return _inn
+	//}
+
+	function has_error(data) {
+		if (data.status && data.status != 'success') {
+			if (data.msg) {
+				alert(data.msg);
 			}
+			return true;
+		} else {
+			return false;
 		}
-		return _inn;
 	}
-	window.proc_msg = proc_msg;
+
+	window.has_error = has_error;
 
 	function def_proc_port_msg(data, event) {
 		var rt = data.responseJSON;
@@ -507,7 +527,7 @@
 
 	if (!window.__uploading_mark) {
 		window.__uploading_mark = true;
-		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t\tz-index: 9000;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\tz-index: 9500;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t\t    position: absolute;\n\t        top: 50%;\n\t        left: 50%;\n\t        transform: translate(-50%, -50%);\n\t        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t\t-webkit-transform:translate(-50%, -50%); /* Safari \u548C Chrome */\n\t\t\t-o-transform:translate(-50%, -50%); \n\t\t\t\n\t        text-align: center;\n\t\t\t/*display: table;*/\n\t        z-index: 10000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
+		document.write('\n\t\t<style>\n\t\t.popup{\n\t\t\tposition: fixed;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tdisplay:none;\n\t\t\tz-index: 9000;\n\t\t}\n\t\t#_upload_inn{\n\t\t\tbackground: rgba(88, 88, 88, 0.2);\n\t\t\tborder-radius: 5px;\n\t\t\twidth:180px;\n\t\t\theight:120px;\n\t\t\tz-index: 9500;\n\t\t\t/*padding:30px 80px ;*/\n\t\t}\n\t\t.imiddle{\n\t\t    position: absolute;\n\t        top: 50%;\n\t        left: 50%;\n\t        transform: translate(-50%, -50%);\n\t        -ms-transform:translate(-50%, -50%); \t/* IE 9 */\n\t\t\t-moz-transform:translate(-50%, -50%); \t/* Firefox */\n\t\t\t-webkit-transform:translate(-50%, -50%); /* Safari 和 Chrome */\n\t\t\t-o-transform:translate(-50%, -50%); \n\t\t\t\n\t        text-align: center;\n\t\t\t/*display: table;*/\n\t        z-index: 10000;\n    \t}\n    \t#_upload_mark{\n    \t\tfloat: left;\n\n    \t}\n\t\t</style>');
 		$(function () {
 			$('body').append('<div class="popup" id="load_wrap"><div id=\'_upload_inn\' class="imiddle">\n\t\t<div  id="_upload_mark" class="imiddle"><i class="fa fa-spinner fa-spin fa-3x"></i></div></div></div>');
 		});

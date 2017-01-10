@@ -1,3 +1,4 @@
+# encoding=utf-8
 
 def get_argment(request):
     if request.method=='POST':

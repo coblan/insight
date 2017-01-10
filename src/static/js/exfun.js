@@ -166,8 +166,13 @@ ex={
 		}
 		return out
 	},
-	isfun:function function_name(func) {
-		return typeof func == 'function'
+	any:function(array,func) {
+		for(var x=0;x<array.length;x++){
+			if(func(array[x])){
+				return true
+			}
+		}
+		return false
 	},
 	remove:function (array,func_or_obj) {
 		var index_ls=[]
@@ -181,9 +186,18 @@ ex={
 		}else{
 			var obj=func_or_obj
 			for(var i=0;i<array.length;i++){
-				if(array[i]==obj){
+				var match=true
+				for(var key in obj){
+					if(obj[key]!=array[i][key]){
+						match=false
+					}
+				}
+				if(match){
 					index_ls.push(i)
 				}
+				//if(array[i]==obj){
+				//	index_ls.push(i)
+				//}
 			}
 		}
 		var rm_item=[]
