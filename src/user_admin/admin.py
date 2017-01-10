@@ -385,6 +385,7 @@ class SalaryTablePage(TablePage):
     tableCls=SalaryTabel
 
 class SalaryFormPage(FormPage):
+    template='user_admin/salary_form.html'
     fieldsCls=SalaryFields
 
 class BaseinfoTablePage(TablePage):
