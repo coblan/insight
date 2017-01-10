@@ -1,10 +1,10 @@
 #from core.model_render import save_row,model_dc
-from helpers.director.db_tools import name_to_model
+from helpers.director.db_tools import name_to_model,sim_dict
 from helpers.director.models import PermitModel
 from helpers.director.model_admin.render import model_dc
 from django.contrib.auth.models import Group
 import json
-
+from models import EmployeeModel
 def get_globe():
     return globals()
 
@@ -50,5 +50,11 @@ def save_group_and_permit(row,permits,user):
     # perm={'group':group_form.instance.pk,'permit':permits}
     # perm_form = save_row(perm, user)
     return {'status':'success'}
-    
+
+
+def employee_info(pk):
+    employee = EmployeeModel.objects.get(pk=pk)
+    return {'status':'success',
+            'employee':sim_dict(employee)
+            }
     

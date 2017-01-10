@@ -18,6 +18,7 @@ from django.contrib import admin
 #from hello import urls as hello_urls
 from hello import views as hello_view
 from user_admin import urls as user_urls
+from user_admin import views as user_views
 from helpers.director import urls as director_urls
 urlpatterns = [
     
@@ -27,5 +28,6 @@ urlpatterns = [
     url(r'^$',hello_view.home),
     #url(r'hello/',include(hello_urls)),
     
-    url(r'user/',include(user_urls),name='user_admin')
+    url(r'user/',include(user_urls),name='user_admin'),
+    url(r'employee/ajax/?$',user_views.user_admin_ajax)
 ]

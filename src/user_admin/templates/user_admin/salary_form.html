@@ -27,7 +27,17 @@
 			},
 			watch:{
 				'kw.row.empoyee':function(n,o){
-					alert('jj')
+					if(!n){
+						this.kw.row.base_salary=0
+					}else{
+						var post_data=[{fun:'employee_info',pk:n}]
+						var self=this
+						$.post('/employee/ajax',JSON.stringify(post_data),function(data){
+							if(data.employee_info.status=='success'){
+								self.kw.row.base_salary=data.employee_info.employee.salary_level
+							}
+						})
+					}
 				}
 			},
 			methods:{
