@@ -45,7 +45,8 @@ menus=[
                 {'name':'user','label':'用户管理','url':lambda: page('user'),'visible':can_touch(User)},
                 {'name':'group','label':'用户组','url':lambda:page('group'),'visible':can_touch(Group)},
                 ]},
-    {'name':'employee','label':'员工管理','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((BasicInfo,EmployeeModel)),
+    {'name':'employee','label':'员工管理','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
+     'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
      'submenu':[
          {'name':'basice','label':'人员信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'visible':can_touch(BasicInfo)},    
          {'name':'employee_set','label':'员工名册','url':lambda: reverse('model_table',kwargs={'name':'employee'}),'visible':can_touch(EmployeeModel)},
