@@ -44,20 +44,21 @@
 			},
 			methods:{
 			{% block map %}
-				wo_map:function (name,row) {
+				value_map:function (name,row) {
+					var content=row[name]
+
 					if(name==heads[0].name){
 						return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
 									{	pk:row.pk,
 										next:btoa(location.pathname+location.search),
 										value:row[name]
 							})
-		            }else if(row[name]===true){
+		            }else if(content===true){
 		            	return '<img src="http://res.enjoyst.com/true.png" width="15px" />'
-		            }else if(row[name]===false){
+		            }else if(content===false){
 		            	return '<img src="http://res.enjoyst.com/false.png" width="15px" />'
-		            }
-		            else{
-			                return row[name]
+		            }else{
+			            return content
 			        }
 				},
 			{% endblock %}
@@ -153,7 +154,7 @@
 					<input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
 				</td>
 				<td v-for='head in heads' :class='"td_"+head.name'>
-					<span v-html='wo_map(head.name,row)'></span>
+					<span v-html='value_map(head.name,row)'></span>
 				</td>
 			</tr>
 		</tbody>
