@@ -7,12 +7,12 @@ backlog = 2048
 worker_class = 'gevent'
 debug = True
 proc_name = 'insight'
-pidfile = '/pypro/{proc_name}/run/{proc_name}.pid'.formate(proc_name=proc_name)
+pidfile = '/pypro/{proc_name}/run/{proc_name}.pid'.format(proc_name=proc_name)
 #logfile = '/pypro/mysite/log/debug.log'
-accesslog='/pypro/{proc_name}/log/{proc_name}.log'.formate(proc_name=proc_name)
-errorlog='/pypro/{proc_name}/log/{proc_name}_error.log'.formate(proc_name=proc_name)
+accesslog='/pypro/{proc_name}/log/{proc_name}.log'.format(proc_name=proc_name)
+errorlog='/pypro/{proc_name}/log/{proc_name}_error.log'.format(proc_name=proc_name)
 loglevel = 'debug'
-chdir = '/pypro/{proc_name}/src'.formate(proc_name=proc_name)
+chdir = '/pypro/{proc_name}/src'.format(proc_name=proc_name)
 timeout=60
 
 #stdout_logfile='/pypro/mysite/log/mysite_std.log'
