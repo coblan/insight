@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'helpers.director',
+    'helpers.page_adaptor',
     'hello',
     'user_admin',
     'workload',
