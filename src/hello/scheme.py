@@ -6,6 +6,8 @@ from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group
 from workload.models import WorkModel,TaskModel
 from helpers.director.model_admin.render import render_dc
 from django.core.urlresolvers import reverse
+
+from helpers.pageadaptor.models import WebPage
 #from django.urls import reverse
 
 def can_touch(model):
@@ -56,7 +58,11 @@ menus=[
      'submenu':[{'name':'task','label':'任务','url':lambda: reverse('model_table',kwargs={'name':'task'}),'visible':can_touch(TaskModel)},
                 {'name':'workload','label':'工作','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'visible':can_touch(WorkModel)}
                 ]
-     }
+     },
+    {'name':'pageadmin','label':'Page Admin',
+     'url':lambda: reverse('model_table',kwargs={'name':'webpage'}),
+     'icon':'<i class="fa fa-home" aria-hidden="true"></i>',
+     'visible':can_touch(WebPage)},
 
 ]
 
