@@ -7,11 +7,19 @@ from scheme import menus
 from django.contrib.auth.decorators import login_required
 from helpers.director.container import evalue_container
 from scheme import menus
+import json
 # from core.port import jsonpost
 # Create your views here.
 
+from helpers.pageadaptor.models import WebPage
+
 def home(request):
-    return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user)})
+    try:
+        page = WebPage.objects.get(name='home')
+        ctx_dict=json.loads(page.content)
+        return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user),'ctx':ctx_dict})
+    except WebPage.DoesNotExist:
+        return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user)})
 
 #@login_required
 #def model_render_views(request,url):
