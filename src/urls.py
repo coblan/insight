@@ -20,6 +20,7 @@ from hello import views as hello_view
 from user_admin import urls as user_urls
 from user_admin import views as user_views
 from helpers.director import urls as director_urls
+from helpers.msic.ckeditor import upload_image
 urlpatterns = [
     
     url(r'^accounts/',include(director_urls)),
@@ -29,5 +30,14 @@ urlpatterns = [
     #url(r'hello/',include(hello_urls)),
     
     url(r'user/',include(user_urls),name='user_admin'),
-    url(r'employee/ajax/?$',user_views.user_admin_ajax)
+    url(r'employee/ajax/?$',user_views.user_admin_ajax),
+    
+    url(r'ckeditor/upload_image',upload_image),
 ]
+
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
