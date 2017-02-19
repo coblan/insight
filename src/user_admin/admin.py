@@ -16,8 +16,8 @@ import json
 import ajax
 from django.db import models
 from django.db.models import Q
-
-
+from django.conf import settings
+import importlib
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -29,6 +29,7 @@ admin.site.register(SalaryRecords)
 admin.site.register(Month)
 #admin.site.register(PermitModel)
 
+site_option=importlib.import_module(settings.SITE_OPTION)
 
 class BaseSearch(RowSearch):
     names=['name']
@@ -257,6 +258,8 @@ class EmployeeFields(ModelFields):
         fields=['employ_id','position','salary_level','baseinfo','user']
     
     def get_options(self):
+        print(site_option.get_value('jjer'))
+        site_option.set_value('jjer','cvhiui')
         options = super(EmployeeFields,self).get_options()
         
         qs = BasicInfo.objects.filter( Q(employeemodel__isnull=True)|Q(employeemodel = self.instance) )
