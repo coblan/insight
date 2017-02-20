@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 class EmployeeModel(models.Model):
     user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
     baseinfo=models.OneToOneField('BasicInfo',verbose_name='基本信息',blank=True,null=True,on_delete=models.SET_NULL)
-    employ_id = models.CharField('职员ID',max_length=50,blank=True)
+    employ_id = models.CharField('职员ID',max_length=50,unique=True)
     position = models.CharField('职位',max_length=100,blank=True)
     salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)
     

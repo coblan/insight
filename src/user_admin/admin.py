@@ -8,7 +8,7 @@ from django.apps import apps
 from helpers.director.db_tools import to_dict,model_to_name
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
-from helpers.director.model_admin.render import model_page_dc,model_dc
+from helpers.director.model_admin.render import model_page_dc,model_dc,render_dc
 from helpers.director.model_admin.permit import permit_list,Permit
 from helpers.director.model_admin.render import TablePage,FormPage
 from django.contrib.auth.models import User,Group
@@ -18,6 +18,7 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 import importlib
+from helpers.director.container import evalue_container
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -409,7 +410,49 @@ class EmployeeTablePage(TablePage):
     tableCls=EmployeeTable
     
 class EmployeeFormPage(FormPage):
-    fieldsCls=EmployeeFields
+
+    template='director/fieldsset.html'
+
+    def __init__(self,request,pk):
+        self.request=request
+        self.pk=pk
+        
+        # if not pk:
+            
+        # if pk:
+            # employee= EmployeeModel.objects.get(pk=pk)
+            # self.employee=EmployeeFields(instance=employee,crt_user=request.user)
+            # if not employee.baseinfo:
+                # employee.baseinfo=BasicInfo.objects.create()
+                # employee.save()
+            # self.basic=BasicInfoFields(instance=employee.baseinfo,crt_user=request.user)
+           
+    
+    def get_context(self):
+        if not self.pk:
+            self.employee=EmployeeFields(pk=None,crt_user=self.request.user)
+            employee_ctx= self.employee.get_context()
+            pages=[{'name':'employee','heads':employee_ctx.get('heads'),'row':employee_ctx.get('row'),'label':'employee'}]
+        else:
+            employee= EmployeeModel.objects.get(pk=self.pk)
+            self.employee=EmployeeFields(instance=employee,crt_user=self.request.user)
+            if not employee.baseinfo:
+                employee.baseinfo=BasicInfo.objects.create()
+                employee.save()
+            self.basic=BasicInfoFields(instance=employee.baseinfo,crt_user=self.request.user)   
+            employee_ctx= self.employee.get_context()
+            basic_ctx=self.basic.get_context()
+            pages=[
+                {'name':'employee','heads':employee_ctx.get('heads'),'row':employee_ctx.get('row'),'label':'employee'},
+                {'name':'basic','heads':basic_ctx.get('heads'),'row':basic_ctx.get('row'),'label':'basice Info','visible':self.basic.can_access}
+            ]
+            
+        pages= evalue_container(pages)
+        ctx={'pages':pages}
+        pop = self.request.GET.get('_pop')
+        if not pop:
+            ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)  
+        return ctx    
     
 #class UserTablePage(TablePage):
     #tableCls=UserTable
