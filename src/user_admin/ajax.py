@@ -5,6 +5,10 @@ from helpers.director.model_admin.render import model_dc
 from django.contrib.auth.models import Group
 import json
 from models import EmployeeModel
+from django.core.exceptions import ValidationError
+from helpers.director.shortcut import save_row
+
+
 def get_globe():
     return globals()
 
@@ -20,7 +24,25 @@ def get_globe():
         #emp_form = save_row(employee_info, user)
         #dc['employee_errors']=emp_form.errors
     
-    #return dc    
+    #return dc   
+    
+
+def save_employee_info(user,emp_info,bas_info):
+    try:
+        emp = save_row(emp_info, user)
+    except ValidationError as e:
+        return {'emp_errors':dict(e)}  
+    try:
+        bas_info= save_row(bas_info,user)
+    except ValidationError as e:
+        return {'bas_errors':dict(e)} 
+    
+    if not emp.baseinfo:
+        emp.baseinfo=bas_info
+        emp.save()
+    return {'status':'success'}
+
+
 
 def model_permit_info(name,user):
     model = name_to_model(name)

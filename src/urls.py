@@ -30,7 +30,7 @@ urlpatterns = [
     #url(r'hello/',include(hello_urls)),
     
     url(r'user/',include(user_urls),name='user_admin'),
-    url(r'employee/ajax/?$',user_views.user_admin_ajax),
+    url(r'employee/ajax/?$',user_views.user_admin_ajax,name='employee_ajax'),
     
     url(r'ckeditor/upload_image',upload_image),
 ]

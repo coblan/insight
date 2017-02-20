@@ -411,44 +411,37 @@ class EmployeeTablePage(TablePage):
     
 class EmployeeFormPage(FormPage):
 
-    template='director/fieldsset.html'
+    template='user_admin/employee_ok.html'
 
     def __init__(self,request,pk):
         self.request=request
         self.pk=pk
         
-        # if not pk:
-            
-        # if pk:
-            # employee= EmployeeModel.objects.get(pk=pk)
-            # self.employee=EmployeeFields(instance=employee,crt_user=request.user)
-            # if not employee.baseinfo:
-                # employee.baseinfo=BasicInfo.objects.create()
-                # employee.save()
-            # self.basic=BasicInfoFields(instance=employee.baseinfo,crt_user=request.user)
-           
-    
-    def get_context(self):
         if not self.pk:
-            self.employee=EmployeeFields(pk=None,crt_user=self.request.user)
-            employee_ctx= self.employee.get_context()
-            pages=[{'name':'employee','heads':employee_ctx.get('heads'),'row':employee_ctx.get('row'),'label':'employee'}]
+            empfld=EmployeeFields(pk=None,crt_user=request.user)
+            basfld=BasicInfoFields(pk=None,crt_user=request.user) 
         else:
             employee= EmployeeModel.objects.get(pk=self.pk)
-            self.employee=EmployeeFields(instance=employee,crt_user=self.request.user)
+            empfld=EmployeeFields(instance=employee,crt_user=request.user)
             if not employee.baseinfo:
                 employee.baseinfo=BasicInfo.objects.create()
                 employee.save()
-            self.basic=BasicInfoFields(instance=employee.baseinfo,crt_user=self.request.user)   
-            employee_ctx= self.employee.get_context()
-            basic_ctx=self.basic.get_context()
-            pages=[
-                {'name':'employee','heads':employee_ctx.get('heads'),'row':employee_ctx.get('row'),'label':'employee'},
-                {'name':'basic','heads':basic_ctx.get('heads'),'row':basic_ctx.get('row'),'label':'basice Info','visible':self.basic.can_access}
-            ]
-            
-        pages= evalue_container(pages)
-        ctx={'pages':pages}
+            basfld=BasicInfoFields(instance=employee.baseinfo,crt_user=self.request.user)   
+
+        #pages=[
+            #{'name':'employee','heads':empfld.get_heads(),'row':empfld.get_row(),'label':'employee'},
+            #{'name':'basic','heads':basfld.get_heads(),'row':basfld.get_row(),'label':'basice Info','visible':basfld.can_access}
+        #]  
+        
+        self.pages={
+            'emp_info':{'heads':empfld.get_heads(),'row':empfld.get_row(),'label':'工作信息'},
+            'bas_info':{'heads':basfld.get_heads(),'row':basfld.get_row(),'label':'基本信息'}            
+        }
+    
+    def get_context(self):
+        
+        #emp= self.pages #evaluse_container(self.pages)
+        ctx={'person':self.pages}
         pop = self.request.GET.get('_pop')
         if not pop:
             ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)  

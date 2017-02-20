@@ -1,0 +1,145 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+
+<script type="text/javascript">
+
+    var person ={{ person | jsonify }}
+//    ex.each(person,function(page){
+//        page.errors={}
+//    })
+//    person.emp_info.errors={}
+//    person.bas_info.errors={}
+
+//    crt_view=ex.parseSearch().view || pages[0].name
+    var crt_view=ex.parseSearch().view || 'emp_info'
+
+    ajax_url="{% url 'employee_ajax' %}"
+
+    $(function () {
+        new Vue({
+            el:'#there',
+            data:{
+                person:person,
+                menu:menu,
+                can_save:false,
+                can_delete:false,
+                can_log:false,
+                crt_view:crt_view,
+            },
+            methods:{
+                submit:function () {
+                    var self =this;
+                    show_upload()
+                    var search =ex.parseSearch()
+//                    var post_data= ex.map(this.pages,function(page){
+//                        return {fun:'save',row:page.row,_rt_key:page.name}
+//                    })
+                    var post_data=[{fun:'save_employee_info',emp_info:this.person.emp_info.row,bas_info:this.person.bas_info.row}]
+
+                    ex.post(ajax_url,JSON.stringify(post_data),function (resp) {
+                        hide_upload(500)
+
+                        if(resp.save_employee_info.emp_errors){
+                            self.person.emp_info.errors=resp.save_employee_info.emp_errors
+                        }
+                        if(resp.save_employee_info.bas_errors){
+                            self.person.bas_info.errors=resp.save_employee_info.bas_errors
+                        }
+
+//                        var error_pages=ex.filter(self.pages,function(page){
+//                            if(resp[page.name].errors){
+//                                page.errors=resp[page.name].errors
+//                                return true
+//                            }else{
+//                                return false
+//                            }
+//                        })
+//                        var search = ex.parseSearch()
+//                        if(error_pages.length == 0 && search.next){
+//                            location=atob(search.next)
+//                        }
+
+                    })
+                },
+                cancel:function () {
+                    var search =ex.parseSearch() //parseSearch(location.search)
+                    if(search.next){
+                        location=atob(search.next)
+                    }
+                },
+                del_row:function () {
+                    if(!confirm('真的删除吗?'))
+                        return
+                    var obj={
+                        pk:this.kw.row.pk,
+                        _class:this.kw.row._class
+                    }
+                    var obj_str=JSON.stringify([obj])
+                    var path = '{% url "del_rows" %}'
+                    location=ex.template('{path}?rows={rows}&next={next}',{path:path,
+                        rows:btoa(obj_str),
+                        next:btoa(location.pathname)})
+                }
+            },
+            mounted:function () {
+                var self=this
+                var row = this.person.emp_info.row
+                var ls = row._class.split('.')
+//                var app_label=ls[0]
+//                var model_name=ls[1]
+                var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
+                    {fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'},
+                    {fun:'model_perm',perm:'can_log',model:row._class,_rt_key:'can_log'}]
+                $.post('',JSON.stringify(post_data),function (data) {
+                    self.can_save=data.can_save
+                    self.can_delete=data.can_delete
+                    self.can_log=data.can_log
+                })
+            }
+        })
+    })
+</script>
+
+<div id='there'>
+
+    <div style='float: right;padding: 5px 20px;'>
+        <a href="ss">History</a>
+    </div>
+    <path-nav :menu='menu'>
+        <li><span>编辑</span></li>
+    </path-nav>
+
+    <div style='overflow: hidden;'>
+        <div class="btn-group" style='float: right;'>
+            <button type="button" class="btn btn-default" @click='submit()' v-if='can_save'>Save</button>
+            <button type="button" class="btn btn-default" v-if='can_delete' @click='del_row()'>删除</button>
+            <button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
+        </div>
+    </div>
+
+    <ul class='inst-menu'>
+        <li v-text="person.emp_info.label" @click="crt_view='emp_info'" :class="{'active':crt_view=='emp_info'}"></li>
+        <li v-text="person.bas_info.label" @click="crt_view='bas_info'" :class="{'active':crt_view=='bas_info'}"></li>
+    </ul>
+
+    <div v-show="crt_view=='emp_info'">
+        <div class='field-panel'>
+            <field name='employ_id' :kw='person.emp_info'></field>
+            <field name='name' :kw='person.bas_info'></field>
+            <field name='position' :kw='person.emp_info'></field>
+        </div>
+    </div>
+
+    <div v-show="crt_view=='bas_info'">
+        <div class="field-panel">
+            <field name='name' :kw='person.bas_info'></field>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
