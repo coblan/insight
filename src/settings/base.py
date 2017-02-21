@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'hello',
     'user_admin',
     'workload',
+    'helpers.dev'
     
 )
 

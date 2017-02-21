@@ -21,6 +21,9 @@ from user_admin import urls as user_urls
 from user_admin import views as user_views
 from helpers.director import urls as director_urls
 from helpers.msic.ckeditor import upload_image
+from helpers.face import urls as face_urls
+from helpers.dev import urls as dev_urls
+
 urlpatterns = [
     
     url(r'^accounts/',include(director_urls)),
@@ -33,6 +36,8 @@ urlpatterns = [
     url(r'employee/ajax/?$',user_views.user_admin_ajax,name='employee_ajax'),
     
     url(r'ckeditor/upload_image',upload_image),
+    url(r'^face/', include(face_urls)),
+    url(r'^dev/',include(dev_urls))
 ]
 
 
