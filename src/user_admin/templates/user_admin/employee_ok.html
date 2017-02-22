@@ -8,13 +8,23 @@
 
     var person ={{ person | jsonify }}
 
-    var data = sessionStorage.getItem('key');
-    sessionStorage.setItem('JJ', 'YY');
 
     var crt_view=ex.parseSearch().view || 'emp_info'
 
     ajax_url="{% url 'employee_ajax' %}"
 
+    var catch_key=ex.parseSearch().catch_key
+    if(catch_key){
+        var value_str = sessionStorage.getItem(catch_key)
+        if (value_str){
+            sessionStorage.removeItem(catch_key)
+            var value=JSON.parse(value_str)
+            person=value.person
+            crt_view=value.crt_view
+        }
+
+
+    }
     $(function () {
         new Vue({
             el:'#there',
@@ -79,7 +89,21 @@
                     location=ex.template('{path}?rows={rows}&next={next}',{path:path,
                         rows:btoa(obj_str),
                         next:btoa(location.pathname)})
+                },
+                jump_edit:function(name,pk){
+                    var director = '{% url 'director' %}'
+                    var search = ex.parseSearch()
+                    search.catch_key=btoa(location.pathname)
+                    var value={
+                        person:this.person,
+                        crt_view:this.crt_view,
+                    }
+                    sessionStorage.setItem(search.catch_key,JSON.stringify(value))
+                    var back_url=btoa(location.pathname+ex.searchfy(search,'?'))
+                    location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
+
                 }
+
             },
             mounted:function () {
                 var self=this
@@ -130,7 +154,7 @@
             <field name='position' :kw='person.emp_info'></field>
 
             <field name='user' :kw='person.emp_info'>
-                +
+                <button @click="jump_edit('user',person.emp_info.row['user'])">+</button>
             </field>
         </div>
     </div>
