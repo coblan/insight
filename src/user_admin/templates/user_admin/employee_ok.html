@@ -7,13 +7,10 @@
 <script type="text/javascript">
 
     var person ={{ person | jsonify }}
-//    ex.each(person,function(page){
-//        page.errors={}
-//    })
-//    person.emp_info.errors={}
-//    person.bas_info.errors={}
 
-//    crt_view=ex.parseSearch().view || pages[0].name
+    var data = sessionStorage.getItem('key');
+    sessionStorage.setItem('JJ', 'YY');
+
     var crt_view=ex.parseSearch().view || 'emp_info'
 
     ajax_url="{% url 'employee_ajax' %}"
@@ -127,9 +124,14 @@
 
     <div v-show="crt_view=='emp_info'">
         <div class='field-panel'>
+            <field name='head' :kw='person.bas_info'></field>
             <field name='employ_id' :kw='person.emp_info'></field>
             <field name='name' :kw='person.bas_info'></field>
             <field name='position' :kw='person.emp_info'></field>
+
+            <field name='user' :kw='person.emp_info'>
+                +
+            </field>
         </div>
     </div>
 

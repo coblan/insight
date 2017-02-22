@@ -5,7 +5,7 @@ from django.contrib import admin
 from models import BasicInfo,MM,Fore,EmployeeModel,SalaryRecords,Month
 from django.apps import apps
 
-from helpers.director.db_tools import to_dict,model_to_name
+from helpers.director.db_tools import to_dict,model_to_name,model_to_head,sim_dict
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
 from helpers.director.model_admin.render import model_page_dc,model_dc,render_dc
@@ -88,7 +88,7 @@ class BasicInfoFields(ModelFields):
     
     class Meta:
         model=BasicInfo
-        fields=['name','age'] 
+        fields=['name','age','head'] 
     
     #def get_fields(self):
         #return ['name','age']
@@ -102,11 +102,17 @@ class BasicInfoFields(ModelFields):
     
     def save_form(self):
         rt = super(BasicInfoFields,self).save_form()
-        if hasattr(self.instance,'employeemodel'):
+        if hasattr(self.instance,'employeemodel') and self.instance.employeemodel.user:
             self.instance.employeemodel.user.first_name=self.instance.name
             self.instance.employeemodel.user.save()
         return rt
     
+    def get_heads(self):
+        heads = super(BasicInfoFields,self).get_heads()
+        for head in heads:
+            if head.get('name')=='head':
+                head['type']='picture'
+        return heads
     
     #def get_options(self):
         #options = super(BasicInfoFields,self).get_options()
@@ -241,15 +247,23 @@ class EmployeeTable(ModelTable):
     include=['employ_id','position','salary_level']
     def get_heads(self):
         heads = super(EmployeeTable,self).get_heads()
-        heads.insert(1,{'name':'name','label':'姓名'})
+        permit = Permit(model=BasicInfo,user=self.crt_user)
+        bas_field=permit.readable_fields()
+        bas_heads=model_to_head(model=BasicInfo,include=bas_field)
+        heads.extend(bas_heads)
+        # heads.insert(1,{'name':'name','label':'姓名'})
         return heads
     
     def get_rows(self):
         rows = super(EmployeeTable,self).get_rows()
         for row in rows:
             emp = EmployeeModel.objects.get(pk=row['pk'])
+            
+            permit = Permit(model=BasicInfo,user=self.crt_user)
+            bas_field=permit.readable_fields()            
             if emp.baseinfo:
-                row['name']=emp.baseinfo.name
+                row.update(sim_dict(emp.baseinfo,include=bas_field))
+                # row['name']=emp.baseinfo.name
         return rows
         
 
@@ -406,8 +420,13 @@ class BaseinfoFormPage(FormPage):
         # return BasicInfoFields(pk=self.pk,crt_user=self.request.user).get_context()
 
 
+    
 class EmployeeTablePage(TablePage):
+    template='user_admin/employee_table.html'
     tableCls=EmployeeTable
+    
+    
+    
     
 class EmployeeFormPage(FormPage):
 
@@ -428,11 +447,6 @@ class EmployeeFormPage(FormPage):
                 employee.save()
             basfld=BasicInfoFields(instance=employee.baseinfo,crt_user=self.request.user)   
 
-        #pages=[
-            #{'name':'employee','heads':empfld.get_heads(),'row':empfld.get_row(),'label':'employee'},
-            #{'name':'basic','heads':basfld.get_heads(),'row':basfld.get_row(),'label':'basice Info','visible':basfld.can_access}
-        #]  
-        
         self.pages={
             'emp_info':{'heads':empfld.get_heads(),'row':empfld.get_row(),'label':'工作信息'},
             'bas_info':{'heads':basfld.get_heads(),'row':basfld.get_row(),'label':'基本信息'}            

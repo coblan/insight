@@ -1,0 +1,198 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+<script src='{% static "js/table.pack.js" %}'></script>
+<script type="text/javascript">
+
+    row_filters={{row_filters | jsonify }}
+    placeholder = '{{placeholder |default:""}}'
+    row_sort={{row_sort | jsonify | default:'[]' }}
+    heads={{ heads | jsonify | default:'[]'}}
+    rows={{ rows | jsonify | default:'[]'}}
+    row_pages = {{ row_pages | jsonify}}
+    model ="{{ model }}"
+    url_args=ex.parseSearch()
+    //	search字段从 url_args._q 来取值
+    $(function () {
+                table=new Vue({
+                    el:'#there',
+                    data:{
+                        heads:heads,
+                        rows:rows,
+                        row_filters:row_filters,
+                        row_sort:row_sort,
+                        row_pages:row_pages,
+                        placeholder:placeholder,
+                        selected:[],
+                        del_info:[],
+                        menu:menu,
+                        can_add:false,
+                        can_del:false,
+                        model:model,
+                        url_args:url_args,
+                        ex:ex,
+                    },
+                    mixins:[table_fun],
+                    watch:{
+                        'row_sort.sort_str':function (v) {
+                            this.url_args._sort=v
+                            this.search()
+                        }
+                    },
+                    methods:{
+
+                map:function (name,row) {
+                    if(name==heads[0].name){
+                        return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
+                                {	pk:row.pk,
+                                    next:btoa(location.pathname+location.search),
+                                    value:row[name]
+                                })
+                    }if(name=='head'){
+                        return ex.template('<img src="{src}" style="max-height:40px" />',{src:row['head']})
+                    }else{
+                        return row[name]
+                    }
+                },
+
+                goto_page:function (page) {
+                    this.url_args._page=page
+                    this.search()
+                },
+                add_new:function () {
+                    return 'edit/?next='+btoa(location.pathname+location.search)
+                },
+                del_item:function () {
+
+                    if (this.selected.length==0){
+                        return
+                    }
+                    var rows=[]
+                    var inst_ls =[]
+                    for(var j=0;j<this.selected.length;j++){
+                        var pk = this.selected[j]
+                        for(var i=0;i<this.rows.length;i++){
+                            if(this.rows[i].pk.toString()==pk){
+                                rows.push(this.rows[i])
+                                inst_ls.push({pk:pk,_class:this.rows[i]._class})
+                            }
+                        }
+                    }
+                    var path = '{% url "del_rows" %}'
+                    location=ex.template("{path}?rows={rows}&next={next}",{path:path,
+                        rows:btoa(JSON.stringify(inst_ls)),
+                        next:btoa(location.pathname+location.search)})
+                },
+                search:function () {
+                    location =ex.template('{path}{search}',{path:location.pathname,
+                        search: encodeURI(ex.searchfy(this.url_args,'?')) })
+                },
+            },
+            mounted:function () {
+        var self=this;
+        var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+            {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+        $.post('',JSON.stringify(post_data),function (data) {
+            self.can_add=data.can_add
+            self.can_del=data.can_del
+        })
+
+    }
+
+    })
+    })
+</script>
+<div id='there'>
+    <div class='btn-panel'>
+
+        <path-nav :menu='menu'></path-nav>
+
+        <form class='button-group' autocomplete="on" v-if='placeholder || row_filters.length>0'>
+            <input v-if='placeholder' type="text" name="_q" v-model='url_args._q' :placeholder='placeholder' class='form-control'/>
+            <select name="" id="" v-for='filter in row_filters' v-model='url_args[filter.name]' class='form-control'>
+                <option :value="null" v-text='filter.label'></option>
+                <option value="" >----</option>
+                <option v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
+            </select>
+
+            <button name="go" type="button" class="btn btn-info" @click='search()' style='position: absolute;right:-80px;top:-1px;width:70px;height:33px;'>提交</button>
+            <!--<input type="submit">-->
+        </form>
+
+        <div class='btn-group' style='float: right;'>
+            <a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>
+            <button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>
+        </div>
+
+    </div>
+
+    <table class='table'>
+        <thead>
+        <tr >
+            <td style='width:50px' v-if='selected'>
+                <input type="checkbox" name="test" value=""/>
+            </td>
+            <td v-for='head in heads' :class='["td_"+head.name,{"selected":is_sorted(row_sort.sort_str ,head.name )}]'>
+					<span v-if='ex.isin(head.name,row_sort.sortable)' v-text='head.label' class='clickable'
+                          @click='row_sort.sort_str = toggle( row_sort.sort_str,head.name)'></span>
+                <span v-else v-text='head.label'></span>
+                <sort-mark class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for='row in rows'>
+            <td v-if='selected'>
+                <input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
+            </td>
+            <td v-for='head in heads' :class='"td_"+head.name'>
+                <span v-html='map(head.name,row)'></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <!--<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>-->
+    <paginator :nums='row_pages.options' :crt='row_pages.crt_page' @goto_page='goto_page($event)'></paginator>
+
+
+    <!--<del-info :infos='del_info'></del-info>-->
+
+
+</div>
+<style type="text/css" media="screen" id="test">
+    .button-group{
+        position: relative;
+        display: inline-block;
+    }
+    .form-control{
+        display: inline-block;
+        margin-left:10px;
+        width:auto;
+        height:30px;
+    }
+    .sort-mark{
+        float: right;
+    }
+    .selected{
+        background-color: #DDD;
+    }
+    .clickable{
+        cursor: pointer;
+        font-size:120%;
+        color: #0099CC;
+    }
+    .table tbody tr:nth-child(2n+1){
+        background-color: #F5F5F5;
+    }
+    .table tbody tr:nth-child(2n){
+        background-color: #F1F1F1;
+    }
+
+</style>
+{% block extra %}
+{% endblock %}
+{% endblock %}

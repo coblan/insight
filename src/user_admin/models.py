@@ -29,6 +29,7 @@ class BasicInfo(models.Model):
     # , on_delete=models.SET_NULL
     name = models.CharField(_('name'), max_length=50, blank=True)
     age = models.CharField(_('age'), max_length=50, blank=True)
+    head = models.CharField('head image',max_length=200,blank=True)
     
     def __unicode__(self):
         return self.name
