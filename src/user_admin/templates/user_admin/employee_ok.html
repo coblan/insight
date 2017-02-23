@@ -9,22 +9,14 @@
     var person ={{ person | jsonify }}
 
 
-    var crt_view=ex.parseSearch().view || 'emp_info'
+    var crt_view= 'emp_info'
 
     ajax_url="{% url 'employee_ajax' %}"
 
-    var catch_key=ex.parseSearch().catch_key
-    if(catch_key){
-        var value_str = sessionStorage.getItem(catch_key)
-        if (value_str){
-            sessionStorage.removeItem(catch_key)
-            var value=JSON.parse(value_str)
-            person=value.person
-            crt_view=value.crt_view
-        }
+
+    ln.readCache()
 
 
-    }
     $(function () {
         new Vue({
             el:'#there',
@@ -92,15 +84,22 @@
                 },
                 jump_edit:function(name,pk){
                     var director = '{% url 'director' %}'
-                    var search = ex.parseSearch()
-                    search.catch_key=btoa(location.pathname)
-                    var value={
-                        person:this.person,
-                        crt_view:this.crt_view,
+
+                    var cache_meta={
+                        cache:['person.emp_info.row',
+                                'person.bas_info.row',
+                                'crt_view'],
+                        rt_key:{'auth.user':'person.emp_info.row.user'}
                     }
-                    sessionStorage.setItem(search.catch_key,JSON.stringify(value))
-                    var back_url=btoa(location.pathname+ex.searchfy(search,'?'))
-                    location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
+
+                    ln.cache(cache_meta)
+                    var back_url=btoa(ex.appendSearch({cache:1}))
+                    if(pk){
+                        location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
+                    }else{
+                        location=ex.template('{director}model/{name}/edit?next={encode_url}',{director:director,name:name,encode_url:back_url})
+                    }
+
 
                 }
 
@@ -154,7 +153,8 @@
             <field name='position' :kw='person.emp_info'></field>
 
             <field name='user' :kw='person.emp_info'>
-                <button @click="jump_edit('user',person.emp_info.row['user'])">+</button>
+                <button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])">Edit</button>
+                <button @click="jump_edit('user')">New</button>
             </field>
         </div>
     </div>
