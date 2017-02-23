@@ -48,10 +48,11 @@
                             self.person.bas_info.errors=resp.save_employee_info.bas_errors
                         }
 
-//                        var error_pages=ex.filter(self.pages,function(page){
-//                            if(resp[page.name].errors){
-//                                page.errors=resp[page.name].errors
-//                                return true
+                        if(!resp.save_employee_info.emp_errors && resp.save_employee_info.bas_errors) {
+                            if (search.next) {
+                                location = atob(search.next)
+                            }
+                        }
 //                            }else{
 //                                return false
 //                            }

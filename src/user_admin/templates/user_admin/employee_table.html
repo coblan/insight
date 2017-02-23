@@ -14,6 +14,9 @@
     row_pages = {{ row_pages | jsonify}}
     model ="{{ model }}"
     url_args=ex.parseSearch()
+    crt_view=ex.parseSearch().crt_view || 'table'
+
+    ln.readCache()
     //	search字段从 url_args._q 来取值
     $(function () {
                 table=new Vue({
@@ -33,6 +36,7 @@
                         model:model,
                         url_args:url_args,
                         ex:ex,
+                        crt_view:crt_view,
                     },
                     mixins:[table_fun],
                     watch:{
@@ -56,7 +60,16 @@
                         return row[name]
                     }
                 },
+                goto_edit:function(row){
+                    crt_view=this.crt_view
+//                    var cache_obj={
+//                        cache:['crt_view']
+//                    }
+//                    ln.cache(cache_obj)
 
+                    location= ex.template('edit/{pk}?next={next}',{pk:row.pk,
+                                             next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
+                },
                 goto_page:function (page) {
                     this.url_args._page=page
                     this.search()
@@ -128,7 +141,10 @@
 
     </div>
 
-    <table class='table'>
+    <button @click="crt_view='table'">ss</button>
+    <button @click="crt_view='grid'">gg</button>
+
+    <table class='table' v-show="crt_view=='table'">
         <thead>
         <tr >
             <td style='width:50px' v-if='selected'>
@@ -153,6 +169,13 @@
         </tr>
         </tbody>
     </table>
+
+    <div class="grid" v-show="crt_view=='grid'">
+        <div class="item" v-for="row in rows" @click="goto_edit(row) ">
+            <img :src="row.head" alt=""/>
+            <div><span v-text="row.name"></span></div>
+        </div>
+    </div>
 
 
     <!--<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>-->
@@ -192,7 +215,26 @@
         background-color: #F1F1F1;
     }
 
+    .grid .item{
+        display: inline-block;
+        width: 200px;
+        height: 300px;
+        padding: 10px;
+        margin: 20px;
+        border: black solid 1px;
+        vertical-align: top;
+    }
+    .grid .item img{
+        width: 100%;
+    }
+    .grid .item:hover{
+        background-color: #f5ffd7;
+        position: relative;
+        top: -5px;
+    }
+
+
 </style>
-{% block extra %}
-{% endblock %}
+
+
 {% endblock %}
