@@ -8,7 +8,15 @@
 
     var person ={{ person | jsonify }}
 
-
+    ex.each(person.bas_info.heads,function(head){
+        if(head.name=='head'){
+            head.config={
+                crop:true,
+                aspectRatio: 1,
+                size:{width:250,height:250}
+            }
+        }
+    })
     var crt_view= 'emp_info'
 
     ajax_url="{% url 'employee_ajax' %}"
