@@ -23,6 +23,7 @@ from helpers.director import urls as director_urls
 from helpers.msic.ckeditor import upload_image
 from helpers.face import urls as face_urls
 from helpers.dev import urls as dev_urls
+from django.views.i18n import javascript_catalog
 
 urlpatterns = [
     
@@ -37,7 +38,9 @@ urlpatterns = [
     
     url(r'ckeditor/upload_image',upload_image),
     url(r'^face/', include(face_urls)),
-    url(r'^dev/',include(dev_urls))
+    url(r'^dev/',include(dev_urls)),
+    url(r'^jsi18n/$', javascript_catalog, name='js-tr'),
+    
 ]
 
 

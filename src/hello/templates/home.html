@@ -17,7 +17,7 @@ heads=[
 </script>
 {% endcomment %}
 <script type="text/javascript">
-	ctx={{ ctx | jsonify }}
+	var ctx={{ ctx | jsonify }}
 	$(function(){
 		new Vue({
 			el:'#home_there',
@@ -33,24 +33,6 @@ heads=[
 
 <div id="home_there">
 	<div v-html="ctx.slogan"></div>
-
-	<!--<div>下面账号用于测试权限，不同权限的人员，能够看到的内容是不同的。密码与账号一致s</div>-->
-	<!--<div>点击页面右上角登录</div>-->
-	<!--<ul>-->
-		<!--<li>-->
-			<!--root: 超级管理员-->
-		<!--</li>-->
-		<!--<li>hr:人力资源管理人员，负责录入员工，填写员工基本信息</li>-->
-		<!--<li>-->
-			<!--market: 市场部管理人员，经过市场调研后，下达开发app任务。-->
-		<!--</li>-->
-		<!--<li>-->
-			<!--team_leader:项目组leader，负责向员工分配work（工作）。并且对该工作进行打分。-->
-		<!--</li>-->
-		<!--<li>-->
-			<!--worker:普通员工，-->
-		<!--</li>-->
-	<!--</ul>-->
 </div>
 
 <style type="text/css">
