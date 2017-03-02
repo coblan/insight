@@ -40,6 +40,7 @@ class TaskTablePage(TablePage):
     tableCls=TaskTable
 
 class TaskFormPage(FormPage):
+    template='workload/task_form.html'
     fieldsCls=TaskField
     
 class WorkSearch(RowSearch):
