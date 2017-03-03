@@ -10,10 +10,10 @@ from django.utils.translation import ugettext as _
 
 class EmployeeModel(models.Model):
     user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
-    baseinfo=models.OneToOneField('BasicInfo',verbose_name='基本信息',blank=True,null=True,on_delete=models.SET_NULL)
-    employ_id = models.CharField('职员ID',max_length=50,unique=True)
-    position = models.CharField('职位',max_length=100,blank=True)
-    salary_level = models.FloatField('工资',max_length=100,blank=True,null=True)
+    baseinfo=models.OneToOneField('BasicInfo',verbose_name=_('basic info'),blank=True,null=True,on_delete=models.SET_NULL)
+    employ_id = models.CharField(_('Employee ID'),max_length=50,unique=True)
+    position = models.CharField(_('job position'),max_length=100,blank=True)
+    salary_level = models.FloatField(_('salary level'),max_length=100,blank=True,null=True)
     
     def __unicode__(self):
         if self.baseinfo:
@@ -22,28 +22,28 @@ class EmployeeModel(models.Model):
             return self.employ_id
     
     class Meta:
-        verbose_name='工作信息'
+        verbose_name=_('Employee Info')
 
 # Create your models here.
 class BasicInfo(models.Model):
     # , on_delete=models.SET_NULL
     name = models.CharField(_('name'), max_length=50, blank=True)
     age = models.CharField(_('age'), max_length=50, blank=True)
-    head = models.CharField('head image',max_length=200,blank=True)
+    head = models.CharField(_('head image'),max_length=200,blank=True)
     
     def __unicode__(self):
         return self.name
     
     class Meta:
-        verbose_name='基本信息'
+        verbose_name=_('basic info')
         permissions = (('read_basicinfo','At leaset read the records'),
                        )
 
 
 class SalaryRecords(models.Model):
-    empoyee=models.ForeignKey(EmployeeModel,verbose_name='员工',blank=True,null=True)
-    base_salary = models.FloatField('基本工资',blank=True,null=True)
-    merit_pay = models.FloatField('绩效工资',blank=True,null=True)
+    empoyee=models.ForeignKey(EmployeeModel,verbose_name=_('employee'),blank=True,null=True)
+    base_salary = models.FloatField(_('basic salary'),blank=True,null=True)
+    merit_pay = models.FloatField(_('merit pay'),blank=True,null=True)
     allowance = models.FloatField('补贴',blank=True,null=True)
     social_security = models.FloatField('社保',blank=True,null=True)
     reserved_funds = models.FloatField('公积金',blank=True,null=True)
@@ -52,7 +52,7 @@ class SalaryRecords(models.Model):
     
     def __unicode__(self):
         try:
-            return '{employee} 的工资'.format(employee=self.empoyee.baseinfo.name)
+            return _('salary of %(employee)s')%{'employee':self.empoyee.baseinfo.name}
         except AttributeError:
             return '某人工资'
     

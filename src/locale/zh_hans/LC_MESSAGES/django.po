@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-23 21:42+0800\n"
+"POT-Creation-Date: 2017-03-03 15:12+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,100 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: .\director\models.py:11
+#: .\helpers\director\models.py:11
 msgid "operator"
 msgstr "操作者"
 
-#: .\director\models.py:13
+#: .\helpers\director\models.py:13
 msgid "kind"
 msgstr "类别"
 
-#: .\director\models.py:14
+#: .\helpers\director\models.py:14
 msgid "detail"
 msgstr "详细"
 
-#: .\director\models.py:19
+#: .\helpers\director\models.py:19
 msgid "user group"
 msgstr "用户组"
 
-#: .\director\models.py:21
+#: .\helpers\director\models.py:21
 msgid "user permit"
 msgstr "用户权限"
 
+#: .\user_admin\admin.py:227
+#, python-format
+msgid "%(name)s ,%(emp_id)s"
+msgstr ""
+
+#: .\user_admin\admin.py:227
+msgid "Name"
+msgstr "名字"
+
+#: .\user_admin\admin.py:227 .\user_admin\models.py:14
+msgid "Employee ID"
+msgstr "员工ID"
+
+#: .\user_admin\models.py:12
+msgid "user"
+msgstr "账号"
+
+#: .\user_admin\models.py:13 .\user_admin\models.py:38
+msgid "basic info"
+msgstr "基本信息"
+
 #: .\user_admin\models.py:15
+msgid "job position"
+msgstr "职位"
+
+#: .\user_admin\models.py:16
+msgid "salary level"
+msgstr "工资级别"
+
+#: .\user_admin\models.py:25
+#, fuzzy
+#| msgid "Employee ID"
+msgid "Employee Info"
+msgstr "员工信息"
+
+#: .\user_admin\models.py:30
 msgid "name"
 msgstr "名字"
 
-#: .\user_admin\models.py:16
+#: .\user_admin\models.py:31
 msgid "age"
 msgstr "年龄"
+
+#: .\user_admin\models.py:32
+msgid "head image"
+msgstr "头像"
+
+#: .\user_admin\models.py:44
+#, fuzzy
+#| msgid "Employee ID"
+msgid "employee"
+msgstr "员工"
+
+#: .\user_admin\models.py:45
+msgid "basic salary"
+msgstr "基本工资"
+
+#: .\user_admin\models.py:46
+msgid "merit pay"
+msgstr "绩效工资"
+
+#: .\user_admin\models.py:50
+msgid "month"
+msgstr "月份"
+
+#: .\user_admin\models.py:55
+#, python-format
+msgid "salary of %(employee)s"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\employee_ok.html:167
+msgid "edit"
+msgstr "编辑"
+
+#: .\user_admin\templates\user_admin\employee_ok.html:169
+msgid "new"
+msgstr "新建"

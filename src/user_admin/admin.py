@@ -18,7 +18,8 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 import importlib
-from helpers.director.container import evalue_container
+from helpers.director.container import evalue_container,find_one
+from django.utils.translation import ugettext as _
 
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
@@ -223,12 +224,12 @@ class EmploySearch(RowSearch):
     model=EmployeeModel
     
     def get_context(self):
-        return '姓名'
+        return _('%(name)s ,%(emp_id)s')%{'name':_('Name'),'emp_id':_('Employee ID')}
 
     def get_query(self,query):
         if self.q:
             exp=None
-            return query.filter(baseinfo__name__icontains=self.q)
+            return query.filter(Q(baseinfo__name__icontains=self.q)|Q(employ_id__contains=self.q) )
             #for name in self.valid_name:
                 #kw ={}
                 #kw['%s__icontains'%name] =self.q    
@@ -239,11 +240,15 @@ class EmploySearch(RowSearch):
             #return query.filter(exp)
         else:
             return query
-    
+
+class EmployeeFilter(RowFilter):
+    names=['position','salary_level']
+    model=EmployeeModel 
 
 class EmployeeTable(ModelTable):
     model=EmployeeModel
     search=EmploySearch
+    filters=EmployeeFilter
     include=['employ_id','position','salary_level']
     def get_heads(self):
         heads = super(EmployeeTable,self).get_heads()
@@ -251,8 +256,13 @@ class EmployeeTable(ModelTable):
         bas_field=permit.readable_fields()
         bas_heads=model_to_head(model=BasicInfo,include=bas_field)
         heads.extend(bas_heads)
-        # heads.insert(1,{'name':'name','label':'姓名'})
-        return heads
+        
+        norm_heads=[]
+        for name in ['employ_id','name','head','salary_level','position']:
+            head = find_one(heads,{'name':name})
+            if head:
+                norm_heads.append(head)
+        return norm_heads
     
     def get_rows(self):
         rows = super(EmployeeTable,self).get_rows()

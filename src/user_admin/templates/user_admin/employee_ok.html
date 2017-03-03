@@ -1,5 +1,6 @@
 {% extends "index.html" %}
 {% load static %}
+{% load i18n %}
 {% load jsonify %}
 
 {% block page_content %}
@@ -160,10 +161,15 @@
             <field name='employ_id' :kw='person.emp_info'></field>
             <field name='name' :kw='person.bas_info'></field>
             <field name='position' :kw='person.emp_info'></field>
+            <field name='salary_level' :kw='person.emp_info'></field>
 
             <field name='user' :kw='person.emp_info'>
-                <button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])">Edit</button>
-                <button @click="jump_edit('user')">New</button>
+                <div class="forign-key-panel">
+                    <button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])" title="{% trans 'edit' %}">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                    <button @click="jump_edit('user')" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                </div>
+
             </field>
         </div>
     </div>
@@ -176,5 +182,11 @@
 
 
 </div>
+
+<style type="text/css">
+    .forign-key-panel{
+        padding: 6px;
+    }
+</style>
 
 {% endblock %}

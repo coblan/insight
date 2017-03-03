@@ -35,6 +35,7 @@ ex={
 	appendSearch:function(url,obj){
 		if(!obj){
 			var obj=url
+			var url=location.href
 		}
 		if(url){
 			var url_obj = ex.parseURL(url)

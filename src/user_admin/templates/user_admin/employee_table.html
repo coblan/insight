@@ -13,11 +13,27 @@
     rows={{ rows | jsonify | default:'[]'}}
     row_pages = {{ row_pages | jsonify}}
     model ="{{ model }}"
-    url_args=ex.parseSearch()
+    search_args=ex.parseSearch()
     crt_view=ex.parseSearch().crt_view || 'table'
 
     ln.readCache()
-    //	search字段从 url_args._q 来取值
+
+    ex.pushUrl=function(url){
+        window.history.pushState(url,0,url);
+    }
+
+    window.addEventListener('popstate', function(e) {
+/// <summary>
+///　　　&#10;　在页面初始化加载完成中添加该事件，则可以监听到onpopstate事件，而浏览器进行前进、后退、刷新操作都会触发本事件
+///　　　&#10;　linkFly原创，引用请注明出处，谢谢
+/// </summary>/// <returns type="void" />
+        if (e.state) {
+            location= e.state
+            //e.state就是pushState中保存的Data，我们只需要将相应的数据读取下来即可
+        }
+    });
+
+    //	search字段从 search_args._q 来取值
     $(function () {
                 table=new Vue({
                     el:'#there',
@@ -34,14 +50,14 @@
                         can_add:false,
                         can_del:false,
                         model:model,
-                        url_args:url_args,
+                        search_args:search_args,
                         ex:ex,
                         crt_view:crt_view,
                     },
                     mixins:[table_fun],
                     watch:{
                         'row_sort.sort_str':function (v) {
-                            this.url_args._sort=v
+                            this.search_args._sort=v
                             this.search()
                         }
                     },
@@ -60,6 +76,11 @@
                         return row[name]
                     }
                 },
+                switch_view:function(view){
+                    this.crt_view=view
+                    var url =ex.appendSearch({crt_view:this.crt_view})
+                    ex.pushUrl(url)
+                },
                 goto_edit:function(row){
                     crt_view=this.crt_view
 //                    var cache_obj={
@@ -71,7 +92,7 @@
                                              next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
                 },
                 goto_page:function (page) {
-                    this.url_args._page=page
+                    this.search_args._page=page
                     this.search()
                 },
                 add_new:function () {
@@ -100,7 +121,7 @@
                 },
                 search:function () {
                     location =ex.template('{path}{search}',{path:location.pathname,
-                        search: encodeURI(ex.searchfy(this.url_args,'?')) })
+                        search: encodeURI(ex.searchfy(this.search_args,'?')) })
                 },
             },
             mounted:function () {
@@ -118,31 +139,32 @@
     })
 </script>
 <div id='there'>
-    <div class='btn-panel'>
-
-        <path-nav :menu='menu'></path-nav>
-
-        <form class='button-group' autocomplete="on" v-if='placeholder || row_filters.length>0'>
-            <input v-if='placeholder' type="text" name="_q" v-model='url_args._q' :placeholder='placeholder' class='form-control'/>
-            <select name="" id="" v-for='filter in row_filters' v-model='url_args[filter.name]' class='form-control'>
+    <path-nav :menu='menu'></path-nav>
+    <div class='btn-panel flex'>
+        <form class='button-group flex-grow' autocomplete="on" v-if='placeholder || row_filters.length>0'>
+            <input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>
+            <select name="" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>
                 <option :value="null" v-text='filter.label'></option>
                 <option value="" >----</option>
                 <option v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
             </select>
 
-            <button name="go" type="button" class="btn btn-info" @click='search()' style='position: absolute;right:-80px;top:-1px;width:70px;height:33px;'>提交</button>
-            <!--<input type="submit">-->
+            <button name="go" type="button" class="btn btn-info" @click='search()'>提交</button>
+
         </form>
 
-        <div class='btn-group' style='float: right;'>
+
+        <button @click="switch_view('table')" :class="{'selected':crt_view=='table'}"><i class="fa fa-table" aria-hidden="true"></i></button>
+        <button @click="switch_view('grid');" :class="{'selected':crt_view=='grid'}"><i class="fa fa-th-large" aria-hidden="true"></i></button>
+
+        <div class='btn-group'>
             <a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>
             <button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>
         </div>
 
     </div>
 
-    <button @click="crt_view='table'">ss</button>
-    <button @click="crt_view='grid'">gg</button>
+
 
     <table class='table' v-show="crt_view=='table'">
         <thead>
@@ -187,6 +209,10 @@
 
 </div>
 <style type="text/css" media="screen" id="test">
+    .btn-panel .selected{
+        color: #0d23ff;
+
+    }
     .button-group{
         position: relative;
         display: inline-block;
@@ -195,7 +221,7 @@
         display: inline-block;
         margin-left:10px;
         width:auto;
-        height:30px;
+        /*height:30px;*/
     }
     .sort-mark{
         float: right;
