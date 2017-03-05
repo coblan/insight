@@ -410,6 +410,7 @@ class SalaryFields(ModelFields):
 
     
 class SalaryTablePage(TablePage):
+    template='user_admin/salary_table.html'
     tableCls=SalaryTabel
 
 class SalaryFormPage(FormPage):
