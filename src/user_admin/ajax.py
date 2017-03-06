@@ -4,9 +4,11 @@ from helpers.director.models import PermitModel
 from helpers.director.model_admin.render import model_dc
 from django.contrib.auth.models import Group
 import json
-from models import EmployeeModel
+from models import EmployeeModel,SalaryRecords
 from django.core.exceptions import ValidationError
-from helpers.director.shortcut import save_row
+from helpers.director.shortcut import save_row,Permit
+from helpers.shortcuts import _
+
 
 
 def get_globe():
@@ -79,4 +81,18 @@ def employee_info(pk):
     return {'status':'success',
             'employee':sim_dict(employee)
             }
+
+def creat_month_salary_all(month,user):
+    permit = Permit(SalaryRecords,user)
+    if permit.can_add():
+        for emp in EmployeeModel.objects.all():
+            SalaryRecords.objects.get_or_create(empoyee=emp,base_salary=emp.salary_level,month=month)
+        
+    return {'status':'success','msg':_('operation sucess')}
+
+def make_sure(salary_pks,user):
+    permit = Permit(SalaryRecords,user)
+    if 'is_checked' in permit.changeable_fields():
+        SalaryRecords.objects.filter(pk__in=salary_pks).update(is_checked=True)
     
+    return {'status':'success','msg':_('operation sucess')}

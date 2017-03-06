@@ -380,10 +380,19 @@ class SalarySearch(RowSearch):
         else:
             return query    
 
+class SalarySort(RowSort):
+    names=['month','base_salary']
+
+class SalaryFilter(RowFilter):
+    names=['is_checked']
+    model=SalaryRecords 
+
 class SalaryTabel(ModelTable):
     model=SalaryRecords
-    include=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds']
+    include=['empoyee','base_salary','merit_pay','allowance','social_security','reserved_funds','month','is_checked']
     search=SalarySearch
+    sort=SalarySort
+    filters=SalaryFilter
     #search_fields=[SalarySearch()]
     
     def get_heads(self):

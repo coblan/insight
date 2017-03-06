@@ -47,8 +47,10 @@ class SalaryRecords(models.Model):
     allowance = models.FloatField('补贴',blank=True,null=True)
     social_security = models.FloatField('社保',blank=True,null=True)
     reserved_funds = models.FloatField('公积金',blank=True,null=True)
-    month = models.ForeignKey('Month',verbose_name='月份',blank=True,null=True)
+    # month = models.ForeignKey('Month',verbose_name='月份',blank=True,null=True)
+    month=models.CharField(_('month'),max_length=50,blank=True)
     adapt_day=models.FloatField('修正天数',blank=True,null=True)
+    is_checked=models.BooleanField(_('is make sure'),default=False)
     
     def __unicode__(self):
         try:
