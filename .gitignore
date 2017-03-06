@@ -27,15 +27,11 @@ pip-log.txt
 .tox
 nosetests.xml
 
-# Translations
-*.mo
-
 # Mr Developer
 .mr.developer.cfg
 .project
 .pydevproject
 /src/settings/__init__.py
-/media/image
 /media
 /log
 /run
