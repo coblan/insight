@@ -19,3 +19,5 @@ DATABASES = {
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
+
+SITE_OPTION='hello.face'
