@@ -385,7 +385,17 @@ class SalarySort(RowSort):
 
 class SalaryFilter(RowFilter):
     names=['is_checked']
+    date_fields=['month']
     model=SalaryRecords 
+    
+    #def __init__(self, *args,**kw):
+        #super(SalaryFilter,self).__init__(*args,**kw)
+        #if self.filter_args.get('start'):
+            #start=self.filter_args.pop('start')
+            #self.filter_args['month__gte']=start
+        #if self.filter_args.get('end'):
+            #end=self.filter_args.pop('end')
+            #self.filter_args['month_lte']=end
 
 class SalaryTabel(ModelTable):
     model=SalaryRecords

@@ -15,6 +15,7 @@
     row_pages = {{ row_pages | jsonify}}
     model ="{{ model }}"
     search_args=ex.parseSearch()
+
     //	search字段从 search_args._q 来取值
     $(function () {
         table=new Vue({
@@ -124,13 +125,24 @@
     <path-nav :menu='menu' v-if="!search_args._pop"></path-nav>
     <div class='btn-panel flex'>
 
-        <form class='button-group flex-grow' autocomplete="on" v-if='placeholder || row_filters.length>0'>
+        <form class='button-group flex-grow flex' autocomplete="on" v-if='placeholder || row_filters.length>0'>
             <input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>
-            <select name="" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>
+            <select v-if="filter.options" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>
                 <option :value="null" v-text='filter.label'></option>
                 <option value="null" >----</option>
-                <option v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
+                <option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>
             </select>
+            <!--<span v-for="filter in row_filters">-->
+                <!--<label for="'filter_bool_'+filter.name" v-text="filter.label"></label>-->
+                <!--<input id="'filter_bool_'+filter.name" type="checkbox" v-model="search_args[filter.name]"/>-->
+            <!--</span>-->
+            <div class="date-filter">
+                <span>{% trans "From" %}</span>
+                <date set="month" v-model="search_args._start_month"></date>
+                <span>{% trans "To" %}</span>
+                <date set="month" v-model="search_args._end_month"></date>
+            </div>
+
 
             <button name="go" type="button" class="btn btn-info" @click='search()' >提交</button>
         </form>
@@ -223,6 +235,12 @@
     }
     .table tbody tr:nth-child(2n){
         background-color: #F1F1F1;
+    }
+    .date-filter{
+        margin: 0 5px 0 15px;
+    }
+    .date-filter input{
+        width: 90px;
     }
 
 </style>
