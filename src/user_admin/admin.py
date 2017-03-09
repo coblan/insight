@@ -381,7 +381,7 @@ class SalarySearch(RowSearch):
             return query    
 
 class SalarySort(RowSort):
-    names=['month','base_salary']
+    names=['month','base_salary','empoyee']
 
 class SalaryFilter(RowFilter):
     names=['is_checked']

@@ -1,3 +1,4 @@
+#!python2
 # -*- encoding:utf8 -*-
 import sys
 import signal

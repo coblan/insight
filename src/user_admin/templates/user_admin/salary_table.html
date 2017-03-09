@@ -15,7 +15,8 @@
     row_pages = {{ row_pages | jsonify}}
     model ="{{ model }}"
     search_args=ex.parseSearch()
-
+    search_args._start_month=search_args._start_month||''
+    search_args._end_month=search_args._end_month||''
     //	search字段从 search_args._q 来取值
     $(function () {
         table=new Vue({
@@ -70,7 +71,6 @@
                 },
                 map:function(name,row){
                     return table_fun.methods.map.call(this,name,row)
-
                 },
 
                 goto_page:function (page) {
@@ -187,12 +187,17 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for='row in rows'>
+        <tr v-for='row in rows' :class="{'row-selected':ex.isin(row.pk,selected)}">
             <td v-if='!search_args._pop'>
                 <input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
             </td>
+
             <td v-for='head in heads' :class='"td_"+head.name'>
                 <a v-if='search_args._pop && head.name=="name"' href=";" @click="rt_win(row)" v-text="row['name']"></a>
+                <!--<div class="checkbox checkbox-success" v-else-if="head.name=='is_checked'">-->
+                    <!--<input :id="'id_of_'+row.pk" type="checkbox" v-model="row.is_checked"/>-->
+                    <!--<label :for="'id_of_'+row.pk"></label>-->
+                <!--</div>-->
                 <span v-else v-html='map(head.name,row)'></span>
             </td>
         </tr>
@@ -235,6 +240,9 @@
     }
     .table tbody tr:nth-child(2n){
         background-color: #F1F1F1;
+    }
+    .table .row-selected td{
+        background-color: #c2eed5;
     }
     .date-filter{
         margin: 0 5px 0 15px;
