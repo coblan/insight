@@ -286,8 +286,6 @@ ex={
 			  }
 			  document.getElementsByTagName('head')[0].appendChild(domScript);
 		}
-		
-		
 	},
 	load_css:function (src) {
 		var name = btoa(src)
