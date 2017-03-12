@@ -385,7 +385,7 @@ class SalarySort(RowSort):
 
 class SalaryFilter(RowFilter):
     names=['is_checked']
-    date_fields=['month']
+    range_fields=[{'name':'month','type':'month'}]
     model=SalaryRecords 
     
     #def __init__(self, *args,**kw):

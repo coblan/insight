@@ -7,13 +7,16 @@
 <script type="text/javascript">
 
     row_filters={{row_filters | jsonify }}
-    placeholder = '{{placeholder |default:""}}'
+    placeholder = '{{search_tip |default:""}}'
     row_sort={{row_sort | jsonify | default:'[]' }}
     heads={{ heads | jsonify | default:'[]'}}
     rows={{ rows | jsonify | default:'[]'}}
     row_pages = {{ row_pages | jsonify}}
     model ="{{ model }}"
     search_args=ex.parseSearch()
+//    ex.each(row_filters,function(filter){
+//        search_args[filter.name]=search_args[filter.name]||''
+//    })
     crt_view=ex.parseSearch().crt_view || 'table'
 
     ln.readCache()
@@ -64,16 +67,17 @@
                     methods:{
 
                 map:function (name,row) {
-                    if(name==heads[0].name){
-                        return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
-                                {	pk:row.pk,
-                                    next:btoa(location.pathname+location.search),
-                                    value:row[name]
-                                })
-                    }if(name=='head'){
+//                    if(name==heads[0].name){
+//                        return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
+//                                {	pk:row.pk,
+//                                    next:btoa(location.pathname+location.search),
+//                                    value:row[name]
+//                                })
+//                    }
+                    if(name=='head'){
                         return ex.template('<img src="{src}" style="max-height:40px" />',{src:row['head']})
                     }else{
-                        return row[name]
+                        return table_fun.methods.map.call(this,name,row) //row[name]
                     }
                 },
                 switch_view:function(view){
@@ -141,17 +145,20 @@
 <div id='there'>
     <path-nav :menu='menu'></path-nav>
     <div class='btn-panel flex'>
-        <form class='button-group flex-grow' autocomplete="on" v-if='placeholder || row_filters.length>0'>
-            <input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>
-            <select name="" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>
-                <option :value="null" v-text='filter.label'></option>
-                <option value="" >----</option>
-                <option v-for='option in filter.option' :value="option.value" v-text='option.label'></option>
-            </select>
 
-            <button name="go" type="button" class="btn btn-info" @click='search()'>提交</button>
+        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='placeholder' @submit="search()"></com-filter>
 
-        </form>
+        <!--<form class='button-group flex-grow' autocomplete="on" v-if='placeholder || row_filters.length>0'>-->
+            <!--<input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>-->
+            <!--<select name="" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>-->
+                <!--<option :value="null" v-text='filter.label'></option>-->
+                <!--<option value="" >&#45;&#45;&#45;&#45;</option>-->
+                <!--<option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>-->
+            <!--</select>-->
+
+            <!--<button name="go" type="button" class="btn btn-info" @click='search()'>提交</button>-->
+
+        <!--</form>-->
 
 
         <button @click="switch_view('table')" :class="{'selected':crt_view=='table'}"><i class="fa fa-table" aria-hidden="true"></i></button>
@@ -186,7 +193,7 @@
                 <input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
             </td>
             <td v-for='head in heads' :class='"td_"+head.name'>
-                <span v-html='map(head.name,row)'></span>
+                <div v-html='map(head.name,row)'></div>
             </td>
         </tr>
         </tbody>

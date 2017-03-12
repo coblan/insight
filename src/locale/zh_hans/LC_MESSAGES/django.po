@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-03 15:12+0800\n"
+"POT-Creation-Date: 2017-03-12 00:48+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,10 @@ msgstr "名字"
 #: .\user_admin\admin.py:227 .\user_admin\models.py:14
 msgid "Employee ID"
 msgstr "员工ID"
+
+#: .\user_admin\ajax.py:91 .\user_admin\ajax.py:98
+msgid "operation sucess"
+msgstr ""
 
 #: .\user_admin\models.py:12
 msgid "user"
@@ -99,19 +103,51 @@ msgstr "基本工资"
 msgid "merit pay"
 msgstr "绩效工资"
 
-#: .\user_admin\models.py:50
+#: .\user_admin\models.py:51
 msgid "month"
 msgstr "月份"
 
-#: .\user_admin\models.py:55
+#: .\user_admin\models.py:53
+msgid "is make sure"
+msgstr "是否检查过"
+
+#: .\user_admin\models.py:57
 #, python-format
 msgid "salary of %(employee)s"
 msgstr ""
 
-#: .\user_admin\templates\user_admin\employee_ok.html:167
+#: .\user_admin\templates\user_admin\employee_ok.html:168
 msgid "edit"
 msgstr "编辑"
 
-#: .\user_admin\templates\user_admin\employee_ok.html:169
+#: .\user_admin\templates\user_admin\employee_ok.html:170
 msgid "new"
 msgstr "新建"
+
+#: .\user_admin\templates\user_admin\salary_table.html:138
+msgid "From"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:140
+msgid "To"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:145
+msgid "submit"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:150
+msgid "make sure selected records"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:153
+msgid "creat all salary for this month"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:168
+msgid "select month"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\salary_table.html:170
+msgid "yes"
+msgstr ""

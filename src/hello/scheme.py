@@ -8,7 +8,6 @@ from helpers.director.model_admin.render import render_dc
 from django.core.urlresolvers import reverse
 
 from helpers.pageadaptor.models import WebPage
-#from django.urls import reverse
 
 def can_touch(model):
     def _func(user):
@@ -25,7 +24,10 @@ def can_list(ls):
     return _func    
 
 def page(name):
-    return reverse('model_table',kwargs={'name':name})
+    return lambda: reverse('model_table',kwargs={'name':name})
+
+def fa(name):
+    return '<i class="fa %s" aria-hidden="true"></i>'%name
 
 #menus=[
     #{'name':'hello','label':'hello','url':'/hello/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
@@ -41,28 +43,24 @@ def page(name):
 #]
   
 menus=[
-    {'name':'hello','label':'home','url':'/','icon':'<i class="fa fa-home" aria-hidden="true"></i>'},
-    {'name':'basice','label':'账号管理','url':lambda: reverse('model_table',kwargs={'name':'user'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((User,Group)),
+    {'label':'home','url':'/','icon':fa('fa-home')},
+    {'label':'账号管理','url':page('user'),'icon':fa('fa-users'),'visible':can_list((User,Group)),
      'submenu':[
-                {'name':'user','label':'用户管理','url':lambda: page('user'),'visible':can_touch(User)},
-                {'name':'group','label':'用户组','url':lambda:page('group'),'visible':can_touch(Group)},
+                {'label':'用户管理','url':page('user'),'visible':can_touch(User)},
+                {'label':'用户组','url':page('group'),'visible':can_touch(Group)},
                 ]},
-    {'name':'employee','label':'员工管理','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>',
-     'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
+    {'label':'员工管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
      'submenu':[
-         {'name':'basice','label':'人员信息','url':lambda: reverse('model_table',kwargs={'name':'basicinfo'}),'visible':can_touch(BasicInfo)},    
-         {'name':'employee_set','label':'员工名册','url':lambda: reverse('model_table',kwargs={'name':'employee'}),'visible':can_touch(EmployeeModel)},
-        {'name':'salary','label':'工资记录','url':lambda: reverse('model_table',kwargs={'name':'salary'}),'visible':can_touch(SalaryRecords)},
+         #{'label':'人员信息','url':page('basicinfo'),'visible':can_touch(BasicInfo)},    
+         {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
+        {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
          ]},
-    {'name':'workload','label':'工作量统计','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'icon':'<i class="fa fa-users" aria-hidden="true"></i>','visible':can_list((TaskModel,WorkModel)),
-     'submenu':[{'name':'task','label':'任务','url':lambda: reverse('model_table',kwargs={'name':'task'}),'visible':can_touch(TaskModel)},
-                {'name':'workload','label':'工作','url':lambda: reverse('model_table',kwargs={'name':'workloads'}),'visible':can_touch(WorkModel)}
+    {'label':'工作量统计','icon':fa('fa-users'),'visible':can_list((TaskModel,WorkModel)),
+     'submenu':[{'label':'任务','url': page('task'),'visible':can_touch(TaskModel)},
+                {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
                 ]
      },
-    {'name':'pageadmin','label':'Page Admin',
-     'url':lambda: reverse('model_table',kwargs={'name':'webpage'}),
-     'icon':'<i class="fa fa-home" aria-hidden="true"></i>',
-     'visible':can_touch(WebPage)},
+    {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
 
 ]
 

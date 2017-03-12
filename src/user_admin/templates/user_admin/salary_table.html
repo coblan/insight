@@ -8,7 +8,7 @@
 <script type="text/javascript">
 
     row_filters={{row_filters | jsonify }}
-    placeholder = '{{placeholder |default:""}}'
+    search_tip = '{{search_tip |default:""}}'
     row_sort={{row_sort | jsonify | default:'[]' }}
     heads={{ heads | jsonify | default:'[]'}}
     rows={{ rows | jsonify | default:'[]'}}
@@ -27,7 +27,7 @@
                 row_filters:row_filters,
                 row_sort:row_sort,
                 row_pages:row_pages,
-                placeholder:placeholder,
+                search_tip:search_tip,
                 selected:[],
                 del_info:[],
                 menu:menu,
@@ -69,9 +69,9 @@
                 rt_win:function(row){
                     ln.rtWin(row)
                 },
-                map:function(name,row){
-                    return table_fun.methods.map.call(this,name,row)
-                },
+//                map:function(name,row){
+//                    return table_fun.methods.map.call(this,name,row)
+//                },
 
                 goto_page:function (page) {
                     this.search_args._page=page
@@ -125,27 +125,25 @@
     <path-nav :menu='menu' v-if="!search_args._pop"></path-nav>
     <div class='btn-panel flex'>
 
-        <form class='button-group flex-grow flex' autocomplete="on" v-if='placeholder || row_filters.length>0'>
-            <input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>
-            <select v-if="filter.options" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>
-                <option :value="null" v-text='filter.label'></option>
-                <option value="null" >----</option>
-                <option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>
-            </select>
-            <!--<span v-for="filter in row_filters">-->
-                <!--<label for="'filter_bool_'+filter.name" v-text="filter.label"></label>-->
-                <!--<input id="'filter_bool_'+filter.name" type="checkbox" v-model="search_args[filter.name]"/>-->
-            <!--</span>-->
-            <div class="date-filter">
-                <span>{% trans "From" %}</span>
-                <date set="month" v-model="search_args._start_month"></date>
-                <span>{% trans "To" %}</span>
-                <date set="month" v-model="search_args._end_month"></date>
-            </div>
+        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='search_tip' @submit="search()"></com-filter>
+
+        <!--<form class='button-group flex-grow flex' autocomplete="on" v-if='search_tip || row_filters.length>0'>-->
+            <!--<input v-if='search_tip' type="text" name="_q" v-model='search_args._q' :search_tip='search_tip' class='form-control'/>-->
+            <!--<select v-if="filter.options" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>-->
+                <!--<option :value="null" v-text='filter.label'></option>-->
+                <!--<option value="null" >&#45;&#45;&#45;&#45;</option>-->
+                <!--<option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>-->
+            <!--</select>-->
+            <!--<div class="date-filter">-->
+                <!--<span>{% trans "From" %}</span>-->
+                <!--<date set="month" v-model="search_args._start_month"></date>-->
+                <!--<span>{% trans "To" %}</span>-->
+                <!--<date set="month" v-model="search_args._end_month"></date>-->
+            <!--</div>-->
 
 
-            <button name="go" type="button" class="btn btn-info" @click='search()' >提交</button>
-        </form>
+            <!--<button name="go" type="button" class="btn btn-info" @click='search()' >{% trans "submit" %}</button>-->
+        <!--</form>-->
 
         <div class="btn-group" v-if="!search_args._pop">
             <button type="button" class="btn btn-default" @click='make_sure()' v-if='can_add'
@@ -163,6 +161,7 @@
         </div>
 
     </div>
+
 
     <modal v-show="show_month_choice" @click.native="show_month_choice=false">
         <div @click.stop="" style="width: 500px;height: 300px;">
@@ -182,7 +181,7 @@
 					<span v-if='ex.isin(head.name,row_sort.sortable)' v-text='head.label' class='clickable'
                           @click='row_sort.sort_str = toggle( row_sort.sort_str,head.name)'></span>
                 <span v-else v-text='head.label'></span>
-                <sort-mark class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>
+                <sort-mark v-if='ex.isin(head.name,row_sort.sortable)' class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>
             </td>
         </tr>
         </thead>
