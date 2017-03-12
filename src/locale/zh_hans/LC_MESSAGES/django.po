@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-12 00:48+0800\n"
+"POT-Creation-Date: 2017-03-12 20:43+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,16 +138,16 @@ msgstr ""
 
 #: .\user_admin\templates\user_admin\salary_table.html:150
 msgid "make sure selected records"
-msgstr ""
+msgstr "标记被选项为【已检查】"
 
 #: .\user_admin\templates\user_admin\salary_table.html:153
 msgid "creat all salary for this month"
-msgstr ""
+msgstr "创建某月所有员工工资记录"
 
 #: .\user_admin\templates\user_admin\salary_table.html:168
 msgid "select month"
-msgstr ""
+msgstr "选择月份"
 
 #: .\user_admin\templates\user_admin\salary_table.html:170
 msgid "yes"
-msgstr ""
+msgstr "是"
