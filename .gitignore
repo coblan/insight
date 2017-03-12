@@ -36,4 +36,3 @@ nosetests.xml
 /log
 /run
 .idea
-/src/locale/zh_Hans
