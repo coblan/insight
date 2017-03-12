@@ -1,7 +1,6 @@
 from base import *
 
 TEMPLATE_DEBUG = True
-LANGUAGE_CODE = 'zh-hans'
 
 
 DATABASES = {
@@ -16,8 +15,5 @@ DATABASES = {
     }
 
 
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
-)
 
 SITE_OPTION='hello.face'

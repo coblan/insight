@@ -4,7 +4,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
 MEDIA_ROOT= os.path.join( os.path.dirname(BASE_DIR),'media')
 
 TEMPLATE_DEBUG = True
-LANGUAGE_CODE = 'zh-hans'
+
 
 import os
 if os.environ.get('TEST'):
