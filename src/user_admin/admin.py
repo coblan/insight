@@ -21,6 +21,8 @@ import importlib
 from helpers.director.container import evalue_container,find_one
 from django.utils.translation import ugettext as _
 
+from .depart_admin import *
+
 # Register your models here.
 # class BasicAdmin(admin.ModelAdmin):
 admin.site.register(BasicInfo)
@@ -529,3 +531,5 @@ model_dc[SalaryRecords]={'fields':SalaryFields}
 model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
 model_page_dc['employee']={'table':EmployeeTablePage,'form':EmployeeFormPage}
 model_page_dc['salary']={'table':SalaryTablePage,'form':SalaryFormPage}
+
+

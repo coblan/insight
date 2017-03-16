@@ -96,10 +96,14 @@ ex={
             }
 		}else{
 			 for (var key in args) {
-                if(args[key]!=undefined){
-                    var reg = new RegExp("({" + key + "})", "g");
-                    result = result.replace(reg, args[key]);
-                }
+				 var value= args[key]
+				 if(value==undefined){
+					 value=''
+				 }
+
+				var reg = new RegExp("({" + key + "})", "g");
+				result = result.replace(reg, value);
+
 	         }
 		}
 	    return result;
@@ -417,6 +421,10 @@ ex={
 		}
 		o[a[a.length-1]]=obj
 		return o;
+	},
+	tr:function(str){
+		var gettext=window.gettext||function(x){return x}
+		return gettext(str)
 	},
 	trList:function(strlist){
 		// translate string list to a map object

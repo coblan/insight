@@ -5,9 +5,6 @@ from django.contrib.auth.models import User,Group
 from django.db import models
 from django.utils.translation import ugettext as _
 
-    
-
-
 class EmployeeModel(models.Model):
     user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
     baseinfo=models.OneToOneField('BasicInfo',verbose_name=_('basic info'),blank=True,null=True,on_delete=models.SET_NULL)
@@ -80,3 +77,14 @@ class Fore(models.Model):
     
     def __unicode__(self):
         return self.name    
+    
+
+class Department(models.Model):
+    name =models.CharField(_('department name'),max_length=300)
+    detail=models.TextField(verbose_name=_('detail'),blank=True)
+    sub_depart=models.CharField(_('sub department'),max_length=500,blank=True)
+    
+    def __unicode__(self):
+        return self.name
+    
+

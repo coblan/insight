@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from helpers.director.model_admin.permit import Permit
-from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group
+from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group,Department
 from workload.models import WorkModel,TaskModel
 from helpers.director.model_admin.render import render_dc
 from django.core.urlresolvers import reverse
@@ -49,9 +49,9 @@ menus=[
                 {'label':'用户管理','url':page('user'),'visible':can_touch(User)},
                 {'label':'用户组','url':page('group'),'visible':can_touch(Group)},
                 ]},
-    {'label':'员工管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
+    {'label':'组织管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
      'submenu':[
-         #{'label':'人员信息','url':page('basicinfo'),'visible':can_touch(BasicInfo)},    
+         {'label':'部门管理','url':page('department'),'visible':can_touch(Department)},    
          {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
         {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
          ]},
