@@ -132,7 +132,8 @@
                         fill: 'red',
                         stroke: 'red',
                         strokeWidth: 5,
-                        selectable: false,
+//                        selectable: false,
+//                        evented:false,
                     });
                     this.pre_line=line
                 },
@@ -182,13 +183,19 @@
                     self.crt_obj= e.target
                 })
                 canvas.on('mouse:move',function(e){
+                    if(e.target && e.target.aware){
+                        self.aware_pos = e.target.getCenterPoint()
+                    }
+                    console.log(e)
+                    console.log(e.subTargets)
+
                     if(self.op_line){
                         var pos =self.aware_pos || self.canvas.getPointer(e.e)
                         self.op_line.set({x2:pos.x,y2:pos.y})
                         self.canvas.renderAll()
-                        console.log(pos)
+
                     }
-                    console.log(e.target)
+
                 })
 
                 canvas.on('mouse:down',function(e){
@@ -203,7 +210,6 @@
                         self.op_line.set({x2:pos.x,y2:pos.y})
                         self.canvas.renderAll()
 
-                        e.e.preventDefault()
                     }
 
                 })
@@ -214,7 +220,6 @@
                         self.canvas.selection =true
                         self.canvas.renderAll()
                         self.op_line=null
-                        e.e.preventDefault()
                     }
                 })
 
