@@ -1,10 +1,12 @@
 #from core.model_render import save_row,model_dc
-from helpers.director.db_tools import name_to_model,sim_dict
+from helpers.director.db_tools import name_to_model,sim_dict,from_dict
 from helpers.director.models import PermitModel
 from helpers.director.model_admin.render import model_dc
+from helpers import ex
+
 from django.contrib.auth.models import Group
 import json
-from models import EmployeeModel,SalaryRecords
+from models import EmployeeModel,SalaryRecords,Department
 from django.core.exceptions import ValidationError
 from helpers.director.shortcut import save_row,Permit
 from helpers.shortcuts import _
@@ -96,3 +98,30 @@ def make_sure(salary_pks,user):
         SalaryRecords.objects.filter(pk__in=salary_pks).update(is_checked=True)
     
     return {'status':'success','msg':_('operation sucess')}
+
+
+def save_departments(rows,user,deleted_departs=[]):
+    #Permit(model, user)
+    for depart in rows:
+        if not depart.get('pk',None):
+            obj = Department.objects.create(label=depart.get('label'))
+            depart['pk']=obj.pk
+    
+    for depart in rows:
+        par =depart.get('par')
+        if par :
+            par_depart = ex.findone(rows,{'did':par}) 
+            if par_depart:
+                depart['par']=par_depart.get('pk')
+    
+    for depart in rows:
+        #depart.pop('did')
+        depart_obj = from_dict(depart,model=Department)
+        depart_obj.save()
+        #Department.objects.update(**depart)
+    
+    for depart in deleted_departs:
+        if depart.get('pk'):
+            Department.objects.filter(pk=depart.get('pk')).delete()
+    
+    return {'status':'success'}

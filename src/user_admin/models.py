@@ -81,10 +81,12 @@ class Fore(models.Model):
 
 class Department(models.Model):
     name =models.CharField(_('department name'),max_length=300)
+    label =models.CharField(_('department label'),max_length=300,blank=True)
     detail=models.TextField(verbose_name=_('detail'),blank=True)
-    sub_depart=models.CharField(_('sub department'),max_length=500,blank=True)
+    par = models.ForeignKey('Department',verbose_name=_('parent department'),blank=True,null=True,related_name='sub_dep')
+    #sub_depart=models.CharField(_('sub department'),max_length=500,blank=True)
     
     def __unicode__(self):
-        return self.name
+        return self.label
     
 

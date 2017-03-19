@@ -1,0 +1,373 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+
+{% block page_content %}
+<script src="https://cdn.bootcss.com/fabric.js/1.7.7/fabric.min.js"></script>
+<script src='{% static "js/table.pack.js" %}'></script>
+<script type="text/javascript">
+
+    row_filters={{row_filters | jsonify }}
+    placeholder = '{{search_tip |default:""}}'
+    row_sort={{row_sort | jsonify | default:'[]' }}
+    heads={{ heads | jsonify | default:'[]'}}
+    rows={{ rows | jsonify | default:'[]'}}
+    row_pages = {{ row_pages | jsonify}}
+    model ="{{ model }}"
+    search_args=ex.parseSearch()
+    //    ex.each(row_filters,function(filter){
+    //        search_args[filter.name]=search_args[filter.name]||''
+    //    })
+    crt_view=ex.parseSearch().crt_view || 'table'
+
+    ln.readCache()
+
+    ex.pushUrl=function(url){
+        window.history.pushState(url,0,url);
+    }
+
+    window.addEventListener('popstate', function(e) {
+/// <summary>
+///　　　&#10;　在页面初始化加载完成中添加该事件，则可以监听到onpopstate事件，而浏览器进行前进、后退、刷新操作都会触发本事件
+///　　　&#10;　linkFly原创，引用请注明出处，谢谢
+/// </summary>/// <returns type="void" />
+        if (e.state) {
+            location= e.state
+            //e.state就是pushState中保存的Data，我们只需要将相应的数据读取下来即可
+        }
+    });
+
+    //	search字段从 search_args._q 来取值
+    $(function () {
+        table=new Vue({
+            el:'#there',
+            data:{
+                heads:heads,
+                rows:rows,
+                row_filters:row_filters,
+                row_sort:row_sort,
+                row_pages:row_pages,
+                placeholder:placeholder,
+                selected:[],
+                del_info:[],
+                menu:menu,
+                can_add:false,
+                can_del:false,
+                model:model,
+                search_args:search_args,
+                crt_color:''
+            },
+            mixins:[table_fun],
+
+            watch:{
+                'crt_color':function(v){
+//                    this.crt_obj.setFill(v)
+//                    this.canvas.renderAll()
+                }
+            },
+            methods:{
+
+
+                switch_view:function(view){
+                    this.crt_view=view
+                    var url =ex.appendSearch({crt_view:this.crt_view})
+                    ex.pushUrl(url)
+                },
+                goto_edit:function(row){
+                    crt_view=this.crt_view
+//                    var cache_obj={
+//                        cache:['crt_view']
+//                    }
+//                    ln.cache(cache_obj)
+
+                    location= ex.template('edit/{pk}?next={next}',{pk:row.pk,
+                        next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
+                },
+                goto_page:function (page) {
+                    this.search_args._page=page
+                    this.search()
+                },
+                add_circle:function(){
+                    var circle = new fabric.Circle({
+                        radius: 100,
+                        left:100,
+                        top:100,
+                        fill: '#eef',
+                    });
+                    this.canvas.add(circle)
+                },
+                add_new:function () {
+                    var text = new fabric.Text('hello world', {
+                        fontSize: 30,
+                        left:50,
+                        top:50,
+//                        originX: 'center',
+//                        originY: 'center'
+                    });
+
+                    var circle = new fabric.Circle({
+                        radius: 100,
+                        fill: '#eef',
+//                        scaleY: 0.5,
+                        originX: 'center',
+                        originY: 'center'
+                    });
+
+                    var group = new fabric.Group([  text,circle, ], {
+                        left: 150,
+                        top: 100,
+                    });
+
+                    this.canvas.add(group);
+//                    return 'edit/?next='+btoa(location.pathname+location.search)
+                },
+                get_pos:function(){
+                    if(this.crt_obj){
+                        alert([this.crt_obj.getLeft(),this.crt_obj.getTop()])
+                        alert(this.crt_obj.getCenterPoint())
+                    }
+                },
+                add_line:function(){
+                    var line = new fabric.Line([0,0,0,0],{
+                        fill: 'red',
+                        stroke: 'red',
+                        strokeWidth: 5,
+//                        selectable: false,
+//                        evented:false,
+                    });
+                    this.pre_line=line
+                },
+                del_item:function () {
+
+                    if (this.selected.length==0){
+                        return
+                    }
+                    var rows=[]
+                    var inst_ls =[]
+                    for(var j=0;j<this.selected.length;j++){
+                        var pk = this.selected[j]
+                        for(var i=0;i<this.rows.length;i++){
+                            if(this.rows[i].pk.toString()==pk){
+                                rows.push(this.rows[i])
+                                inst_ls.push({pk:pk,_class:this.rows[i]._class})
+                            }
+                        }
+                    }
+                    var path = '{% url "del_rows" %}'
+                    location=ex.template("{path}?rows={rows}&next={next}",{path:path,
+                        rows:btoa(JSON.stringify(inst_ls)),
+                        next:btoa(location.pathname+location.search)})
+                },
+                search:function () {
+                    location =ex.template('{path}{search}',{path:location.pathname,
+                        search: encodeURI(ex.searchfy(this.search_args,'?')) })
+                },
+                add_aware:function(){
+                    var circle = new fabric.Circle({
+                        radius: 20,
+                        fill: 'yellow',
+//                        scaleY: 0.5,
+                        originX: 'center',
+                        originY: 'center',
+                        aware:true,
+                    });
+                    this.canvas.add(circle)
+                }
+            },
+            mounted:function () {
+                var canvas = new fabric.Canvas('c');
+                this.canvas=canvas
+                var self=this
+                canvas.on('object:selected',function(e){
+//                    self.crt_color= e.target.fill
+                    self.crt_obj= e.target
+                })
+                canvas.on('mouse:move',function(e){
+                    if(e.target && e.target.aware){
+                        self.aware_pos = e.target.getCenterPoint()
+                    }
+                    console.log(e)
+                    console.log(e.subTargets)
+
+                    if(self.op_line){
+                        var pos =self.aware_pos || self.canvas.getPointer(e.e)
+                        self.op_line.set({x2:pos.x,y2:pos.y})
+                        self.canvas.renderAll()
+
+                    }
+
+                })
+
+                canvas.on('mouse:down',function(e){
+                    if(self.pre_line){
+                        self.op_line=self.pre_line
+                        self.pre_line=null
+                        self.canvas.add(self.op_line)
+                        var pos=self.aware_pos || self.canvas.getPointer(e.e)
+
+                        self.canvas.selection =false
+                        self.op_line.set({x1:pos.x,y1:pos.y})
+                        self.op_line.set({x2:pos.x,y2:pos.y})
+                        self.canvas.renderAll()
+
+                    }
+
+                })
+                canvas.on('mouse:up',function(e){
+                    if(self.op_line){
+                        var pos=self.aware_pos ||self.canvas.getPointer(e.e)
+                        self.op_line.set({x2:pos.x,y2:pos.y})
+                        self.canvas.selection =true
+                        self.canvas.renderAll()
+                        self.op_line=null
+                    }
+                })
+
+                canvas.on('mouse:over',function(e){
+                    if(e.target && e.target.aware){
+                        self.aware_pos = e.target.getCenterPoint()
+                        console.log('enter')
+                    }
+
+                })
+                canvas.on('mouse:out',function(e){
+                    self.aware_pos=null
+                })
+
+//                var self=this;
+//                var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+//                    {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+//                $.post('',JSON.stringify(post_data),function (data) {
+//                    self.can_add=data.can_add
+//                    self.can_del=data.can_del
+//                })
+
+            }
+
+        })
+    })
+</script>
+<div id='there'>
+    <path-nav :menu='menu'></path-nav>
+    <div>
+        <button @click="add_circle()">circle</button>
+        <button @click="add_new()">add</button>
+        <button @click="get_pos()">get</button>
+        <button @click="add_line()">line</button>
+        <button @click="add_aware()">aware</button>
+    </div>
+    <div class="flex">
+        <canvas id="c" width='1000' height='1000'></canvas>
+        <div>
+            <span v-text="crt_color"></span>
+            <color v-model="crt_color"></color>
+        </div>
+    </div>
+    <!--<div class='btn-panel flex'>-->
+
+    <!--<com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='placeholder' @submit="search()"></com-filter>-->
+
+
+    <!--<button @click="switch_view('table')" :class="{'selected':crt_view=='table'}"><i class="fa fa-table" aria-hidden="true"></i></button>-->
+    <!--<button @click="switch_view('grid');" :class="{'selected':crt_view=='grid'}"><i class="fa fa-th-large" aria-hidden="true"></i></button>-->
+
+    <!--<div class='btn-group'>-->
+    <!--<a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>-->
+    <!--<button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>-->
+    <!--</div>-->
+
+    <!--</div>-->
+
+
+
+    <!--<table class='table' v-show="crt_view=='table'">-->
+    <!--<thead>-->
+    <!--<tr >-->
+    <!--<td style='width:50px' v-if='selected'>-->
+    <!--<input type="checkbox" name="test" value=""/>-->
+    <!--</td>-->
+    <!--<td v-for='head in heads' :class='["td_"+head.name,{"selected":is_sorted(row_sort.sort_str ,head.name )}]'>-->
+    <!--<span v-if='ex.isin(head.name,row_sort.sortable)' v-text='head.label' class='clickable'-->
+    <!--@click='row_sort.sort_str = toggle( row_sort.sort_str,head.name)'></span>-->
+    <!--<span v-else v-text='head.label'></span>-->
+    <!--<sort-mark class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--</thead>-->
+    <!--<tbody>-->
+    <!--<tr v-for='row in rows'>-->
+    <!--<td v-if='selected'>-->
+    <!--<input type="checkbox" name="test" :value="row.pk" v-model='selected'/>-->
+    <!--</td>-->
+    <!--<td v-for='head in heads' :class='"td_"+head.name'>-->
+    <!--<div v-html='map(head.name,row)'></div>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--</tbody>-->
+    <!--</table>-->
+
+
+    <!--<sort-table class='table suit-style' :heads='heads' :rows='rows' :sort='sort' :map='map' v-model='selected'></sort-table>-->
+    <!--<paginator :nums='row_pages.options' :crt='row_pages.crt_page' @goto_page='goto_page($event)'></paginator>-->
+
+
+    <!--<del-info :infos='del_info'></del-info>-->
+
+
+
+
+</div>
+
+<!--<script type="text/javascript">-->
+<!--$(function(){-->
+<!--// create a wrapper around native canvas element (with id="c")-->
+<!--var canvas = new fabric.Canvas('c');-->
+
+<!--// create a rectangle object-->
+<!--var rect = new fabric.Rect({-->
+<!--left: 100,-->
+<!--top: 100,-->
+<!--fill: 'red',-->
+<!--width: 20,-->
+<!--height: 20-->
+<!--});-->
+
+<!--// "add" rectangle onto canvas-->
+<!--canvas.add(rect)-->
+<!--})-->
+
+<!--</script>-->
+<style type="text/css" media="screen" id="test">
+    .btn-panel .selected{
+        color: #0d23ff;
+
+    }
+    .button-group{
+        position: relative;
+        display: inline-block;
+    }
+    .form-control{
+        display: inline-block;
+        margin-left:10px;
+        width:auto;
+        /*height:30px;*/
+    }
+    .sort-mark{
+        float: right;
+    }
+    .selected{
+        background-color: #DDD;
+    }
+    .clickable{
+        cursor: pointer;
+        font-size:120%;
+        color: #0099CC;
+    }
+
+
+
+
+</style>
+
+
+{% endblock %}

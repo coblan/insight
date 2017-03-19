@@ -7,6 +7,13 @@ class DepartmentFields(ModelFields):
     class Meta:
         model=Department
         exclude=[]
+    
+    def get_heads(self):
+        heads=super(DepartmentFields,self).get_heads()
+        for head in heads:
+            if head.get('name')=='detail':
+                head['type']='richtext'
+        return heads
 
 class DepartmentTable(ModelTable):
     model=Department
@@ -16,6 +23,11 @@ class DepartmentTable(ModelTable):
 class DepartmentTablePage(TablePage):
     template='user_admin/company.html'
     tableCls=DepartmentTable
+    
+    def get_context(self):
+        ctx = super(DepartmentTablePage,self).get_context()
+        ctx['depart_heads']=DepartmentFields(crt_user=self.crt_user).get_heads()
+        return ctx
 
 
 model_dc[Department]={'fields':DepartmentFields}
