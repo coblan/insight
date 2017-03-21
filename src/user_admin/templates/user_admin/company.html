@@ -7,7 +7,7 @@
 
 <link href="https://cdn.bootcss.com/mermaid/7.0.0/mermaid.min.css" rel="stylesheet">
 <script src="https://cdn.bootcss.com/mermaid/7.0.0/mermaid.min.js"></script>
-<script src="https://ariutta.github.io/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+<script src="{% static 'js/go.js' %}"></script>
 
 
 <script src='{% static "js/table.pack.js" %}'></script>
@@ -53,33 +53,18 @@
 
     ex.map(rows,function(row){
         row.did=row.pk
-    })
-//    var root = ex.remove(departs,function(depart){
-//        if(!depart.par){
-//            return true
-//        }else{
-//            return false
-//        }
-//    })
-//    graph_list=[]
-
-    function str_child(depart,graph_list,departs){
-        graph_list.push(ex.template('{p_did}[{p_label}]',{p_did:depart.did,p_label:depart.label}))
-        var childs = ex.remove(departs,{par:depart.did})
-        if(childs){
-            ex.each(childs,function(child){
-                graph_list.push(ex.template('{p_did}-->{c_did}',{p_did:depart.did,c_did:child.did}))
-            })
-            ex.each(childs,function(child){
-                str_child(child,graph_list,departs)
-            })
+        if(row.par==null){
+            delete row.par
         }
+    })
 
-    }
+
+
+    bus=new Vue()
 
     //	search字段从 search_args._q 来取值
     $(function () {
-        table=new Vue({
+        dog=new Vue({
             el:'#there',
             data:{
                 heads:heads,
@@ -104,63 +89,106 @@
                 active_pk:'',
                 deleted_departs:[],
                 edit_model:false,
-//                depart_kw:{
-//                    heads:[{name:'label',type:'linetext',}],
-//                    row:{}
-//                }
-//                m_data:'' +
-//                'graph TB;'
-//                A[公司名字]-->B;B((扯淡部))-->C;C-->A\n;D-->C\n
+                depart_kw:{
+                    heads:this.heads,
+                    row:''
+                }
+
             },
             mixins:[table_fun],
+            created:function(){
+                var self=this
+                bus.$on('node_clicked',function(node){
+                    if(!self.edit_model){
+                        var node= self.diagram.selection.first()
+                        if(node&& node.data.detail){
+                            self.crt_node=node.data
+                            self.show_edit_win=true
+                        }
 
+
+                    }
+                })
+            },
             watch:{
                'crt_color':function(v){
 //                    this.crt_obj.setFill(v)
 //                    this.canvas.renderAll()
                },
-                m_data:function(v){
 
-                    $('.mermaid').attr('data-processed','')
-                    this.update_mermaid()
-                },
-                show_edit_win:function(){
-                    if(this.edit_model){
+                show_edit_win:function(v){
+                    if(v && this.edit_model){
                         bus.$emit('sync_data')
                     }
 
-                }
+                },
+//                label:function(v){
+//                    var node= this.diagram.selection.first()
+//                    if(node) {
+//                        update(this.diagram,node.data,{label: v})
+//                    }
+//                }
             },
             computed:{
-                  m_data:function(){
-                      var departs = ex.copy(this.departs)
-                      var roots = ex.remove(departs,function(depart){
-                          if(!depart.par){
-                              return true
-                          }else{
-                              return false
-                          }
-                      })
-                      var graph_list=[]
-                      ex.each(roots,function(root){
-                          str_child(root,graph_list,departs)
-                      })
-
-                      return 'graph TB;'+graph_list.join(';')
-                  },
-                depart_kw:function(){
-                        var kw = {
-                            heads:depart_heads,
-                        }
-                        var actvie_node=ex.findone(this.departs,{did:this.active_pk})
-                        if(actvie_node){
-                            kw.row=actvie_node
-                        }
-                        return kw
-                }
+//                heads:function(){
+//                    var org_heads = depart_heads
+//                    var par =ex.findone(org_heads,{name:'par'})
+//                    par.options=ex.map(this.departs,function(depart){
+//                        return {value:depart.par,label:depart.label}
+//                    })
+//                    return org_heads
+//                },
+//                label:function(){
+//                    return this.depart_kw.row.label
+//                },
+//                  m_data:function(){
+//                      var departs = ex.copy(this.departs)
+//                      var roots = ex.remove(departs,function(depart){
+//                          if(!depart.par){
+//                              return true
+//                          }else{
+//                              return false
+//                          }
+//                      })
+//                      var graph_list=[]
+//                      ex.each(roots,function(root){
+//                          str_child(root,graph_list,departs)
+//                      })
+//                      return 'graph TB;'+graph_list.join(';')
+//                  },
+//                depart_kw:function(){
+//                        var org_heads = depart_heads
+//                        var par =ex.findone(org_heads,{name:'par'})
+//                        par.options=ex.map(this.departs,function(depart){
+//                            return {value:depart.par,label:depart.label}
+//                        })
+//
+//                        var kw = {
+//                            heads:org_heads,
+//                        }
+//
+//                        var actvie_node=ex.findone(this.departs,{did:this.active_pk})
+//                        if(actvie_node){
+//                            kw.row=actvie_node
+//                        }
+//                        return kw
+//                }
             },
             methods:{
+                get_heads:function(){
+                    var node= this.diagram.selection.first()
+                    var org_heads = depart_heads
+                    var other_departs=this.departs
+                    if(node){
+                        other_departs = ex.exclude(other_departs,{did:node.data.did})
+                    }
 
+                    var par =ex.findone(org_heads,{name:'par'})
+                    par.options=ex.map(other_departs,function(depart){
+                        return {value:depart.did,label:depart.label}
+                    })
+                    return org_heads
+                },
                 switch_view:function(view){
                     this.crt_view=view
                     var url =ex.appendSearch({crt_view:this.crt_view})
@@ -168,10 +196,7 @@
                 },
                 goto_edit:function(row){
                     crt_view=this.crt_view
-//                    var cache_obj={
-//                        cache:['crt_view']
-//                    }
-//                    ln.cache(cache_obj)
+
 
                     location= ex.template('edit/{pk}?next={next}',{pk:row.pk,
                         next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
@@ -180,20 +205,7 @@
                     this.search_args._page=page
                     this.search()
                 },
-                add_circle:function(){
-                    this.crt_pk= this.crt_pk|| 100
 
-                    if(this.active_pk){
-                        this.m_data+=this.active_pk+'-->'
-                    }
-
-
-                    this.crt_pk +=1
-                    $('.mermaid').attr('data-processed','')
-                    this.m_data+=this.crt_pk+'((new Circle))\n'
-                    this.update_mermaid()
-
-                },
                 get_new_cursor:function(){
                     this.new_cursor= this.new_cursor || 1
                     this.new_cursor+=1
@@ -201,27 +213,24 @@
                 },
                 add_root:function(){
                     var new_id=this.get_new_cursor()
-                    this.departs.push({did:new_id,label:'未命名顶级部门'})
-//                    var new_cursor=this.get_new_cursor()
-//                    this.m_data+='NEW_'+new_cursor+'[顶级部门];'
-//                    $('.mermaid').attr('data-processed','')
-//                    this.update_mermaid()
+                    this.diagram.model.addNodeData({did:new_id,label:'未命名顶级部门'})
+
                 },
                 add_new:function () {
-                    if(this.active_pk){
+                    var node= this.diagram.selection.first()
+                    if(node){
                         var new_id=this.get_new_cursor()
-                        this.departs.push({did:new_id,label:'未命名部门',par:this.active_pk})
+                        this.diagram.model.addNodeData({did:new_id,label:'未命名部门',par:node.data.did})
 
                     }else{
                         alert('please select one super department')
                     }
-
-
                 },
                 edit:function(){
-                    if(this.active_pk){
-                        var active_node = ex.findone(this.departs,{did:this.active_pk})
-                        this.depart_kw.row.label=active_node.label
+                    var node= this.diagram.selection.first()
+                    if(node){
+                        this.depart_kw.row=node.data
+                        this.depart_kw.heads=this.get_heads()
                         this.show_edit_win=true
 
                     }
@@ -233,10 +242,12 @@
                     })
                 },
                 delete_active_node:function(){
-                    if(this.active_pk){
-                        var depart=ex.remove(this.departs,{did:this.active_pk})
-                        this.deleted_departs= this.deleted_departs.concat(depart)
+                    var node= this.diagram.selection.first()
+                    if(node){
+                        this.deleted_departs.push(node.data)
+                        this.diagram.remove(node)
                     }
+
                 },
                 get_pos:function(){
                     if(this.crt_obj){
@@ -244,89 +255,27 @@
                         alert(this.crt_obj.getCenterPoint())
                     }
                 },
-                add_line:function(){
-                    var line = new fabric.Line([0,0,0,0],{
-                        fill: 'red',
-                        stroke: 'red',
-                        strokeWidth: 5,
-//                        selectable: false,
-//                        evented:false,
-                    });
-                    this.pre_line=line
-                },
-                del_item:function () {
 
-                    if (this.selected.length==0){
-                        return
-                    }
-                    var rows=[]
-                    var inst_ls =[]
-                    for(var j=0;j<this.selected.length;j++){
-                        var pk = this.selected[j]
-                        for(var i=0;i<this.rows.length;i++){
-                            if(this.rows[i].pk.toString()==pk){
-                                rows.push(this.rows[i])
-                                inst_ls.push({pk:pk,_class:this.rows[i]._class})
-                            }
-                        }
-                    }
-                    var path = '{% url "del_rows" %}'
-                    location=ex.template("{path}?rows={rows}&next={next}",{path:path,
-                        rows:btoa(JSON.stringify(inst_ls)),
-                        next:btoa(location.pathname+location.search)})
-                },
+
                 search:function () {
                     location =ex.template('{path}{search}',{path:location.pathname,
                         search: encodeURI(ex.searchfy(this.search_args,'?')) })
                 },
-//                zoom_in:function(){
-//                    alert($('.mermaid svg').attr('viewBox'))
-//                },
-                update_mermaid:function(){
-                    var  self = this
-                    Vue.nextTick(function(){
-                        mermaid.init({noteMargin: 10}, ".mermaid");
-                        $('.node').click(function(e){
-                            removeClass($('.active'),'active')
-                            addClass($(this),'active')
-                            self.active_pk=$(this).attr('id')
-
-                            if(!self.edit_model){
-
-                                self.crt_node=ex.findone(self.departs,{did:self.active_pk})
-                                if(self.crt_node.detail){
-                                    self.show_edit_win=true
-                                }
-                            }
-
-                        })
-                        ex.each($('.node'),function(node){
-                            var did=$(node).attr('id')
-                            var node_data=ex.findone(self.departs,{did:did})
-                            var cls =$(node).attr('class').split(' ')
-                            if(node_data.detail && node_data.detail!=''){
-                                cls.push('has_detail')
-                            }
-
-                            if($(node).attr('id')==self.active_pk){
-                                cls.push('active')
-                            }
-                            cls= $.unique(cls)
-                            $(node).attr('class',cls.join(' '))
-                        })
-
-                        check_zoom($('.com'),function(){
-                            var panZoomTiger = svgPanZoom('.com svg');
-                        })
-
-
-
-                    })
+                close_win:function(){
+                    this.show_edit_win=false
+                    bus.$emit('sync_data')
+                    var node= this.diagram.selection.first()
+                    if(node && this.edit_model){
+                       node.updateTargetBindings()
+                        node.updateRelationshipsFromData()
+                    }
                 }
+
+
             },
             mounted:function () {
                 var self=this
-                this.update_mermaid()
+//                this.update_mermaid()
 
 
 //                var self=this;
@@ -341,32 +290,95 @@
 
         })
     })
-    function callback(){
-        alert('a')
+
+    function update(myDiagram,data,props){
+        myDiagram.startTransaction("update");
+        for(var key in props){
+            myDiagram.model.setDataProperty(data,key,props[key])
+        }
+        myDiagram.commitTransaction("update");
     }
 
-    function check_zoom(wrap,callback){
-        var mt = /max-width:(\w+)/.exec(wrap.find('svg').attr('style'))
-        if(mt){
-            var max_width=mt[1]
-            if(wrap.width()<parseInt(max_width)){
-                wrap.height( wrap.find('svg').height())
-                wrap.find('svg').css('width','100%')
-                callback()
-            }
-        }
+//    function callback(){
+//        alert('a')
+//    }
+//
+//    function check_zoom(wrap,callback){
+//        var mt = /max-width:(\w+)/.exec(wrap.find('svg').attr('style'))
+//        if(mt){
+//            var max_width=mt[1]
+//            if(wrap.width()<parseInt(max_width)){
+//                wrap.height( wrap.find('svg').height())
+//                wrap.find('svg').css('width','100%')
+//                callback()
+//            }
+//        }
+//    }
+//    function addClass(ele,cls){
+//        var org_cls = ele.attr('class').split(' ')
+//        org_cls.push(cls)
+//        org_cls= $.unique(org_cls)
+//        ele.attr('class',org_cls.join(' '))
+//    }
+//    function removeClass(ele,cls){
+//        var org_cls = ele.attr('class').split(' ')
+//        ex.remove(org_cls,cls)
+//        ele.attr('class',org_cls.join(' '))
+//    }
+
+
+
+    function nodeClicked(e,node){
+        bus.$emit('node_clicked',node)
     }
-    function addClass(ele,cls){
-        var org_cls = ele.attr('class').split(' ')
-        org_cls.push(cls)
-        org_cls= $.unique(org_cls)
-        ele.attr('class',org_cls.join(' '))
-    }
-    function removeClass(ele,cls){
-        var org_cls = ele.attr('class').split(' ')
-        ex.remove(org_cls,cls)
-        ele.attr('class',org_cls.join(' '))
-    }
+    $(function(){
+        var $ = go.GraphObject.make;
+
+        var myDiagram =
+                $(go.Diagram, "myDiagramDiv",
+                        {
+                            initialContentAlignment: go.Spot.Center, // center Diagram contents
+//                            "undoManager.isEnabled": true, // enable Ctrl-Z to undo and Ctrl-Y to redo
+                            layout: $(go.TreeLayout, // specify a Diagram.layout that arranges trees
+                                    { angle: 90, layerSpacing: 35 })
+                        });
+
+// the template we defined earlier
+        myDiagram.nodeTemplate =
+                $(go.Node, "Horizontal",
+
+                        { background: "#44CCFF",
+                            click: nodeClicked,
+                        },
+                        new go.Binding("background", "detail", function(v) {
+                            if(v)return '#ddd4a4'
+                            else return '#44CCFF'
+                        }),
+
+//                        $(go.Picture,
+//                                { margin: 10, width: 50, height: 50, background: "red" },
+//                                new go.Binding("source")),
+                        $(go.TextBlock, "Default Text",
+                                { margin: 12, stroke: "white", font: "bold 16px sans-serif" },
+                                new go.Binding("text", "label"))
+                );
+
+// define a Link template that routes orthogonally, with no arrowhead
+        myDiagram.linkTemplate =
+                $(go.Link,
+                        { routing: go.Link.Orthogonal, corner: 5 },
+                        $(go.Shape, { strokeWidth: 3, stroke: "#555" })); // the link shape
+
+        var model = $(go.TreeModel);
+
+        model.nodeKeyProperty='did'
+        model.nodeParentKeyProperty='par'
+        model.nodeDataArray = rows
+
+        myDiagram.model = model;
+
+        dog.diagram=myDiagram
+    })
 </script>
 
 
@@ -376,7 +388,7 @@
     }
 </style>
 
-<div id='there' class="flex-v">
+<div id='there' class="flex-v" style="height: 100%;">
     <path-nav :menu='menu'></path-nav>
 
     <div>
@@ -399,16 +411,18 @@
     </div>
 
 
-    <div class="flex-grow">
-        <div class="mermaid com flex-v flex-vh-center" v-text="m_data"></div>
-    </div>
+
+    <div id="myDiagramDiv" class="flex-grow"
+         style="background-color: #DAE4E4;"></div>
+    <!--<div class="flex flex-grow" style="background-color: red"></div>-->
 
 
 
 
 
 
-    <modal v-if="show_edit_win"  @click.native="show_edit_win=false">
+
+    <modal v-if="show_edit_win"  @click.native="close_win()">
         <div style="width: 80vw;height: 80vh;max-width: 800px;" @click.stop>
             <div class='field-panel' v-if="edit_model">
                 <field name="label" :kw="depart_kw"></field>

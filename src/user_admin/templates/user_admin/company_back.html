@@ -1,0 +1,471 @@
+{% extends "index.html" %}
+{% load static %}
+{% load jsonify %}
+{% load i18n %}
+
+{% block page_content %}
+
+<link href="https://cdn.bootcss.com/mermaid/7.0.0/mermaid.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/mermaid/7.0.0/mermaid.min.js"></script>
+<script src="https://ariutta.github.io/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+
+
+<script src='{% static "js/table.pack.js" %}'></script>
+<script type="text/javascript">
+
+    row_filters={{row_filters | jsonify }}
+    placeholder = '{{search_tip |default:""}}'
+    row_sort={{row_sort | jsonify | default:'[]' }}
+    heads={{ heads | jsonify | default:'[]'}}
+    rows={{ rows | jsonify | default:'[]'}}
+    row_pages = {{ row_pages | jsonify}}
+    model ="{{ model }}"
+    search_args=ex.parseSearch()
+    depart_heads={{ depart_heads|jsonify }}
+    //    ex.each(row_filters,function(filter){
+    //        search_args[filter.name]=search_args[filter.name]||''
+    //    })
+    crt_view=ex.parseSearch().crt_view || 'table'
+    ajax_url="{% url 'employee_ajax' %}"
+
+    bus=new Vue()
+
+    ln.readCache()
+
+    ex.pushUrl=function(url){
+        window.history.pushState(url,0,url);
+    }
+
+    window.addEventListener('popstate', function(e) {
+/// <summary>
+///　　　&#10;　在页面初始化加载完成中添加该事件，则可以监听到onpopstate事件，而浏览器进行前进、后退、刷新操作都会触发本事件
+///　　　&#10;　linkFly原创，引用请注明出处，谢谢
+/// </summary>/// <returns type="void" />
+        if (e.state) {
+            location= e.state
+            //e.state就是pushState中保存的Data，我们只需要将相应的数据读取下来即可
+        }
+    });
+
+    //    var departs=[{did:'b',name:'顶级部门',pk:null,par:null},
+    //        {did:'c',name:'次顶级',pk:1,par:'b'},
+    //        {did:'d',name:'第二家公司',pk:2,par:null}]
+
+    ex.map(rows,function(row){
+        row.did=row.pk
+    })
+    //    var root = ex.remove(departs,function(depart){
+    //        if(!depart.par){
+    //            return true
+    //        }else{
+    //            return false
+    //        }
+    //    })
+    //    graph_list=[]
+
+    function str_child(depart,graph_list,departs){
+        graph_list.push(ex.template('{p_did}[{p_label}]',{p_did:depart.did,p_label:depart.label}))
+        var childs = ex.remove(departs,{par:depart.did})
+        if(childs){
+            ex.each(childs,function(child){
+                graph_list.push(ex.template('{p_did}-->{c_did}',{p_did:depart.did,c_did:child.did}))
+            })
+            ex.each(childs,function(child){
+                str_child(child,graph_list,departs)
+            })
+        }
+
+    }
+
+    //	search字段从 search_args._q 来取值
+    $(function () {
+        table=new Vue({
+            el:'#there',
+            data:{
+                heads:heads,
+                rows:rows,
+                row_filters:row_filters,
+                row_sort:row_sort,
+                row_pages:row_pages,
+                placeholder:placeholder,
+                selected:[],
+                del_info:[],
+                menu:menu,
+                can_add:false,
+                can_del:false,
+                model:model,
+                search_args:search_args,
+                crt_color:'',
+
+                crt_node:'',
+
+                departs:rows,
+                show_edit_win:false,
+                active_pk:'',
+                deleted_departs:[],
+                edit_model:false,
+//                depart_kw:{
+//                    heads:[{name:'label',type:'linetext',}],
+//                    row:{}
+//                }
+//                m_data:'' +
+//                'graph TB;'
+//                A[公司名字]-->B;B((扯淡部))-->C;C-->A\n;D-->C\n
+            },
+            mixins:[table_fun],
+
+            watch:{
+                'crt_color':function(v){
+//                    this.crt_obj.setFill(v)
+//                    this.canvas.renderAll()
+                },
+                m_data:function(v){
+
+                    $('.mermaid').attr('data-processed','')
+                    this.update_mermaid()
+                },
+                show_edit_win:function(){
+                    if(this.edit_model){
+                        bus.$emit('sync_data')
+                    }
+
+                }
+            },
+            computed:{
+                m_data:function(){
+                    var departs = ex.copy(this.departs)
+                    var roots = ex.remove(departs,function(depart){
+                        if(!depart.par){
+                            return true
+                        }else{
+                            return false
+                        }
+                    })
+                    var graph_list=[]
+                    ex.each(roots,function(root){
+                        str_child(root,graph_list,departs)
+                    })
+
+                    return 'graph TB;'+graph_list.join(';')
+                },
+                depart_kw:function(){
+                    var kw = {
+                        heads:depart_heads,
+                    }
+                    var actvie_node=ex.findone(this.departs,{did:this.active_pk})
+                    if(actvie_node){
+                        kw.row=actvie_node
+                    }
+                    return kw
+                }
+            },
+            methods:{
+
+                switch_view:function(view){
+                    this.crt_view=view
+                    var url =ex.appendSearch({crt_view:this.crt_view})
+                    ex.pushUrl(url)
+                },
+                goto_edit:function(row){
+                    crt_view=this.crt_view
+//                    var cache_obj={
+//                        cache:['crt_view']
+//                    }
+//                    ln.cache(cache_obj)
+
+                    location= ex.template('edit/{pk}?next={next}',{pk:row.pk,
+                        next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
+                },
+                goto_page:function (page) {
+                    this.search_args._page=page
+                    this.search()
+                },
+                add_circle:function(){
+                    this.crt_pk= this.crt_pk|| 100
+
+                    if(this.active_pk){
+                        this.m_data+=this.active_pk+'-->'
+                    }
+
+
+                    this.crt_pk +=1
+                    $('.mermaid').attr('data-processed','')
+                    this.m_data+=this.crt_pk+'((new Circle))\n'
+                    this.update_mermaid()
+
+                },
+                get_new_cursor:function(){
+                    this.new_cursor= this.new_cursor || 1
+                    this.new_cursor+=1
+                    return 'new_'+this.new_cursor
+                },
+                add_root:function(){
+                    var new_id=this.get_new_cursor()
+                    this.departs.push({did:new_id,label:'未命名顶级部门'})
+//                    var new_cursor=this.get_new_cursor()
+//                    this.m_data+='NEW_'+new_cursor+'[顶级部门];'
+//                    $('.mermaid').attr('data-processed','')
+//                    this.update_mermaid()
+                },
+                add_new:function () {
+                    if(this.active_pk){
+                        var new_id=this.get_new_cursor()
+                        this.departs.push({did:new_id,label:'未命名部门',par:this.active_pk})
+
+                    }else{
+                        alert('please select one super department')
+                    }
+
+
+                },
+                edit:function(){
+                    if(this.active_pk){
+                        var active_node = ex.findone(this.departs,{did:this.active_pk})
+                        this.depart_kw.row.label=active_node.label
+                        this.show_edit_win=true
+
+                    }
+                },
+                save:function(){
+                    var post_data=[{fun:'save_departments',rows:this.departs,deleted_departs:this.deleted_departs}]
+                    ex.post(ajax_url,JSON.stringify(post_data),function(resp){
+                        location.reload()
+                    })
+                },
+                delete_active_node:function(){
+                    if(this.active_pk){
+                        var depart=ex.remove(this.departs,{did:this.active_pk})
+                        this.deleted_departs= this.deleted_departs.concat(depart)
+                    }
+                },
+                get_pos:function(){
+                    if(this.crt_obj){
+                        alert([this.crt_obj.getLeft(),this.crt_obj.getTop()])
+                        alert(this.crt_obj.getCenterPoint())
+                    }
+                },
+                add_line:function(){
+                    var line = new fabric.Line([0,0,0,0],{
+                        fill: 'red',
+                        stroke: 'red',
+                        strokeWidth: 5,
+//                        selectable: false,
+//                        evented:false,
+                    });
+                    this.pre_line=line
+                },
+                del_item:function () {
+
+                    if (this.selected.length==0){
+                        return
+                    }
+                    var rows=[]
+                    var inst_ls =[]
+                    for(var j=0;j<this.selected.length;j++){
+                        var pk = this.selected[j]
+                        for(var i=0;i<this.rows.length;i++){
+                            if(this.rows[i].pk.toString()==pk){
+                                rows.push(this.rows[i])
+                                inst_ls.push({pk:pk,_class:this.rows[i]._class})
+                            }
+                        }
+                    }
+                    var path = '{% url "del_rows" %}'
+                    location=ex.template("{path}?rows={rows}&next={next}",{path:path,
+                        rows:btoa(JSON.stringify(inst_ls)),
+                        next:btoa(location.pathname+location.search)})
+                },
+                search:function () {
+                    location =ex.template('{path}{search}',{path:location.pathname,
+                        search: encodeURI(ex.searchfy(this.search_args,'?')) })
+                },
+//                zoom_in:function(){
+//                    alert($('.mermaid svg').attr('viewBox'))
+//                },
+                update_mermaid:function(){
+                    var  self = this
+                    Vue.nextTick(function(){
+                        mermaid.init({noteMargin: 10}, ".mermaid");
+                        $('.node').click(function(e){
+                            removeClass($('.active'),'active')
+                            addClass($(this),'active')
+                            self.active_pk=$(this).attr('id')
+
+                            if(!self.edit_model){
+
+                                self.crt_node=ex.findone(self.departs,{did:self.active_pk})
+                                if(self.crt_node.detail){
+                                    self.show_edit_win=true
+                                }
+                            }
+
+                        })
+                        ex.each($('.node'),function(node){
+                            var did=$(node).attr('id')
+                            var node_data=ex.findone(self.departs,{did:did})
+                            var cls =$(node).attr('class').split(' ')
+                            if(node_data.detail && node_data.detail!=''){
+                                cls.push('has_detail')
+                            }
+
+                            if($(node).attr('id')==self.active_pk){
+                                cls.push('active')
+                            }
+                            cls= $.unique(cls)
+                            $(node).attr('class',cls.join(' '))
+                        })
+
+                        check_zoom($('.com'),function(){
+                            var panZoomTiger = svgPanZoom('.com svg');
+                        })
+
+
+
+                    })
+                }
+            },
+            mounted:function () {
+                var self=this
+                this.update_mermaid()
+
+
+//                var self=this;
+//                var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+//                    {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+//                $.post('',JSON.stringify(post_data),function (data) {
+//                    self.can_add=data.can_add
+//                    self.can_del=data.can_del
+//                })
+
+            }
+
+        })
+    })
+    function callback(){
+        alert('a')
+    }
+
+    function check_zoom(wrap,callback){
+        var mt = /max-width:(\w+)/.exec(wrap.find('svg').attr('style'))
+        if(mt){
+            var max_width=mt[1]
+            if(wrap.width()<parseInt(max_width)){
+                wrap.height( wrap.find('svg').height())
+                wrap.find('svg').css('width','100%')
+                callback()
+            }
+        }
+    }
+    function addClass(ele,cls){
+        var org_cls = ele.attr('class').split(' ')
+        org_cls.push(cls)
+        org_cls= $.unique(org_cls)
+        ele.attr('class',org_cls.join(' '))
+    }
+    function removeClass(ele,cls){
+        var org_cls = ele.attr('class').split(' ')
+        ex.remove(org_cls,cls)
+        ele.attr('class',org_cls.join(' '))
+    }
+</script>
+
+
+<style>
+    .node{
+        cursor:pointer;
+    }
+</style>
+
+<div id='there' class="flex-v">
+    <path-nav :menu='menu'></path-nav>
+
+    <div>
+        <button @click="edit_model = !edit_model">切换编辑状态</button>
+    </div>
+
+    <div v-show="edit_model">
+        <button @click="add_root()">{% trans "root department" %}</button>
+        <button @click="add_new()">{% trans "sub department" %}</button>
+        <button @click="edit()">{% trans "edit" %}</button>
+        <button @click="save()">{% trans "save" %}</button>
+        <button @click="delete_active_node()">delete</button>
+
+
+        <!--<button @click="add_circle()">circle</button>-->
+
+        <!--<button @click="get_pos()">get</button>-->
+        <!--<button @click="add_line()">line</button>-->
+        <!--<button @click="zoom_in()">aware</button>-->
+    </div>
+
+
+    <div class="flex-grow">
+        <div class="mermaid com flex-v flex-vh-center" v-text="m_data"></div>
+    </div>
+
+
+
+
+
+
+    <modal v-if="show_edit_win"  @click.native="show_edit_win=false">
+        <div style="width: 80vw;height: 80vh;max-width: 800px;" @click.stop>
+            <div class='field-panel' v-if="edit_model">
+                <field name="label" :kw="depart_kw"></field>
+                <field name="par" :kw="depart_kw"></field>
+                <field name="detail" :kw="depart_kw"></field>
+            </div>
+
+            <div v-if="!edit_model" style="padding: 20px">
+                <div v-html="crt_node.detail"></div>
+            </div>
+
+        </div>
+    </modal>
+
+</div>
+
+
+<style type="text/css" media="screen" id="test">
+    .btn-panel .selected{
+        color: #0d23ff;
+
+    }
+    .button-group{
+        position: relative;
+        display: inline-block;
+    }
+    .form-control{
+        display: inline-block;
+        margin-left:10px;
+        width:auto;
+        /*height:30px;*/
+    }
+    .sort-mark{
+        float: right;
+    }
+    .selected{
+        background-color: #DDD;
+    }
+    .clickable{
+        cursor: pointer;
+        font-size:120%;
+        color: #0099CC;
+    }
+
+    /*.mermaid svg{*/
+    /*width: 100%;*/
+    /*}*/
+
+    .node.has_detail rect{
+        fill: #fff1c6;
+    }
+    .node.active rect,.node.active circle{
+        fill:green;
+    }
+
+
+</style>
+
+
+{% endblock %}
