@@ -35,6 +35,7 @@ admin.site.register(Month)
 
 site_option=importlib.import_module(settings.SITE_OPTION)
 
+
 class BaseSearch(RowSearch):
     names=['name']
     model=BasicInfo
