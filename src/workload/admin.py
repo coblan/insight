@@ -3,14 +3,17 @@ from __future__ import unicode_literals
 
 from django.db.models import Q
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
-from helpers.director.model_admin.render import model_page_dc,model_dc,FormPage,TablePage
+from helpers.director.model_admin.render import model_page_dc,model_dc
+
+
+from helpers.director.shortcut import TablePage,FormPage
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.db_tools import to_dict
 from helpers.director.model_admin.permit import permit_list,has_permit
 
 from models import WorkModel,TaskModel
 
-from hello.views import insight_engine
+from hello.engin_proxy import InsightEngine
 
 class TaskSearch(RowSearch):
     names=['name']
@@ -119,8 +122,5 @@ permit_list.append({'name':'workload','label':'人员负荷','fields':[
 permit_list.append(WorkModel)
 permit_list.append(TaskModel)
 
-from helpers.director import pages
-class WorkTablePage2(pages.TablePage):
-    tableCls=WorkTable
-
-insight_engine.add_pages({'workload':WorkTablePage2})
+InsightEngine.add_pages({'task':TaskTablePage,'task.edit':TaskFormPage})
+InsightEngine.add_pages({'workloads':WorkTablePage,'workloads.edit':WorkFormPage})

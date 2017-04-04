@@ -15,18 +15,31 @@ from helpers.pageadaptor.models import WebPage
 
 from engin_proxy import InsightEngine
 
-insight_engine=InsightEngine()
+#insight_engine=InsightEngine()
 
-def insight_engine_view(request,name):
-    return insight_engine.view(request, name)
+#def insight_engine_view(request,name):
+    #return insight_engine.view(request, name)
+
+class Home(object):
+    template='home.html'
+    def __init__(self,request):
+        pass
+    
+    def get_context(self):
+        try:
+            page = WebPage.objects.get(name='home')
+            return  {'ctx':json.loads(page.content)}
+        except WebPage.DoesNotExist:
+            return {}
+        
+InsightEngine.add_pages({'home':Home})
 
 def home(request):
-    try:
-        page = WebPage.objects.get(name='home')
-        ctx_dict=json.loads(page.content)
-        return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user),'ctx':ctx_dict})
-    except WebPage.DoesNotExist:
-        return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user)})
+    #try:
+    return InsightEngine.as_view()(request, 'home')
+        #return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user),'ctx':ctx_dict})
+    #except WebPage.DoesNotExist:
+        #return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user)})
 
 #@login_required
 #def model_render_views(request,url):

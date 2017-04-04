@@ -24,13 +24,15 @@ from helpers.msic.ckeditor import upload_image
 from helpers.face import urls as face_urls
 from helpers.dev import urls as dev_urls
 from django.views.i18n import javascript_catalog
+
+from hello.engin_proxy import InsightEngine 
  
 urlpatterns = [
     
     url(r'^accounts/',include(director_urls)),
     url(r'^d/',include(director_urls)),
     
-    url(r'nd/(.+)',hello_view.insight_engine_view),
+    url(r'nd/(.+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),
