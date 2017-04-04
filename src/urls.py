@@ -29,6 +29,9 @@ urlpatterns = [
     
     url(r'^accounts/',include(director_urls)),
     url(r'^d/',include(director_urls)),
+    
+    url(r'nd/(.+)',hello_view.insight_engine_view),
+    
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),
     #url(r'hello/',include(hello_urls)),

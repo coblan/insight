@@ -13,6 +13,13 @@ import json
 
 from helpers.pageadaptor.models import WebPage
 
+from engin_proxy import InsightEngine
+
+insight_engine=InsightEngine()
+
+def insight_engine_view(request,name):
+    return insight_engine.view(request, name)
+
 def home(request):
     try:
         page = WebPage.objects.get(name='home')

@@ -10,6 +10,8 @@ from helpers.director.model_admin.permit import permit_list,has_permit
 
 from models import WorkModel,TaskModel
 
+from hello.views import insight_engine
+
 class TaskSearch(RowSearch):
     names=['name']
     model=TaskModel
@@ -116,3 +118,9 @@ permit_list.append({'name':'workload','label':'人员负荷','fields':[
 
 permit_list.append(WorkModel)
 permit_list.append(TaskModel)
+
+from helpers.director import pages
+class WorkTablePage2(pages.TablePage):
+    tableCls=WorkTable
+
+insight_engine.add_pages({'workload':WorkTablePage2})
