@@ -12,6 +12,10 @@
     heads={{ heads | jsonify | default:'[]'}}
     rows={{ rows | jsonify | default:'[]'}}
     row_pages = {{ row_pages | jsonify}}
+
+    can_add={{ can_add | jsonify | default:'false' }}
+    can_del={{ can_del | jsonify | default:'false' }}
+
     model ="{{ model }}"
     search_args=ex.parseSearch()
 //    ex.each(row_filters,function(filter){
@@ -20,21 +24,22 @@
     crt_view=ex.parseSearch().crt_view || 'table'
 
     ln.readCache()
+    ln.popUrlListen()
 
-    ex.pushUrl=function(url){
-        window.history.pushState(url,0,url);
-    }
+//    ex.pushUrl=function(url){
+//        window.history.pushState(url,0,url);
+//    }
 
-    window.addEventListener('popstate', function(e) {
-/// <summary>
-///　　　&#10;　在页面初始化加载完成中添加该事件，则可以监听到onpopstate事件，而浏览器进行前进、后退、刷新操作都会触发本事件
-///　　　&#10;　linkFly原创，引用请注明出处，谢谢
-/// </summary>/// <returns type="void" />
-        if (e.state) {
-            location= e.state
-            //e.state就是pushState中保存的Data，我们只需要将相应的数据读取下来即可
-        }
-    });
+//    window.addEventListener('popstate', function(e) {
+///// <summary>
+/////　　　&#10;　在页面初始化加载完成中添加该事件，则可以监听到onpopstate事件，而浏览器进行前进、后退、刷新操作都会触发本事件
+/////　　　&#10;　linkFly原创，引用请注明出处，谢谢
+///// </summary>/// <returns type="void" />
+//        if (e.state) {
+//            location= e.state
+//            //e.state就是pushState中保存的Data，我们只需要将相应的数据读取下来即可
+//        }
+//    });
 
     //	search字段从 search_args._q 来取值
     $(function () {
@@ -50,8 +55,8 @@
                         selected:[],
                         del_info:[],
                         menu:menu,
-                        can_add:false,
-                        can_del:false,
+                        can_add:can_add,
+                        can_del:can_del,
                         model:model,
                         search_args:search_args,
                         ex:ex,
@@ -83,7 +88,7 @@
                 switch_view:function(view){
                     this.crt_view=view
                     var url =ex.appendSearch({crt_view:this.crt_view})
-                    ex.pushUrl(url)
+                    ln.pushUrl(url)
                 },
                 goto_edit:function(row){
                     crt_view=this.crt_view
@@ -93,16 +98,16 @@
                 },
 
             },
-            mounted:function () {
-            var self=this;
-            var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
-                {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
-                $.post('',JSON.stringify(post_data),function (data) {
-                    self.can_add=data.can_add
-                    self.can_del=data.can_del
-                })
-
-        }
+//            mounted:function () {
+//            var self=this;
+//            var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+//                {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+//                $.post('',JSON.stringify(post_data),function (data) {
+//                    self.can_add=data.can_add
+//                    self.can_del=data.can_del
+//                })
+//
+//        }
     })
     })
 </script>

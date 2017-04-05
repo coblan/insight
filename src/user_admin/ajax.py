@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 import json
 from models import EmployeeModel,SalaryRecords,Department
 from django.core.exceptions import ValidationError
-from helpers.director.shortcut import save_row,Permit
+from helpers.director.shortcut import save_row,ModelPermit
 from helpers.shortcuts import _
 
 
@@ -85,7 +85,7 @@ def employee_info(pk):
             }
 
 def creat_month_salary_all(month,user):
-    permit = Permit(SalaryRecords,user)
+    permit = ModelPermit(SalaryRecords,user)
     if permit.can_add():
         for emp in EmployeeModel.objects.all():
             SalaryRecords.objects.get_or_create(empoyee=emp,base_salary=emp.salary_level,month=month)
@@ -93,7 +93,7 @@ def creat_month_salary_all(month,user):
     return {'status':'success','msg':_('operation sucess')}
 
 def make_sure(salary_pks,user):
-    permit = Permit(SalaryRecords,user)
+    permit = ModelPermit(SalaryRecords,user)
     if 'is_checked' in permit.changeable_fields():
         SalaryRecords.objects.filter(pk__in=salary_pks).update(is_checked=True)
     

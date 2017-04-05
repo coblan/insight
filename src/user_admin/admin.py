@@ -9,7 +9,7 @@ from helpers.director.db_tools import to_dict,model_to_name,model_to_head,sim_di
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
 from helpers.director.model_admin.render import model_page_dc,model_dc,render_dc
-from helpers.director.model_admin.permit import permit_list,Permit
+from helpers.director.model_admin.permit import permit_list,ModelPermit
 # from helpers.director.model_admin.render import TablePage,FormPage
 from helpers.director.shortcut import TablePage,FormPage
 # from hello.engin_proxy import InsightEngine
@@ -259,7 +259,7 @@ class EmployeeTable(ModelTable):
     include=['employ_id','position','salary_level']
     def get_heads(self):
         heads = super(EmployeeTable,self).get_heads()
-        permit = Permit(model=BasicInfo,user=self.crt_user)
+        permit = ModelPermit(model=BasicInfo,user=self.crt_user)
         bas_field=permit.readable_fields()
         bas_heads=model_to_head(model=BasicInfo,include=bas_field)
         heads.extend(bas_heads)
@@ -276,7 +276,7 @@ class EmployeeTable(ModelTable):
         for row in rows:
             emp = EmployeeModel.objects.get(pk=row['pk'])
             
-            permit = Permit(model=BasicInfo,user=self.crt_user)
+            permit = ModelPermit(model=BasicInfo,user=self.crt_user)
             bas_field=permit.readable_fields()            
             if emp.baseinfo:
                 row.update(sim_dict(emp.baseinfo,include=bas_field))

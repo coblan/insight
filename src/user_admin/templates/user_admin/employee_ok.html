@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "director/index.html" %}
 {% load static %}
 {% load i18n %}
 {% load jsonify %}
@@ -93,22 +93,55 @@
                         next:btoa(location.pathname)})
                 },
                 jump_edit:function(name,pk){
-                    var director = '{% url 'director' %}'
+                    pk=pk || ''
+                    options=ex.findone(person.emp_info.heads,{name:'user'}).options
 
-                    var cache_meta={
-                        cache:['person.emp_info.row',
-                                'person.bas_info.row',
-                                'crt_view'],
-                        rt_key:{'auth.user':'person.emp_info.row.user'}
-                    }
+                    var url=ex.template('{engine_url}/{name}.edit?pk={pk}',{
+                        engine_url:engine_url,
+                        name:name,
+                        pk:pk
+                    })
+                    ln.openWin(url,function(resp){
+                        if(resp.del_rows){
+                            ex.remove(options,function(option){
+                                return ex.isin(option,resp.del_rows,function(op,del_row){
+                                    return op.value==del_row.pk
+                                })
+                            })
+//                            ex.each(resp.del_rows,function(row){
+//                                var
+//                            })
+//                            alert(resp.del_rows)
+                        }else if(resp.row){
+                            var row=resp.row
+                            var one = ex.findone(person.emp_info.heads,{name:'user'})
+                            if(pk){
+                                var option =ex.findone(one.options,{value:pk})
+                                option.label=row._label
+                            }else{
+                                one.options.push({label:row._label,value:row.pk})
+                                person.emp_info.row.user=row.pk
+                            }
+                        }
 
-                    ln.cache(cache_meta)
-                    var back_url=btoa(ex.appendSearch({cache:1}))
-                    if(pk){
-                        location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
-                    }else{
-                        location=ex.template('{director}model/{name}/edit?next={encode_url}',{director:director,name:name,encode_url:back_url})
-                    }
+                    })
+
+//                    var director = '{% url 'director' %}'
+//
+//                    var cache_meta={
+//                        cache:['person.emp_info.row',
+//                                'person.bas_info.row',
+//                                'crt_view'],
+//                        rt_key:{'auth.user':'person.emp_info.row.user'}
+//                    }
+//
+//                    ln.cache(cache_meta)
+//                    var back_url=btoa(ex.appendSearch({cache:1}))
+//                    if(pk){
+//                        location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
+//                    }else{
+//                        location=ex.template('{director}model/{name}/edit?next={encode_url}',{director:director,name:name,encode_url:back_url})
+//                    }
 
 
                 }
