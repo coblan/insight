@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "director/index.html" %}
 {% load static %}
 {% load jsonify %}
 
@@ -58,13 +58,13 @@
                         crt_view:crt_view,
                     },
                     mixins:[table_fun],
-                    watch:{
-                        'row_sort.sort_str':function (v) {
-                            this.search_args._sort=v
-                            this.search()
-                        }
-                    },
-                    methods:{
+//                    watch:{
+//                        'row_sort.sort_str':function (v) {
+//                            this.search_args._sort=v
+//                            this.search()
+//                        }
+//                    },
+                methods:{
 
                 map:function (name,row) {
 //                    if(name==heads[0].name){
@@ -87,58 +87,22 @@
                 },
                 goto_edit:function(row){
                     crt_view=this.crt_view
-//                    var cache_obj={
-//                        cache:['crt_view']
-//                    }
-//                    ln.cache(cache_obj)
 
-                    location= ex.template('edit/{pk}?next={next}',{pk:row.pk,
-                                             next:btoa(encodeURI(ex.appendSearch({crt_view:this.crt_view})) ),})
+                    location= ex.template('{engine_url}/{page_name}.edit?pk={pk}&next={next}',{engine_url:engine_url,
+                        page_name:page_name,pk:row.pk,next:encodeURIComponent(ex.appendSearch({crt_view:this.crt_view})),})
                 },
-                goto_page:function (page) {
-                    this.search_args._page=page
-                    this.search()
-                },
-                add_new:function () {
-                    return 'edit/?next='+btoa(location.pathname+location.search)
-                },
-                del_item:function () {
 
-                    if (this.selected.length==0){
-                        return
-                    }
-                    var rows=[]
-                    var inst_ls =[]
-                    for(var j=0;j<this.selected.length;j++){
-                        var pk = this.selected[j]
-                        for(var i=0;i<this.rows.length;i++){
-                            if(this.rows[i].pk.toString()==pk){
-                                rows.push(this.rows[i])
-                                inst_ls.push({pk:pk,_class:this.rows[i]._class})
-                            }
-                        }
-                    }
-                    var path = '{% url "del_rows" %}'
-                    location=ex.template("{path}?rows={rows}&next={next}",{path:path,
-                        rows:btoa(JSON.stringify(inst_ls)),
-                        next:btoa(location.pathname+location.search)})
-                },
-                search:function () {
-                    location =ex.template('{path}{search}',{path:location.pathname,
-                        search: encodeURI(ex.searchfy(this.search_args,'?')) })
-                },
             },
             mounted:function () {
-        var self=this;
-        var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
-            {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
-        $.post('',JSON.stringify(post_data),function (data) {
-            self.can_add=data.can_add
-            self.can_del=data.can_del
-        })
+            var self=this;
+            var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+                {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+                $.post('',JSON.stringify(post_data),function (data) {
+                    self.can_add=data.can_add
+                    self.can_del=data.can_del
+                })
 
-    }
-
+        }
     })
     })
 </script>

@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^accounts/',include(director_urls)),
     url(r'^d/',include(director_urls)),
     
-    url(r'nd/(.+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
+    url(r'nd/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),

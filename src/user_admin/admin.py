@@ -10,7 +10,10 @@ from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
 from helpers.director.model_admin.render import model_page_dc,model_dc,render_dc
 from helpers.director.model_admin.permit import permit_list,Permit
-from helpers.director.model_admin.render import TablePage,FormPage
+# from helpers.director.model_admin.render import TablePage,FormPage
+from helpers.director.shortcut import TablePage,FormPage
+# from hello.engin_proxy import InsightEngine
+
 from django.contrib.auth.models import User,Group
 import json
 import ajax
@@ -20,7 +23,7 @@ from django.conf import settings
 import importlib
 from helpers.director.container import evalue_container,find_one
 from django.utils.translation import ugettext as _
-
+from pydoc import locate
 from .depart_admin import *
 
 # Register your models here.
@@ -35,6 +38,7 @@ admin.site.register(Month)
 
 site_option=importlib.import_module(settings.SITE_OPTION)
 
+InsightEngine=locate(settings.DIR_ENGIN)
 
 class BaseSearch(RowSearch):
     names=['name']
@@ -465,9 +469,9 @@ class EmployeeFormPage(FormPage):
 
     template='user_admin/employee_ok.html'
 
-    def __init__(self,request,pk):
+    def __init__(self,request):
         self.request=request
-        self.pk=pk
+        self.pk=request.GET.get('pk')
         
         if not self.pk:
             empfld=EmployeeFields(pk=None,crt_user=request.user)
@@ -529,8 +533,17 @@ model_dc[SalaryRecords]={'fields':SalaryFields}
 
 #model_page_dc['user']={'table':UserTablePage,'form':UserFormPage}
 
-model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
-model_page_dc['employee']={'table':EmployeeTablePage,'form':EmployeeFormPage}
-model_page_dc['salary']={'table':SalaryTablePage,'form':SalaryFormPage}
+# model_page_dc['basicinfo']={'table':BaseinfoTablePage,'form':BaseinfoFormPage}
+# model_page_dc['employee']={'table':EmployeeTablePage,'form':EmployeeFormPage}
+# model_page_dc['salary']={'table':SalaryTablePage,'form':SalaryFormPage}
 
+
+InsightEngine.add_pages({
+    'basicinfo':BaseinfoTablePage,
+    'basicinfo.edit':BaseinfoFormPage,
+    'employee':EmployeeTablePage,
+    'employee.edit':EmployeeFormPage,
+    'salary':SalaryTablePage,
+    'salary.edit':SalaryFormPage,
+})
 

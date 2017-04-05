@@ -124,3 +124,5 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 STATIC_URL = '/static/'
 MEDIA_ROOT= os.path.join( os.path.dirname(BASE_DIR),'media')
 MEDIA_URL = '/media/'
+
+DIR_ENGIN='hello.engin_proxy.InsightEngine'

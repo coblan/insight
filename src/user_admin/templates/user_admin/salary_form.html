@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "director/index.html" %}
 {% load static %}
 {% load jsonify %}
 
@@ -64,7 +64,7 @@
 							}
 							window.close()
 						}else if(search.next){
-							location=atob(search.next)
+							location=decodeURIComponent(search.next)
 						}else{
 							setTimeout(function () {
 								hide_upload()

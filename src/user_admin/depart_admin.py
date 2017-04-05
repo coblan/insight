@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from helpers.director.shortcut import ModelTable,TrivalPageNum,TablePage,model_page_dc,ModelFields,model_dc
 from .models import Department
+from hello.engin_proxy import InsightEngine
 
 class DepartmentFields(ModelFields):
     class Meta:
@@ -31,4 +32,7 @@ class DepartmentTablePage(TablePage):
 
 
 model_dc[Department]={'fields':DepartmentFields}
-model_page_dc['department']={'table':DepartmentTablePage}
+# model_page_dc['department']={'table':DepartmentTablePage}
+InsightEngine.add_pages({
+    'department':DepartmentTablePage
+})
