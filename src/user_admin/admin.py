@@ -38,7 +38,7 @@ admin.site.register(Month)
 
 site_option=importlib.import_module(settings.SITE_OPTION)
 
-InsightEngine=locate(settings.DIR_ENGIN)
+InsightEngine=locate(settings.DIR_ENGINE)
 
 class BaseSearch(RowSearch):
     names=['name']
@@ -468,7 +468,8 @@ class EmployeeTablePage(TablePage):
 class EmployeeFormPage(FormPage):
 
     template='user_admin/employee_ok.html'
-
+    fieldsCls=EmployeeFields
+    
     def __init__(self,request):
         self.request=request
         self.pk=request.GET.get('pk')
@@ -488,15 +489,11 @@ class EmployeeFormPage(FormPage):
             'emp_info':{'heads':empfld.get_heads(),'row':empfld.get_row(),'label':'工作信息'},
             'bas_info':{'heads':basfld.get_heads(),'row':basfld.get_row(),'label':'基本信息'}            
         }
+        self.ctx={
+            'person':self.pages
+        }
     
-    def get_context(self):
-        
-        #emp= self.pages #evaluse_container(self.pages)
-        ctx={'person':self.pages}
-        pop = self.request.GET.get('_pop')
-        if not pop:
-            ctx['menu']=evalue_container(render_dc.get('menu'),user=self.request.user)  
-        return ctx    
+
     
 #class UserTablePage(TablePage):
     #tableCls=UserTable

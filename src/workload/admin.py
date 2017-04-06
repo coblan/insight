@@ -110,8 +110,8 @@ model_dc[WorkModel]={'fields':WorkloadField}
 model_dc[TaskModel]={'fields':TaskField}
 
 # 该字典制定了配套的table页面和form页面，利用该字典，一般在table的第一个字段会生成指向form页面的链接。
-model_page_dc['workloads']={'table':WorkTablePage,'form':WorkFormPage}
-model_page_dc['task']={'table':TaskTablePage,'form':TaskFormPage}
+# model_page_dc['workloads']={'table':WorkTablePage,'form':WorkFormPage}
+# model_page_dc['task']={'table':TaskTablePage,'form':TaskFormPage}
 
 
 permit_list.append({'name':'workload','label':'人员负荷','fields':[

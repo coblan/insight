@@ -9,6 +9,10 @@
 
     var person ={{ person | jsonify }}
 
+    can_add={{ can_add | jsonify | default:'false' }}
+    can_log={{ can_log | jsonify | default:'false' }}
+    can_del={{ can_del | jsonify | default:'false' }}
+
     ex.each(person.bas_info.heads,function(head){
         if(head.name=='head'){
             head.config={
@@ -23,18 +27,17 @@
     ajax_url="{% url 'employee_ajax' %}"
 
 
-    ln.readCache()
-
-
     $(function () {
         new Vue({
             el:'#there',
             data:{
                 person:person,
                 menu:menu,
-                can_save:false,
-                can_delete:false,
-                can_log:false,
+
+                can_add:can_add,
+                can_del:can_del,
+                can_log:can_log,
+
                 crt_view:crt_view,
             },
             methods:{
@@ -79,89 +82,52 @@
                         location=atob(search.next)
                     }
                 },
-                del_row:function () {
-                    if(!confirm('真的删除吗?'))
-                        return
-                    var obj={
-                        pk:this.kw.row.pk,
-                        _class:this.kw.row._class
-                    }
-                    var obj_str=JSON.stringify([obj])
-                    var path = '{% url "del_rows" %}'
-                    location=ex.template('{path}?rows={rows}&next={next}',{path:path,
-                        rows:btoa(obj_str),
-                        next:btoa(location.pathname)})
-                },
-                jump_edit:function(name,pk){
-                    pk=pk || ''
-                    options=ex.findone(person.emp_info.heads,{name:'user'}).options
-
-                    var url=ex.template('{engine_url}/{name}.edit?pk={pk}',{
-                        engine_url:engine_url,
-                        name:name,
-                        pk:pk
-                    })
-                    ln.openWin(url,function(resp){
-                        if(resp.del_rows){
-                            ex.remove(options,function(option){
-                                return ex.isin(option,resp.del_rows,function(op,del_row){
-                                    return op.value==del_row.pk
-                                })
-                            })
-//                            ex.each(resp.del_rows,function(row){
-//                                var
+//                del_row:function () {
+//                    if(!confirm('真的删除吗?'))
+//                        return
+//                    var obj={
+//                        pk:this.kw.row.pk,
+//                        _class:this.kw.row._class
+//                    }
+//                    var obj_str=JSON.stringify([obj])
+//                    var path = '{% url "del_rows" %}'
+//                    location=ex.template('{path}?rows={rows}&next={next}',{path:path,
+//                        rows:btoa(obj_str),
+//                        next:btoa(location.pathname)})
+//                },
+//                jump_edit:function(name,pk){
+//                    pk=pk || ''
+//                    options=ex.findone(person.emp_info.heads,{name:'user'}).options
+//
+//                    var url=ex.template('{engine_url}/{name}.edit?pk={pk}',{
+//                        engine_url:engine_url,
+//                        name:name,
+//                        pk:pk
+//                    })
+//                    ln.openWin(url,function(resp){
+//                        if(resp.del_rows){
+//                            ex.remove(options,function(option){
+//                                return ex.isin(option,resp.del_rows,function(op,del_row){
+//                                    return op.value==del_row.pk
+//                                })
 //                            })
-//                            alert(resp.del_rows)
-                        }else if(resp.row){
-                            var row=resp.row
-                            var one = ex.findone(person.emp_info.heads,{name:'user'})
-                            if(pk){
-                                var option =ex.findone(one.options,{value:pk})
-                                option.label=row._label
-                            }else{
-                                one.options.push({label:row._label,value:row.pk})
-                                person.emp_info.row.user=row.pk
-                            }
-                        }
-
-                    })
-
-//                    var director = '{% url 'director' %}'
+//                        }else if(resp.row){
+//                            var row=resp.row
+//                            var one = ex.findone(person.emp_info.heads,{name:'user'})
+//                            if(pk){
+//                                var option =ex.findone(one.options,{value:pk})
+//                                option.label=row._label
+//                            }else{
+//                                one.options.push({label:row._label,value:row.pk})
+//                                person.emp_info.row.user=row.pk
+//                            }
+//                        }
+//                    })
 //
-//                    var cache_meta={
-//                        cache:['person.emp_info.row',
-//                                'person.bas_info.row',
-//                                'crt_view'],
-//                        rt_key:{'auth.user':'person.emp_info.row.user'}
-//                    }
-//
-//                    ln.cache(cache_meta)
-//                    var back_url=btoa(ex.appendSearch({cache:1}))
-//                    if(pk){
-//                        location=ex.template('{director}model/{name}/edit/{pk}?next={encode_url}',{director:director,name:name,pk:pk,encode_url:back_url})
-//                    }else{
-//                        location=ex.template('{director}model/{name}/edit?next={encode_url}',{director:director,name:name,encode_url:back_url})
-//                    }
-
-
-                }
+//                }
 
             },
-            mounted:function () {
-                var self=this
-                var row = this.person.emp_info.row
-                var ls = row._class.split('.')
-//                var app_label=ls[0]
-//                var model_name=ls[1]
-                var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
-                    {fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'},
-                    {fun:'model_perm',perm:'can_log',model:row._class,_rt_key:'can_log'}]
-                $.post('',JSON.stringify(post_data),function (data) {
-                    self.can_save=data.can_save
-                    self.can_delete=data.can_delete
-                    self.can_log=data.can_log
-                })
-            }
+
         })
     })
 </script>
@@ -177,8 +143,8 @@
 
     <div style='overflow: hidden;'>
         <div class="btn-group" style='float: right;'>
-            <button type="button" class="btn btn-default" @click='submit()' v-if='can_save'>Save</button>
-            <button type="button" class="btn btn-default" v-if='can_delete' @click='del_row()'>删除</button>
+            <button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>
+            <button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>
             <button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
         </div>
     </div>
@@ -197,11 +163,12 @@
             <field name='salary_level' :kw='person.emp_info'></field>
 
             <field name='user' :kw='person.emp_info'>
-                <div class="forign-key-panel">
-                    <button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])" title="{% trans 'edit' %}">
-                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                    <button @click="jump_edit('user')" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                </div>
+                <forign-edit :kw="person.emp_info" name="user" page_name="user" ></forign-edit>
+                <!--<div class="forign-key-panel">-->
+                    <!--<button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])" title="{% trans 'edit' %}">-->
+                        <!--<i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>-->
+                    <!--<button @click="jump_edit('user')" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>-->
+                <!--</div>-->
 
             </field>
         </div>
@@ -216,10 +183,65 @@
 
 </div>
 
-<style type="text/css">
-    .forign-key-panel{
-        padding: 6px;
-    }
-</style>
+<!--<style type="text/css">-->
+    <!--.forign-key-panel{-->
+        <!--padding: 6px;-->
+    <!--}-->
+<!--</style>-->
 
+<!--<script type="application/javascript">-->
+    <!--Vue.component('forign-edit',{-->
+        <!--template:'#forign-edit',-->
+        <!--props:['kw','name','page_name'],-->
+        <!--methods:{-->
+            <!--jump_edit:function(pk){-->
+                <!--var name = this.name-->
+                <!--var kw=this.kw-->
+                <!--var page_name=this.page_name || this.name-->
+                <!--var options=ex.findone(kw.heads,{name:name}).options-->
+                <!--var row=kw.row-->
+                <!--var pk= pk || ''-->
+
+                <!--var url=ex.template('{engine_url}/{page_name}.edit?pk={pk}',{-->
+                    <!--engine_url:engine_url,-->
+                    <!--page_name:page_name,-->
+                    <!--pk:pk-->
+                <!--})-->
+                <!--ln.openWin(url,function(resp){-->
+                    <!--if(resp.del_rows){-->
+                        <!--ex.remove(options,function(option){-->
+                            <!--return ex.isin(option,resp.del_rows,function(op,del_row){-->
+                                <!--return op.value==del_row.pk-->
+                            <!--})-->
+                        <!--})-->
+                    <!--}else if(resp.row){-->
+                        <!--if(pk){-->
+                            <!--var option =ex.findone(options,{value:pk})-->
+                            <!--option.label=resp.row._label-->
+                        <!--}else{-->
+                            <!--options.push({label:resp.row._label,value:resp.row.pk})-->
+                            <!--row[name]=resp.row.pk-->
+                        <!--}-->
+                    <!--}-->
+                <!--})-->
+            <!--},-->
+            <!--has_pk:function(){-->
+                <!--if(this.kw.row[this.name]){-->
+                    <!--return true-->
+                <!--}else{-->
+                    <!--return false-->
+                <!--}-->
+            <!--}-->
+        <!--}-->
+    <!--})-->
+<!--</script>-->
+
+<!--<template id="forign-edit">-->
+    <!--<div class="forign-key-panel">-->
+        <!--<button v-if="has_pk()" @click="jump_edit(kw.row[name])" title="{% trans 'edit' %}">-->
+            <!--<i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>-->
+        <!--<button @click="jump_edit()" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>-->
+    <!--</div>-->
+
+<!--</template>-->
 {% endblock %}

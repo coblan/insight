@@ -32,7 +32,7 @@ class InsightEngine(BaseEngine):
     
     ]    
 
-InsightEngine.add_pages({'user':UserTablePage,
-                         'user.edit':UserFormPage,
-                         'group':GroupTablePage,
-                         'group.edit':GroupFormPage})
+# InsightEngine.add_pages({'user':UserTablePage,
+                         # 'user.edit':UserFormPage,
+                         # 'group':GroupTablePage,
+                         # 'group.edit':GroupFormPage})
