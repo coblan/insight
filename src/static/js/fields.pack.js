@@ -1272,7 +1272,7 @@ window.fl = fl;
  =======
 
  date
-  ========
+ ========
  ::
 
     <date v-model='variable'></date>  // 选择默认set=date ,即选择日期
