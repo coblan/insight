@@ -40,14 +40,17 @@
 
                 crt_view:crt_view,
             },
+            mixins:[field_fun],
             methods:{
+                log_url:function(){
+                    return ex.template('{engine_url}/log?rows={_class}:{pk}&next={next}',{engine_url:engine_url,_class:person.emp_info.row._class,
+                        pk:person.emp_info.row.pk,next:encodeURIComponent(location.href)})
+                },
                 submit:function () {
                     var self =this;
                     show_upload()
                     var search =ex.parseSearch()
-//                    var post_data= ex.map(this.pages,function(page){
-//                        return {fun:'save',row:page.row,_rt_key:page.name}
-//                    })
+
                     var post_data=[{fun:'save_employee_info',emp_info:this.person.emp_info.row,bas_info:this.person.bas_info.row}]
 
                     ex.post(ajax_url,JSON.stringify(post_data),function (resp) {
@@ -60,9 +63,9 @@
                             self.person.bas_info.errors=resp.save_employee_info.bas_errors
                         }
 
-                        if(!resp.save_employee_info.emp_errors && resp.save_employee_info.bas_errors) {
+                        if(!resp.save_employee_info.emp_errors && !resp.save_employee_info.bas_errors) {
                             if (search.next) {
-                                location = atob(search.next)
+                                location = decodeURIComponent(search.next)
                             }
                         }
 //                            }else{
@@ -79,52 +82,14 @@
                 cancel:function () {
                     var search =ex.parseSearch() //parseSearch(location.search)
                     if(search.next){
-                        location=atob(search.next)
+                        location=decodeURIComponent(search.next)
                     }
                 },
-//                del_row:function () {
-//                    if(!confirm('真的删除吗?'))
-//                        return
-//                    var obj={
-//                        pk:this.kw.row.pk,
-//                        _class:this.kw.row._class
-//                    }
-//                    var obj_str=JSON.stringify([obj])
-//                    var path = '{% url "del_rows" %}'
-//                    location=ex.template('{path}?rows={rows}&next={next}',{path:path,
-//                        rows:btoa(obj_str),
-//                        next:btoa(location.pathname)})
-//                },
-//                jump_edit:function(name,pk){
-//                    pk=pk || ''
-//                    options=ex.findone(person.emp_info.heads,{name:'user'}).options
-//
-//                    var url=ex.template('{engine_url}/{name}.edit?pk={pk}',{
-//                        engine_url:engine_url,
-//                        name:name,
-//                        pk:pk
-//                    })
-//                    ln.openWin(url,function(resp){
-//                        if(resp.del_rows){
-//                            ex.remove(options,function(option){
-//                                return ex.isin(option,resp.del_rows,function(op,del_row){
-//                                    return op.value==del_row.pk
-//                                })
-//                            })
-//                        }else if(resp.row){
-//                            var row=resp.row
-//                            var one = ex.findone(person.emp_info.heads,{name:'user'})
-//                            if(pk){
-//                                var option =ex.findone(one.options,{value:pk})
-//                                option.label=row._label
-//                            }else{
-//                                one.options.push({label:row._label,value:row.pk})
-//                                person.emp_info.row.user=row.pk
-//                            }
-//                        }
-//                    })
-//
-//                }
+                exclude:function(array_,list){
+                    return ex.filter(array_,function(item){
+                        return !(ex.isin(item.name,list))
+                    })
+                }
 
             },
 
@@ -134,8 +99,8 @@
 
 <div id='there'>
 
-    <div style='float: right;padding: 5px 20px;'>
-        <a href="ss">History</a>
+    <div v-if="can_log" style='float: right;padding: 5px 20px;'>
+        <a :href="log_url()">History</a>
     </div>
     <path-nav :menu='menu'>
         <li><span>编辑</span></li>
@@ -164,11 +129,6 @@
 
             <field name='user' :kw='person.emp_info'>
                 <forign-edit :kw="person.emp_info" name="user" page_name="user" ></forign-edit>
-                <!--<div class="forign-key-panel">-->
-                    <!--<button v-if="person.emp_info.row.user" @click="jump_edit('user',person.emp_info.row['user'])" title="{% trans 'edit' %}">-->
-                        <!--<i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>-->
-                    <!--<button @click="jump_edit('user')" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>-->
-                <!--</div>-->
 
             </field>
         </div>
@@ -176,72 +136,14 @@
 
     <div v-show="crt_view=='bas_info'">
         <div class="field-panel">
-            <field name='name' :kw='person.bas_info'></field>
+
+            <!--<field name='name' :kw='person.bas_info'></field>-->
+            <field v-for="head in exclude(person.bas_info.heads,['head'])" :name='head.name' :kw='person.bas_info'></field>
         </div>
     </div>
 
 
 </div>
 
-<!--<style type="text/css">-->
-    <!--.forign-key-panel{-->
-        <!--padding: 6px;-->
-    <!--}-->
-<!--</style>-->
 
-<!--<script type="application/javascript">-->
-    <!--Vue.component('forign-edit',{-->
-        <!--template:'#forign-edit',-->
-        <!--props:['kw','name','page_name'],-->
-        <!--methods:{-->
-            <!--jump_edit:function(pk){-->
-                <!--var name = this.name-->
-                <!--var kw=this.kw-->
-                <!--var page_name=this.page_name || this.name-->
-                <!--var options=ex.findone(kw.heads,{name:name}).options-->
-                <!--var row=kw.row-->
-                <!--var pk= pk || ''-->
-
-                <!--var url=ex.template('{engine_url}/{page_name}.edit?pk={pk}',{-->
-                    <!--engine_url:engine_url,-->
-                    <!--page_name:page_name,-->
-                    <!--pk:pk-->
-                <!--})-->
-                <!--ln.openWin(url,function(resp){-->
-                    <!--if(resp.del_rows){-->
-                        <!--ex.remove(options,function(option){-->
-                            <!--return ex.isin(option,resp.del_rows,function(op,del_row){-->
-                                <!--return op.value==del_row.pk-->
-                            <!--})-->
-                        <!--})-->
-                    <!--}else if(resp.row){-->
-                        <!--if(pk){-->
-                            <!--var option =ex.findone(options,{value:pk})-->
-                            <!--option.label=resp.row._label-->
-                        <!--}else{-->
-                            <!--options.push({label:resp.row._label,value:resp.row.pk})-->
-                            <!--row[name]=resp.row.pk-->
-                        <!--}-->
-                    <!--}-->
-                <!--})-->
-            <!--},-->
-            <!--has_pk:function(){-->
-                <!--if(this.kw.row[this.name]){-->
-                    <!--return true-->
-                <!--}else{-->
-                    <!--return false-->
-                <!--}-->
-            <!--}-->
-        <!--}-->
-    <!--})-->
-<!--</script>-->
-
-<!--<template id="forign-edit">-->
-    <!--<div class="forign-key-panel">-->
-        <!--<button v-if="has_pk()" @click="jump_edit(kw.row[name])" title="{% trans 'edit' %}">-->
-            <!--<i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>-->
-        <!--<button @click="jump_edit()" title="{% trans 'new' %}"><i class="fa fa-plus" aria-hidden="true"></i></button>-->
-    <!--</div>-->
-
-<!--</template>-->
 {% endblock %}

@@ -74,62 +74,6 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
-// css base code, injected by the css-loader
-module.exports = function() {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		var result = [];
-		for(var i = 0; i < this.length; i++) {
-			var item = this[i];
-			if(item[2]) {
-				result.push("@media " + item[2] + "{" + item[1] + "}");
-			} else {
-				result.push(item[1]);
-			}
-		}
-		return result.join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
 var stylesInDom = {},
 	memoize = function(fn) {
 		var memo;
@@ -375,7 +319,89 @@ function updateLink(linkElement, obj) {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function() {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for(var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if(item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+
+/***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(11);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(0)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../node_modules/.0.26.1@css-loader/index.js!./../../node_modules/.6.0.0@sass-loader/lib/loader.js!./fields.scss", function() {
+			var newContent = require("!!./../../node_modules/.0.26.1@css-loader/index.js!./../../node_modules/.6.0.0@sass-loader/lib/loader.js!./fields.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -555,7 +581,7 @@ if (!window.__uploading_mark) {
 }
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -713,7 +739,7 @@ var edit_level = {
 };
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -817,7 +843,7 @@ img-uploador
 <<<<
 */
 
-__webpack_require__(11);
+__webpack_require__(9);
 
 var fl = {
     read: function read(file, callback) {
@@ -1178,86 +1204,10 @@ Vue.component('logo-input', {
     }
 });
 
-//  if(!window._logo_input_css){
-//      document.write(`
-//
-//<style type="text/css" media="screen" >
-
-/*.img-uploader input{*/
-/*display: none;*/
-/*}*/
-
-/*.up_wrap{*/
-/*position: relative;*/
-/*text-align: center;*/
-/*border: 2px dashed #ccc;*/
-/*background: #FDFDFD;*/
-/*width:300px;*/
-/*}*/
-
-/*.closeDiv{*/
-/*width: 100%;*/
-/*height: 100%;*/
-/*position: absolute;*/
-/*top: 0;*/
-/*left: 0;*/
-/*background-color: #ffffff;*/
-/*}*/
-/*.choose{*/
-/*display: inline-block;*/
-/*text-decoration: none;*/
-/*padding: 5px;*/
-/*border: 1px solid #0092F2;*/
-/*border-radius: 4px;*/
-/*font-size: 14px;*/
-/*color: #0092F2;*/
-/*cursor: pointer;*/
-/*}*/
-/*.choose:hover,.choose:active{*/
-/*text-decoration: none;*/
-/*color: #0092F2;*/
-/*}*/
-/*.close{*/
-/*position: absolute;*/
-/*top: 5px;*/
-/*right: 10px;*/
-/*cursor: pointer;*/
-/*font-size: 14px;*/
-/*color: #242424;*/
-/*}*/
-/*.logoImg{*/
-/*max-height: 100px !important;*/
-/*vertical-align: middle;*/
-/*margin-top: 5px;*/
-/*}*/
-/*.req_star{*/
-/*color: red;*/
-/*font-size: 200%;*/
-/*}*/
-
-/*.total-wrap{*/
-/*padding: 30px;*/
-/*}*/
-
-/*.crop-wrap{*/
-/*max-width: 100%;*/
-/*max-height: 90%;*/
-/*overflow: hidden;*/
-/*}*/
-/*.crop-img{*/
-/*max-width:100%;*/
-/*max-height: 100%;*/
-/*}*/
-//</style>
-//
-//      `)
-//  }
-
-
 window.fl = fl;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1266,27 +1216,37 @@ window.fl = fl;
 /**
  * Created by heyulin on 2017/1/24.
  *
- >->front/input.rst>
- =======
- inputs
- =======
+>->front/input.rst>
+=======
+inputs
+=======
 
- date
- ========
- ::
+date
+========
+::
 
-    <date v-model='variable'></date>  // 选择默认set=date ,即选择日期
+<date v-model='variable'></date>  // 选择默认set=date ,即选择日期
 
-    <date v-model='variable' set='month'></date> // 选择 set=month ,即选择月份
+<date v-model='variable' set='month'></date> // 选择 set=month ,即选择月份
 
-    <date v-model='variable' set='month' :config='{}'></date>  //  config 是自定义的配置对象，具体需要参加帮助文件
+<date v-model='variable' set='month' :config='{}'></date>  //  config 是自定义的配置对象，具体需要参加帮助文件
 
- datetime
- ===========
- ::
+datetime
+===========
+::
 
-    <datetime v-model='variable' :config='{}'></datetime> // 选择日期和时间
- <-<
+<datetime v-model='variable' :config='{}'></datetime> // 选择日期和时间
+
+color
+======
+
+forign-edit
+============
+示例::
+
+    <forign-edit :kw="person.emp_info" name="user" page_name="user" ></forign-edit>
+
+<-<
  */
 
 var date_config_set = {
@@ -1486,7 +1446,7 @@ ex.append_css("\n<style type=\"text/css\">\n    .forign-key-panel{\n        padd
 Vue.component('forign-edit', forignEdit);
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1620,7 +1580,7 @@ var ln = {
 window.ln = ln;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1730,7 +1690,7 @@ Vue.component('tow-col-sel', {
 });
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -1739,14 +1699,14 @@ Vue.component('tow-col-sel', {
 var content = __webpack_require__(10);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
+var update = __webpack_require__(0)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/lib/loader.js!./fields.scss", function() {
-			var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/lib/loader.js!./fields.scss");
+		module.hot.accept("!!./../../../node_modules/.0.26.1@css-loader/index.js!./../../../node_modules/.6.0.0@sass-loader/lib/loader.js!./file.scss", function() {
+			var newContent = require("!!./../../../node_modules/.0.26.1@css-loader/index.js!./../../../node_modules/.6.0.0@sass-loader/lib/loader.js!./file.scss");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -1756,29 +1716,15 @@ if(false) {
 }
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)();
-// imports
-
-
-// module
-exports.push([module.i, ".img-uploader input {\n  display: none; }\n\n.up_wrap {\n  position: relative;\n  text-align: center;\n  border: 2px dashed #ccc;\n  background: #FDFDFD;\n  width: 300px; }\n\n.closeDiv {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: #ffffff; }\n\n.choose {\n  display: inline-block;\n  text-decoration: none;\n  padding: 5px;\n  border: 1px solid #0092F2;\n  border-radius: 4px;\n  font-size: 14px;\n  color: #0092F2;\n  cursor: pointer; }\n\n.choose:hover, .choose:active {\n  text-decoration: none;\n  color: #0092F2; }\n\n.close {\n  position: absolute;\n  top: 5px;\n  right: 10px;\n  cursor: pointer;\n  font-size: 14px;\n  color: #242424; }\n\n.logoImg {\n  max-height: 100px !important;\n  vertical-align: middle;\n  margin-top: 5px; }\n\n.req_star {\n  color: red;\n  font-size: 200%; }\n\n.img-crop .total-wrap {\n  padding: 30px; }\n\n.img-crop .crop-wrap {\n  max-width: 100%;\n  max-height: 90%;\n  overflow: hidden; }\n\n.img-crop .crop-img {\n  max-width: 100%;\n  max-height: 100%; }\n", ""]);
-
-// exports
-
-
-/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)();
+exports = module.exports = __webpack_require__(1)();
 // imports
 
 
 // module
-exports.push([module.i, ".error {\n  color: red; }\n\n.field-panel {\n  background-color: #F5F5F5;\n  margin: 20px;\n  padding: 20px 30px;\n  position: relative;\n  border: 1px solid #D9D9D9;\n  overflow: auto; }\n  .field-panel:after {\n    content: '';\n    display: block;\n    position: absolute;\n    top: 0px;\n    left: 0px;\n    bottom: 0px;\n    width: 180px;\n    border-radius: 6px;\n    background-color: #fff;\n    z-index: 0; }\n  .field-panel .form-group.field {\n    display: flex;\n    align-items: flex-start; }\n    .field-panel .form-group.field .field_input {\n      flex-grow: 0;\n      padding: 5px 20px; }\n      .field-panel .form-group.field .field_input .ckeditor {\n        padding: 20px; }\n    .field-panel .form-group.field:first-child .control-label {\n      border-top: 5px solid #FFF; }\n    .field-panel .form-group.field .control-label {\n      width: 150px;\n      text-align: right;\n      padding: 5px 30px;\n      z-index: 100;\n      flex-shrink: 0;\n      border-top: 1px solid #EEE; }\n  .field-panel .form-group.field .field_input ._tow-col-sel {\n    /*width:750px;*/ }\n  .field-panel .field.error .error {\n    display: inline-block;\n    vertical-align: top;\n    padding-top: 8px; }\n\n._tow-col-sel select {\n  min-height: 7em; }\n\nimg.img-uploador {\n  max-width: 100px;\n  max-height: 100px; }\n", ""]);
+exports.push([module.i, ".img-uploader input {\n  display: none; }\n\n.up_wrap {\n  position: relative;\n  text-align: center;\n  border: 2px dashed #ccc;\n  background: #FDFDFD;\n  width: 300px; }\n\n.closeDiv {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: #ffffff; }\n\n.choose {\n  display: inline-block;\n  text-decoration: none;\n  padding: 5px;\n  border: 1px solid #0092F2;\n  border-radius: 4px;\n  font-size: 14px;\n  color: #0092F2;\n  cursor: pointer; }\n\n.choose:hover, .choose:active {\n  text-decoration: none;\n  color: #0092F2; }\n\n.close {\n  position: absolute;\n  top: 5px;\n  right: 10px;\n  cursor: pointer;\n  font-size: 14px;\n  color: #242424; }\n\n.logoImg {\n  max-height: 100px !important;\n  vertical-align: middle;\n  margin-top: 5px; }\n\n.img-crop .total-wrap {\n  padding: 30px; }\n\n.img-crop .crop-wrap {\n  max-width: 100%;\n  max-height: 90%;\n  overflow: hidden; }\n\n.img-crop .crop-img {\n  max-width: 100%;\n  max-height: 100%; }\n", ""]);
 
 // exports
 
@@ -1787,27 +1733,15 @@ exports.push([module.i, ".error {\n  color: red; }\n\n.field-panel {\n  backgrou
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// style-loader: Adds some css to the DOM by adding a <style> tag
+exports = module.exports = __webpack_require__(1)();
+// imports
 
-// load the styles
-var content = __webpack_require__(9);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(1)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/sass-loader/lib/loader.js!./file.scss", function() {
-			var newContent = require("!!./../../../node_modules/css-loader/index.js!./../../../node_modules/sass-loader/lib/loader.js!./file.scss");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
+
+// module
+exports.push([module.i, ".error {\n  color: red; }\n\n.field-panel {\n  background-color: #F5F5F5;\n  margin: 20px;\n  padding: 20px 30px;\n  position: relative;\n  border: 1px solid #D9D9D9;\n  overflow: auto; }\n  .field-panel:after {\n    content: '';\n    display: block;\n    position: absolute;\n    top: 0px;\n    left: 0px;\n    bottom: 0px;\n    width: 180px;\n    border-radius: 6px;\n    background-color: #fff;\n    z-index: 0; }\n  .field-panel .form-group.field {\n    display: flex;\n    align-items: flex-start; }\n    .field-panel .form-group.field .field_input {\n      flex-grow: 0;\n      padding: 5px 20px; }\n      .field-panel .form-group.field .field_input .ckeditor {\n        padding: 20px; }\n    .field-panel .form-group.field:first-child .control-label {\n      border-top: 5px solid #FFF; }\n    .field-panel .form-group.field .control-label {\n      width: 150px;\n      text-align: right;\n      padding: 5px 30px;\n      z-index: 100;\n      flex-shrink: 0;\n      border-top: 1px solid #EEE; }\n  .field-panel .form-group.field .field_input ._tow-col-sel {\n    /*width:750px;*/ }\n  .field-panel .form-group.field .help_text {\n    padding: 10px;\n    color: #999;\n    font-style: italic;\n    font-size: 0.9em; }\n  .field-panel .field.error .error {\n    display: inline-block;\n    vertical-align: top;\n    padding-top: 8px; }\n\n._tow-col-sel select {\n  min-height: 7em; }\n\nimg.img-uploador {\n  max-width: 100px;\n  max-height: 100px; }\n\n.req_star {\n  color: red; }\n", ""]);
+
+// exports
+
 
 /***/ }),
 /* 12 */
@@ -1821,25 +1755,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.merge = merge;
 
-var _ajax_fun = __webpack_require__(2);
+var _ajax_fun = __webpack_require__(3);
 
-var _file = __webpack_require__(4);
+var _file = __webpack_require__(5);
 
 var f = _interopRequireWildcard(_file);
 
-var _ckeditor = __webpack_require__(3);
+var _ckeditor = __webpack_require__(4);
 
 var ck = _interopRequireWildcard(_ckeditor);
 
-var _multi_sel = __webpack_require__(7);
+var _multi_sel = __webpack_require__(8);
 
 var multi = _interopRequireWildcard(_multi_sel);
 
-var _inputs = __webpack_require__(5);
+var _inputs = __webpack_require__(6);
 
 var inputs = _interopRequireWildcard(_inputs);
 
-var _link = __webpack_require__(6);
+var _link = __webpack_require__(7);
 
 var ln = _interopRequireWildcard(_link);
 
@@ -1850,13 +1784,19 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 /*
 >->front/fields.rst>
-基本内容
-==============
+=========
+fields
+=========
+
+fields模块的目标是利用vuejs快速生成form表单。
+
+主要结构
+===========
 1. field_base
-    基类，几乎有所逻辑都在里面。如果需要特殊的field，可以继承field_base，然后修改template
+    基类，包括操作逻辑，专用input组件。如果需要修改整个field的外观，可以继承field_base，然后自定义wrap template
 
 2. field
-    Vue组件，在field_base外面套上了一层外观，例如label，error等。
+    wrap功能，在field_base外面套上了一层外观template，例如label，error,help_text等的显示。
 
 参数结构
 ==============
@@ -1890,7 +1830,7 @@ $.post('',JSON.stringify(post_data),function (data) {
 
 //import {use_color} from '../dosome/color.js'
 //import {load_js,load_css} from '../dosome/pkg.js'
-__webpack_require__(8);
+__webpack_require__(2);
 
 (0, _ajax_fun.hook_ajax_msg)();
 (0, _ajax_fun.hook_ajax_csrf)();
@@ -2084,7 +2024,7 @@ var field_base = {
 
 var field = {
 	mixins: [field_base],
-	template: '\n\t\t<div for=\'field\' class="form-group field" :class=\'{"error":error_data(name)}\' v-if="head">\n\t\t<label :for="\'id_\'+name" v-text="head.label" class="control-label" v-if=\'!head.no_auto_label\'>\n\t\t\t<span class="req_star" v-if=\'head.required\'> *</span>\n\t\t</label>\n\t\t<div class="field_input">\n\t\t\t<component :is=\'head.type\'\n\t\t\t\t:row=\'row\'\n\t\t\t\t:name=\'name\'\n\t\t\t\t:kw=\'head\'>\n\t\t\t</component>\n\t\t</div>\n\t\t<slot> </slot>\n\t\t<div v-for=\'error in error_data(name)\' v-text=\'error\' class=\'error\'></div>\n\t\t</div>\n\t'
+	template: '\n\t\t<div for=\'field\' class="form-group field" :class=\'{"error":error_data(name)}\' v-if="head">\n\t\t<label :for="\'id_\'+name"  class="control-label" v-if=\'!head.no_auto_label\'>\n\t\t\t<span v-text="head.label"></span><span class="req_star" v-if=\'head.required\'>*</span>\n\t\t</label>\n\n\t\t<div class="field_input">\n\t\t\t<component :is=\'head.type\'\n\t\t\t\t:row=\'row\'\n\t\t\t\t:name=\'name\'\n\t\t\t\t:kw=\'head\'>\n\t\t\t</component>\n\t\t</div>\n\t\t<div class="help_text"><span v-text="head.help_text"></span></div>\n\t\t<slot> </slot>\n\t\t<div v-for=\'error in error_data(name)\' v-text=\'error\' class=\'error\'></div>\n\t\t</div>\n\t'
 
 };
 
@@ -2119,9 +2059,6 @@ var field_fun = {
 			var search = ex.parseSearch(); //parseSearch(location.search)
 			var post_data = [{ fun: 'save', row: this.kw.row }];
 			ex.post('', JSON.stringify(post_data), function (resp) {
-				//if(resp.save.pk && resp.save._class){
-				//	sessionStorage.setItem(resp.save._class,resp.save.pk)
-				//}
 				if (resp.save.errors) {
 					self.kw.errors = resp.save.errors;
 					(0, _ajax_fun.hide_upload)();
@@ -2139,10 +2076,8 @@ var field_fun = {
 			var search = ex.parseSearch(); //parseSearch(location.search)
 			if (search._pop) {
 				window.close();
-			} else if (search.next) {
-				location = decodeURIComponent(search.next);
 			} else {
-				location = '/';
+				history.back();
 			}
 		},
 		del_row: function del_row(path) {
@@ -2154,6 +2089,15 @@ var field_fun = {
 				pop: search_args._pop
 
 			});
+		},
+		log_url: function log_url() {
+			var obj = {
+				pk: this.kw.row.pk,
+				_class: this.kw.row._class,
+				engine_url: engine_url,
+				page_name: page_name
+			};
+			return ex.template('{engine_url}/log?rows={_class}:{pk}', obj);
 		}
 	}
 };

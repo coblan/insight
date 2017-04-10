@@ -10,6 +10,11 @@
 	row = {{ row | jsonify }}
 
 	errors={}
+
+	can_add={{ can_add | jsonify | default:'false' }}
+	can_log={{ can_log | jsonify | default:'false' }}
+	can_del={{ can_del | jsonify | default:'false' }}
+
 //	ex.each(heads,function(head){
 //		if(head.name=='base_salary'){
 //			head.readonly=true
@@ -25,10 +30,11 @@
 			   		errors:errors,
 				},
 				menu:menu,
-				can_save:false,
-				can_delete:false,
-				can_log:false,
+				can_add:can_add,
+				can_del:can_del,
+				can_log:can_log,
 			},
+			mixins:[field_fun],
 			watch:{
 				'kw.row.empoyee':function(n,o){
 					if(!n){
@@ -45,76 +51,76 @@
 				}
 			},
 			methods:{
-				submit:function () {
-					var self =this;
-					show_upload()
-					var search =parseSearch(location.search)
-					var post_data=[{fun:'save',row:this.kw.row}]
-					$.post('',JSON.stringify(post_data),function (data) {
-						if(data.msg){
-							hide_upload()
-							return
-						}
-						if(data.save && data.save.errors){
-							self.kw.errors = data.save.errors
-							hide_upload()
-						}else if(search._pop==1){
-							if(window.opener.on_subwin_close){
-								window.opener.on_subwin_close({pk:data.save.pk,_class:data.save._class})
-							}
-							window.close()
-						}else if(search.next){
-							location=decodeURIComponent(search.next)
-						}else{
-							setTimeout(function () {
-								hide_upload()
-							}, 2000);
-						}
-						
-					})
-				},
-				cancel:function () {
-					var search =parseSearch(location.search)
-					if(search.next){
-						location=atob(search.next)
-					}
-				},
-				del_row:function () {
-					if(!confirm('真的删除吗?'))
-						return
-					var obj={
-						pk:this.kw.row.pk,
-						_class:this.kw.row._class
-					}
-					var obj_str=JSON.stringify([obj])
-					var path = '{% url "del_rows" %}'
-					location=ex.template('{path}?rows={rows}&next={next}',{path:path,
-																rows:btoa(obj_str),
-																next:btoa(location.pathname)})
-				}
+//				submit:function () {
+//					var self =this;
+//					show_upload()
+//					var search =parseSearch(location.search)
+//					var post_data=[{fun:'save',row:this.kw.row}]
+//					$.post('',JSON.stringify(post_data),function (data) {
+//						if(data.msg){
+//							hide_upload()
+//							return
+//						}
+//						if(data.save && data.save.errors){
+//							self.kw.errors = data.save.errors
+//							hide_upload()
+//						}else if(search._pop==1){
+//							if(window.opener.on_subwin_close){
+//								window.opener.on_subwin_close({pk:data.save.pk,_class:data.save._class})
+//							}
+//							window.close()
+//						}else if(search.next){
+//							location=decodeURIComponent(search.next)
+//						}else{
+//							setTimeout(function () {
+//								hide_upload()
+//							}, 2000);
+//						}
+//
+//					})
+//				},
+//				cancel:function () {
+//					var search =parseSearch(location.search)
+//					if(search.next){
+//						location=atob(search.next)
+//					}
+//				},
+//				del_row:function () {
+//					if(!confirm('真的删除吗?'))
+//						return
+//					var obj={
+//						pk:this.kw.row.pk,
+//						_class:this.kw.row._class
+//					}
+//					var obj_str=JSON.stringify([obj])
+//					var path = '{% url "del_rows" %}'
+//					location=ex.template('{path}?rows={rows}&next={next}',{path:path,
+//																rows:btoa(obj_str),
+//																next:btoa(location.pathname)})
+//				}
 			},
-			mounted:function () {
-				var self=this
-				var ls = row._class.split('.')
-				var app_label=ls[0]
-				var model_name=ls[1]
-				var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
-								{fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'},
-								{fun:'model_perm',perm:'can_log',model:row._class,_rt_key:'can_log'}]
-				$.post('',JSON.stringify(post_data),function (data) {
-					self.can_save=data.can_save
-					self.can_delete=data.can_delete
-					self.can_log=data.can_log
-				})
-			}
+//			mounted:function () {
+//				var self=this
+//				var ls = row._class.split('.')
+//				var app_label=ls[0]
+//				var model_name=ls[1]
+//				var post_data=[{fun:'model_perm',perm:'can_add',model:row._class,_rt_key:'can_save'},
+//								{fun:'model_perm',perm:'can_del',model:row._class,_rt_key:'can_delete'},
+//								{fun:'model_perm',perm:'can_log',model:row._class,_rt_key:'can_log'}]
+//				$.post('',JSON.stringify(post_data),function (data) {
+//					self.can_save=data.can_save
+//					self.can_delete=data.can_delete
+//					self.can_log=data.can_log
+//				})
+//			}
 		})
 	})
 </script>
 
 <div id='there'>
 
-	<div style='float: right;padding: 5px 20px;'>
-		<a href="ss">History</a>
+	<div v-if="can_log" style='float: right;padding: 5px 20px;'>
+		<a :href="log_url()">History</a>
 	</div>
 	<path-nav :menu='menu'>
 		<li><span>编辑</span></li>
@@ -122,8 +128,8 @@
 	
 	<div style='overflow: hidden;'>
 		<div class="btn-group" style='float: right;'>
-			<button type="button" class="btn btn-default" @click='submit()' v-if='can_save'>Save</button>
-			<button type="button" class="btn btn-default" v-if='can_delete' @click='del_row()'>删除</button>
+			<button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>
+			<button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>
 			<button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
 		</div>
 	</div>

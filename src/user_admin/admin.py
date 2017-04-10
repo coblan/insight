@@ -8,7 +8,7 @@ from django.apps import apps
 from helpers.director.db_tools import to_dict,model_to_name,model_to_head,sim_dict
 from helpers.director.model_admin.fields import ModelFields
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort,PageNum
-from helpers.director.model_admin.render import model_page_dc,model_dc,render_dc
+from helpers.director.model_admin.render import page_dc,model_dc,render_dc
 from helpers.director.model_admin.permit import permit_list,ModelPermit
 # from helpers.director.model_admin.render import TablePage,FormPage
 from helpers.director.shortcut import TablePage,FormPage
@@ -96,7 +96,8 @@ class BasicInfoFields(ModelFields):
     
     class Meta:
         model=BasicInfo
-        fields=['name','age','head'] 
+        #fields=['name','age','head'] 
+        exclude=[]
     
     #def get_fields(self):
         #return ['name','age']

@@ -72,13 +72,7 @@
                 methods:{
 
                 map:function (name,row) {
-//                    if(name==heads[0].name){
-//                        return ex.template('<a href="edit/{pk}?next={next}">{value}</a>',
-//                                {	pk:row.pk,
-//                                    next:btoa(location.pathname+location.search),
-//                                    value:row[name]
-//                                })
-//                    }
+
                     if(name=='head'){
                         return ex.template('<img src="{src}" style="max-height:40px" />',{src:row['head']})
                     }else{
@@ -98,16 +92,7 @@
                 },
 
             },
-//            mounted:function () {
-//            var self=this;
-//            var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
-//                {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
-//                $.post('',JSON.stringify(post_data),function (data) {
-//                    self.can_add=data.can_add
-//                    self.can_del=data.can_del
-//                })
-//
-//        }
+
     })
     })
 </script>
@@ -116,18 +101,6 @@
     <div class='btn-panel flex'>
 
         <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='placeholder' @submit="search()"></com-filter>
-
-        <!--<form class='button-group flex-grow' autocomplete="on" v-if='placeholder || row_filters.length>0'>-->
-            <!--<input v-if='placeholder' type="text" name="_q" v-model='search_args._q' :placeholder='placeholder' class='form-control'/>-->
-            <!--<select name="" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>-->
-                <!--<option :value="null" v-text='filter.label'></option>-->
-                <!--<option value="" >&#45;&#45;&#45;&#45;</option>-->
-                <!--<option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>-->
-            <!--</select>-->
-
-            <!--<button name="go" type="button" class="btn btn-info" @click='search()'>提交</button>-->
-
-        <!--</form>-->
 
 
         <button @click="switch_view('table')" :class="{'selected':crt_view=='table'}"><i class="fa fa-table" aria-hidden="true"></i></button>
@@ -140,33 +113,8 @@
 
     </div>
 
+    <com-table v-show="crt_view=='table'" class='table fake-suit' :has_check="!search_args._pop" :map="map" :row_sort="row_sort" :heads="heads" :rows="rows" v-model="selected"></com-table>
 
-
-    <table class='table' v-show="crt_view=='table'">
-        <thead>
-        <tr >
-            <td style='width:50px' v-if='selected'>
-                <input type="checkbox" name="test" value=""/>
-            </td>
-            <td v-for='head in heads' :class='["td_"+head.name,{"selected":is_sorted(row_sort.sort_str ,head.name )}]'>
-					<span v-if='ex.isin(head.name,row_sort.sortable)' v-text='head.label' class='clickable'
-                          @click='row_sort.sort_str = toggle( row_sort.sort_str,head.name)'></span>
-                <span v-else v-text='head.label'></span>
-                <sort-mark class='sort-mark' v-model='row_sort.sort_str' :name='head.name'></sort-mark>
-            </td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for='row in rows'>
-            <td v-if='selected'>
-                <input type="checkbox" name="test" :value="row.pk" v-model='selected'/>
-            </td>
-            <td v-for='head in heads' :class='"td_"+head.name'>
-                <div v-html='map(head.name,row)'></div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
 
     <div class="grid" v-show="crt_view=='grid'">
         <div class="item" v-for="row in rows" @click="goto_edit(row) ">
@@ -199,23 +147,23 @@
         width:auto;
         /*height:30px;*/
     }
-    .sort-mark{
-        float: right;
-    }
-    .selected{
-        background-color: #DDD;
-    }
+    /*.sort-mark{*/
+        /*float: right;*/
+    /*}*/
+    /*.selected{*/
+        /*background-color: #DDD;*/
+    /*}*/
     .clickable{
         cursor: pointer;
         font-size:120%;
         color: #0099CC;
     }
-    .table tbody tr:nth-child(2n+1){
-        background-color: #F5F5F5;
-    }
-    .table tbody tr:nth-child(2n){
-        background-color: #F1F1F1;
-    }
+    /*.table tbody tr:nth-child(2n+1){*/
+        /*background-color: #F5F5F5;*/
+    /*}*/
+    /*.table tbody tr:nth-child(2n){*/
+        /*background-color: #F1F1F1;*/
+    /*}*/
 
     .grid .item{
         display: inline-block;

@@ -1,6 +1,6 @@
 #encoding:utf-8
 from __future__ import unicode_literals
-from helpers.director.shortcut import ModelTable,TrivalPageNum,TablePage,model_page_dc,ModelFields,model_dc
+from helpers.director.shortcut import ModelTable,TrivalPageNum,TablePage,page_dc,ModelFields,model_dc
 from .models import Department
 from hello.engin_proxy import InsightEngine
 

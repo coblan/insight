@@ -8,6 +8,7 @@ from workload.models import WorkModel,TaskModel
 from helpers.director.engine import BaseEngine,can_list,can_touch,fa,page
 from helpers.pageadaptor.models import WebPage
 from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,GroupTablePage
+from helpers.director.shortcut import page_dc
 
 class InsightEngine(BaseEngine):
     menu=[
@@ -31,6 +32,8 @@ class InsightEngine(BaseEngine):
         {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
     
     ]    
+
+InsightEngine.add_pages(page_dc)
 
 # InsightEngine.add_pages({'user':UserTablePage,
                          # 'user.edit':UserFormPage,

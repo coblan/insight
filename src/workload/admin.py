@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db.models import Q
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
-from helpers.director.model_admin.render import model_page_dc,model_dc
+from helpers.director.model_admin.render import page_dc,model_dc
 
 
 from helpers.director.shortcut import TablePage,FormPage
