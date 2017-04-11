@@ -9,9 +9,9 @@
 
     var person ={{ person | jsonify }}
 
-    can_add={{ can_add | jsonify | default:'false' }}
-    can_log={{ can_log | jsonify | default:'false' }}
-    can_del={{ can_del | jsonify | default:'false' }}
+//    can_add={{ can_add | jsonify | default:'false' }}
+//    can_log={{ can_log | jsonify | default:'false' }}
+//    can_del={{ can_del | jsonify | default:'false' }}
 
     ex.each(person.bas_info.heads,function(head){
         if(head.name=='head'){
@@ -32,11 +32,11 @@
             el:'#there',
             data:{
                 person:person,
-                menu:menu,
+//                menu:menu,
 
-                can_add:can_add,
-                can_del:can_del,
-                can_log:can_log,
+//                can_add:can_add,
+//                can_del:can_del,
+//                can_log:can_log,
 
                 crt_view:crt_view,
             },
@@ -79,12 +79,12 @@
 
                     })
                 },
-                cancel:function () {
-                    var search =ex.parseSearch() //parseSearch(location.search)
-                    if(search.next){
-                        location=decodeURIComponent(search.next)
-                    }
-                },
+//                cancel:function () {
+//                    var search =ex.parseSearch() //parseSearch(location.search)
+//                    if(search.next){
+//                        location=decodeURIComponent(search.next)
+//                    }
+//                },
                 exclude:function(array_,list){
                     return ex.filter(array_,function(item){
                         return !(ex.isin(item.name,list))
@@ -106,13 +106,14 @@
         <li><span>编辑</span></li>
     </path-nav>
 
-    <div style='overflow: hidden;'>
-        <div class="btn-group" style='float: right;'>
-            <button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>
-            <button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>
-            <button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
-        </div>
-    </div>
+    <com-form-btn :submit="submit" :del_row="del_row" :cancel="cancel"></com-form-btn>
+    <!--<div style='overflow: hidden;'>-->
+        <!--<div class="btn-group" style='float: right;'>-->
+            <!--<button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>-->
+            <!--<button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>-->
+            <!--<button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>-->
+        <!--</div>-->
+    <!--</div>-->
 
     <ul class='inst-menu'>
         <li v-text="person.emp_info.label" @click="crt_view='emp_info'" :class="{'active':crt_view=='emp_info'}"></li>

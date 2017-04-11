@@ -6,10 +6,9 @@
 
 <script type="text/javascript">
 
-    heads={{ heads | jsonify }}
-    row = {{ row | jsonify }}
+    heads={{ heads | jsonify | default:'[]' }}
+    row = {{ row | jsonify | default:'[]' }}
 
-    errors={}
 
     can_add={{ can_add | jsonify | default:'false' }}
     can_log={{ can_log | jsonify | default:'false' }}
@@ -22,7 +21,7 @@
                 kw:{
                     heads:heads,
                     row:row,
-                    errors:errors,
+                    errors:{},
                 },
                 menu:menu,
 
@@ -34,7 +33,6 @@
             methods:{
                 choose_parent:function(){
                     var  self=this
-//                    var director = '{% url 'director' %}'
                     ln.openWin(ex.template('{engine_url}/task/',{engine_url:engine_url}),function(resp){
                         self.kw.row.parent=resp.pk
 //                        alert(resp)

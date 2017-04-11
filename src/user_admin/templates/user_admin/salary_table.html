@@ -7,34 +7,35 @@
 <script src='{% static "js/table.pack.js" %}'></script>
 <script type="text/javascript">
 
-    row_filters={{row_filters | jsonify }}
-    search_tip = '{{search_tip |default:""}}'
-    row_sort={{row_sort | jsonify | default:'[]' }}
-    heads={{ heads | jsonify | default:'[]'}}
-    rows={{ rows | jsonify | default:'[]'}}
-    row_pages = {{ row_pages | jsonify}}
-    model ="{{ model }}"
-    search_args=ex.parseSearch()
-    search_args._start_month=search_args._start_month||''
-    search_args._end_month=search_args._end_month||''
+//    row_filters={{row_filters | jsonify }}
+//    search_tip = '{{search_tip |default:""}}'
+//    row_sort={{row_sort | jsonify | default:'[]' }}
+//    heads={{ heads | jsonify | default:'[]'}}
+//    rows={{ rows | jsonify | default:'[]'}}
+//    row_pages = {{ row_pages | jsonify}}
+//    model ="{{ model }}"
+//    search_args=ex.parseSearch()
+
+//    search_args._start_month=search_args._start_month||''
+//    search_args._end_month=search_args._end_month||''
     //	search字段从 search_args._q 来取值
     $(function () {
         table=new Vue({
             el:'#there',
             data:{
-                heads:heads,
-                rows:rows,
-                row_filters:row_filters,
-                row_sort:row_sort,
-                row_pages:row_pages,
-                search_tip:search_tip,
-                selected:[],
-                del_info:[],
-                menu:menu,
-                can_add:false,
-                can_del:false,
-                model:model,
-                search_args:search_args,
+//                heads:heads,
+//                rows:rows,
+//                row_filters:row_filters,
+//                row_sort:row_sort,
+//                row_pages:row_pages,
+//                search_tip:search_tip,
+//                selected:[],
+//                del_info:[],
+//                menu:menu,
+//                can_add:false,
+//                can_del:false,
+//                model:model,
+//                search_args:search_args,
                 ex:ex,
                 show_month_choice:false,
                 choice_month:'',
@@ -111,16 +112,16 @@
 //                        search: encodeURI(ex.searchfy(this.search_args,'?')) })
 //                },
             },
-            mounted:function () {
-                var self=this;
-                var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
-                    {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
-                $.post('',JSON.stringify(post_data),function (data) {
-                    self.can_add=data.can_add
-                    self.can_del=data.can_del
-                })
-
-            }
+//            mounted:function () {
+//                var self=this;
+//                var post_data=[{fun:'model_perm',perm:'can_add',model:model,_rt_key:'can_add'},
+//                    {fun:'model_perm',perm:'can_del',model:model,_rt_key:'can_del'}]
+//                $.post('',JSON.stringify(post_data),function (data) {
+//                    self.can_add=data.can_add
+//                    self.can_del=data.can_del
+//                })
+//
+//            }
 
         })
     })
@@ -130,25 +131,9 @@
     <path-nav :menu='menu' v-if="!search_args._pop"></path-nav>
     <div class='btn-panel flex'>
 
-        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='search_tip' @submit="search()"></com-filter>
+        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args"
+                    :search_tip='search_tip' @submit="search()"></com-filter>
 
-        <!--<form class='button-group flex-grow flex' autocomplete="on" v-if='search_tip || row_filters.length>0'>-->
-            <!--<input v-if='search_tip' type="text" name="_q" v-model='search_args._q' :search_tip='search_tip' class='form-control'/>-->
-            <!--<select v-if="filter.options" id="" v-for='filter in row_filters' v-model='search_args[filter.name]' class='form-control'>-->
-                <!--<option :value="null" v-text='filter.label'></option>-->
-                <!--<option value="null" >&#45;&#45;&#45;&#45;</option>-->
-                <!--<option v-for='option in filter.options' :value="option.value" v-text='option.label'></option>-->
-            <!--</select>-->
-            <!--<div class="date-filter">-->
-                <!--<span>{% trans "From" %}</span>-->
-                <!--<date set="month" v-model="search_args._start_month"></date>-->
-                <!--<span>{% trans "To" %}</span>-->
-                <!--<date set="month" v-model="search_args._end_month"></date>-->
-            <!--</div>-->
-
-
-            <!--<button name="go" type="button" class="btn btn-info" @click='search()' >{% trans "submit" %}</button>-->
-        <!--</form>-->
 
         <div class="btn-group" v-if="!search_args._pop">
             <button type="button" class="btn btn-default" @click='make_sure()' v-if='can_add'

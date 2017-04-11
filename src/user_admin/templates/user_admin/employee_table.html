@@ -6,25 +6,25 @@
 <script src='{% static "js/table.pack.js" %}'></script>
 <script type="text/javascript">
 
-    row_filters={{row_filters | jsonify }}
-    placeholder = '{{search_tip |default:""}}'
-    row_sort={{row_sort | jsonify | default:'[]' }}
-    heads={{ heads | jsonify | default:'[]'}}
-    rows={{ rows | jsonify | default:'[]'}}
-    row_pages = {{ row_pages | jsonify}}
-
-    can_add={{ can_add | jsonify | default:'false' }}
-    can_del={{ can_del | jsonify | default:'false' }}
-
-    model ="{{ model }}"
-    search_args=ex.parseSearch()
+//    row_filters={{row_filters | jsonify }}
+//    placeholder = '{{search_tip |default:""}}'
+//    row_sort={{row_sort | jsonify | default:'[]' }}
+//    heads={{ heads | jsonify | default:'[]'}}
+//    rows={{ rows | jsonify | default:'[]'}}
+//    row_pages = {{ row_pages | jsonify}}
+//
+//    can_add={{ can_add | jsonify | default:'false' }}
+//    can_del={{ can_del | jsonify | default:'false' }}
+//
+//    model ="{{ model }}"
+//    search_args=ex.parseSearch()
 //    ex.each(row_filters,function(filter){
 //        search_args[filter.name]=search_args[filter.name]||''
 //    })
     crt_view=ex.parseSearch().crt_view || 'table'
 
-    ln.readCache()
-    ln.popUrlListen()
+//    ln.readCache()
+//    ln.popUrlListen()
 
 //    ex.pushUrl=function(url){
 //        window.history.pushState(url,0,url);
@@ -46,20 +46,20 @@
                 table=new Vue({
                     el:'#there',
                     data:{
-                        heads:heads,
-                        rows:rows,
-                        row_filters:row_filters,
-                        row_sort:row_sort,
-                        row_pages:row_pages,
-                        placeholder:placeholder,
-                        selected:[],
-                        del_info:[],
-                        menu:menu,
-                        can_add:can_add,
-                        can_del:can_del,
-                        model:model,
-                        search_args:search_args,
-                        ex:ex,
+//                        heads:heads,
+//                        rows:rows,
+//                        row_filters:row_filters,
+//                        row_sort:row_sort,
+//                        row_pages:row_pages,
+//                        placeholder:placeholder,
+//                        selected:[],
+//                        del_info:[],
+//                        menu:menu,
+//                        can_add:can_add,
+//                        can_del:can_del,
+//                        model:model,
+//                        search_args:search_args,
+//                        ex:ex,
                         crt_view:crt_view,
                     },
                     mixins:[table_fun],
@@ -100,20 +100,23 @@
     <path-nav :menu='menu'></path-nav>
     <div class='btn-panel flex'>
 
-        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='placeholder' @submit="search()"></com-filter>
+        <com-filter class="flex-grow flex" :heads="row_filters" :search="search_args" :search_tip='search_tip' @submit="search()"></com-filter>
 
 
         <button @click="switch_view('table')" :class="{'selected':crt_view=='table'}"><i class="fa fa-table" aria-hidden="true"></i></button>
         <button @click="switch_view('grid');" :class="{'selected':crt_view=='grid'}"><i class="fa fa-th-large" aria-hidden="true"></i></button>
 
-        <div class='btn-group'>
-            <a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>
-            <button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>
-        </div>
+        <com-table-btn v-if="!search_args._pop" :add_new="add_new" :del_item="del_item"></com-table-btn>
+
+        <!--<div class='btn-group'>-->
+            <!--<a type="button" class="btn btn-success" :href='add_new()' v-if='can_add' role="button">创建</a>-->
+            <!--<button type="button" class="btn btn-danger" @click='del_item()' v-if='can_del'>删除</button>-->
+        <!--</div>-->
 
     </div>
 
-    <com-table v-show="crt_view=='table'" class='table fake-suit' :has_check="!search_args._pop" :map="map" :row_sort="row_sort" :heads="heads" :rows="rows" v-model="selected"></com-table>
+    <com-table v-show="crt_view=='table'" class='table fake-suit' :has_check="!search_args._pop"
+               :map="map" :row_sort="row_sort" :heads="heads" :rows="rows" v-model="selected"></com-table>
 
 
     <div class="grid" v-show="crt_view=='grid'">

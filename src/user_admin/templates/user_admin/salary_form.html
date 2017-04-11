@@ -125,76 +125,78 @@
 	<path-nav :menu='menu'>
 		<li><span>编辑</span></li>
 	</path-nav>
-	
-	<div style='overflow: hidden;'>
-		<div class="btn-group" style='float: right;'>
-			<button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>
-			<button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>
-			<button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>
-		</div>
-	</div>
+
+	<com-form-btn :submit="submit" :del_row="del_row" :cancel="cancel"></com-form-btn>
+
+	<!--<div style='overflow: hidden;'>-->
+		<!--<div class="btn-group" style='float: right;'>-->
+			<!--<button type="button" class="btn btn-default" @click='submit()' v-if='can_add'>Save</button>-->
+			<!--<button type="button" class="btn btn-default" v-if='can_del' @click='del_row()'>删除</button>-->
+			<!--<button type="button" class="btn btn-default" @click='cancel()' >Cancel</button>-->
+		<!--</div>-->
+	<!--</div>-->
 	
 
 	<div class='field-panel'>
 		
 		<field  v-for='head in kw.heads' :name='head.name' :kw='kw'></field>
-		<div class='field-inn'></div>
+		<!--<div class='field-inn'></div>-->
 	</div>
 </div>
 <style type="text/css" media="screen" id="test">
 
-	.field-panel{
-		background-color: #F5F5F5;
-		max-width:80%;
-		margin: 20px;
-		padding: 20px 30px;
-		border-radius:6px;
-		position: relative;
-		border: 1px solid #D9D9D9;
-	}
-	.field-inn{
-		position: absolute;
-		top:0px;
-		left:0px;
-		bottom:0px;
-		width:180px;
-		border-radius:6px;
-		background-color: #fff;
-		z-index:0;
-	}
-	.error{
-    	color: red;
-	}
-	
-	.form-group.field .control-label{
-		vertical-align: top;
-		position: relative;
-		width:150px;
-		text-align: right;
-		padding:5px 30px;
+	/*.field-panel{*/
+		/*background-color: #F5F5F5;*/
+		/*max-width:80%;*/
+		/*margin: 20px;*/
+		/*padding: 20px 30px;*/
+		/*border-radius:6px;*/
+		/*position: relative;*/
+		/*border: 1px solid #D9D9D9;*/
+	/*}*/
+	/*.field-inn{*/
+		/*position: absolute;*/
+		/*top:0px;*/
+		/*left:0px;*/
+		/*bottom:0px;*/
+		/*width:180px;*/
+		/*border-radius:6px;*/
 		/*background-color: #fff;*/
-		z-index:100;
-		
-		border-top: 1px solid #EEE;
-	}
-	.field-panel .field:first-child .control-label{
-		border-top: 5px solid #FFF;
-	}
-	.form-group.field .field_input{
-		display: inline-block;
-		width:350px;
-		padding:5px 20px;
-	}
-	
-	.form-group.field .field_input ._tow-col-sel{
-		width:750px;
-	}
-	._tow-col-sel .sel {
-    	width: 350px;
-	}
-	.field.error .error{
-		display: inline-block;
-	}
+		/*z-index:0;*/
+	/*}*/
+	/*.error{*/
+    	/*color: red;*/
+	/*}*/
+	/**/
+	/*.form-group.field .control-label{*/
+		/*vertical-align: top;*/
+		/*position: relative;*/
+		/*width:150px;*/
+		/*text-align: right;*/
+		/*padding:5px 30px;*/
+		/*/!*background-color: #fff;*!/*/
+		/*z-index:100;*/
+		/**/
+		/*border-top: 1px solid #EEE;*/
+	/*}*/
+	/*.field-panel .field:first-child .control-label{*/
+		/*border-top: 5px solid #FFF;*/
+	/*}*/
+	/*.form-group.field .field_input{*/
+		/*display: inline-block;*/
+		/*width:350px;*/
+		/*padding:5px 20px;*/
+	/*}*/
+	/**/
+	/*.form-group.field .field_input ._tow-col-sel{*/
+		/*width:750px;*/
+	/*}*/
+	/*._tow-col-sel .sel {*/
+    	/*width: 350px;*/
+	/*}*/
+	/*.field.error .error{*/
+		/*display: inline-block;*/
+	/*}*/
 	
 </style>
 {% endblock %}
