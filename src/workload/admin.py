@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 from django.db.models import Q
 from helpers.director.model_admin.tabel import ModelTable,RowSearch,RowFilter,RowSort
-from helpers.director.model_admin.render import page_dc,model_dc
-
+from helpers.director.shortcut import page_dc,model_dc
 
 from helpers.director.shortcut import TablePage,FormPage
 from helpers.director.model_admin.fields import ModelFields
@@ -100,6 +99,10 @@ class WorkTable(ModelTable):
 
 class WorkTablePage(TablePage):
     tableCls=WorkTable
+
+class MWorkTablePage(TablePage):
+    template='wx/table.html'
+    tableCls=WorkTable
     
 
 class WorkFormPage(FormPage):
@@ -123,4 +126,6 @@ permit_list.append(WorkModel)
 permit_list.append(TaskModel)
 
 InsightEngine.add_pages({'task':TaskTablePage,'task.edit':TaskFormPage})
-InsightEngine.add_pages({'workloads':WorkTablePage,'workloads.edit':WorkFormPage})
+page_dc.update({'workloads':WorkTablePage,
+                'workloads.mobile':MWorkTablePage,
+                'workloads.edit':WorkFormPage})

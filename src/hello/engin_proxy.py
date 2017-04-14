@@ -11,6 +11,7 @@ from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,Grou
 from helpers.director.shortcut import page_dc
 
 class InsightEngine(BaseEngine):
+    url_name='insight'
     menu=[
         {'label':'home','url':'/','icon':fa('fa-home')},
         {'label':'账号管理','url':page('user'),'icon':fa('fa-users'),'visible':can_list((User,Group)),
@@ -35,7 +36,25 @@ class InsightEngine(BaseEngine):
 
 InsightEngine.add_pages(page_dc)
 
-# InsightEngine.add_pages({'user':UserTablePage,
-                         # 'user.edit':UserFormPage,
-                         # 'group':GroupTablePage,
-                         # 'group.edit':GroupFormPage})
+class MobileEngine(BaseEngine):
+    url_name='mobile_insight'
+    menu=[
+        {'label':'home','url':page('m_home'),'icon':fa('fa-users fa-2x')},
+        {'label':'home','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
+        {'label':'home','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
+        {'label':'home','url':page('m_home'),'icon':fa('fa-car fa-2x')}
+    ]
+
+
+class MHome(object):
+    template='hello/m_home.html'
+    need_login=False
+    def __init__(self,request):
+        self.request=request
+    
+    def get_context(self):
+        return {}
+
+
+MobileEngine.add_pages(page_dc)
+MobileEngine.add_pages({'m_home':MHome})

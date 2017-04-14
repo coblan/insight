@@ -2061,6 +2061,8 @@ var field_fun = {
 			},
 			menu: menu,
 
+			can_add: can_add,
+			can_del: can_del,
 			can_log: can_log
 		};
 	},

@@ -25,7 +25,7 @@ from helpers.face import urls as face_urls
 from helpers.dev import urls as dev_urls
 from django.views.i18n import javascript_catalog
 
-from hello.engin_proxy import InsightEngine 
+from hello.engin_proxy import InsightEngine ,MobileEngine
  
 urlpatterns = [
     
@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^d/',include(director_urls)),
     
     url(r'nd/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
+    url(r'm/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
     
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),

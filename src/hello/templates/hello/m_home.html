@@ -1,0 +1,67 @@
+<!doctype html>
+{% load static %}
+{% load jsonify %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Deposits and Withdrawals</title>
+    <script type="text/javascript" src='http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js'></script>
+    <!--<script src="http://cdn.bootcss.com/vue/2.0.24/vue.js"></script>-->
+    <script src="http://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/weui/1.1.1/style/weui.min.css" rel="stylesheet">
+    <script src="{% static 'js/weui.min.js' %}"></script>
+    <script src="{% static 'js/uis_mb.pack.js' %}"></script>
+
+
+
+    <!--<script src="../js/exfun.js"></script>-->
+    <!--<script src="../build/fields.pack.js"></script>-->
+
+    <script type="text/javascript">
+    menu = {{ menu | jsonify }}
+
+        $(function(){
+            new Vue({
+                el:'#there',
+                data:{
+                    menu:menu,
+                },
+                mounted:function(){
+
+                },
+                methods:{
+                    goto:function(url){
+                        location=url
+                    }
+                }
+            })
+        })
+
+    </script>
+</head>
+<body >
+<div id="there">
+    <div class="flex flex-center">
+        <h1>WeUI</h1>
+    </div>
+
+    <div class="weui-grids">
+        <a :href="act.url" class="weui-grid" v-for="act in menu">
+            <div class="weui-grid__icon">
+                <span v-html="act.icon"></span>
+            </div>
+            <p class="weui-grid__label" v-text="act.label"></p>
+        </a>
+    </div>
+
+
+</div>
+<style type="text/css">
+
+</style>
+</body>
+
+</html>

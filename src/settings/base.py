@@ -39,9 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'helpers.director',
     'helpers.pageadaptor',
-    'hello',
     'user_admin',
     'workload',
+    
+    'hello',
     'helpers.dev'
     
 )

@@ -462,6 +462,10 @@ class BaseinfoFormPage(FormPage):
 class EmployeeTablePage(TablePage):
     template='user_admin/employee_table.html'
     tableCls=EmployeeTable
+
+class EmployeeTablePage_M(TablePage):
+    template='wx/table.html'
+    tableCls=EmployeeTable
     
     
     
@@ -544,4 +548,6 @@ InsightEngine.add_pages({
     'salary':SalaryTablePage,
     'salary.edit':SalaryFormPage,
 })
-
+page_dc.update({
+    'employee.mobile':EmployeeTablePage_M,
+})
