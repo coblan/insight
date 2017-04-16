@@ -40,9 +40,9 @@ class MobileEngine(BaseEngine):
     url_name='mobile_insight'
     menu=[
         {'label':'home','url':page('m_home'),'icon':fa('fa-users fa-2x')},
-        {'label':'home','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
-        {'label':'home','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
-        {'label':'home','url':page('m_home'),'icon':fa('fa-car fa-2x')}
+        {'label':'工作量','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
+        {'label':'员工','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
+        {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
     ]
 
 

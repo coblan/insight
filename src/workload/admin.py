@@ -107,6 +107,9 @@ class MWorkTablePage(TablePage):
 
 class WorkFormPage(FormPage):
     fieldsCls=WorkloadField
+
+class WorkFormPageM(WorkFormPage):
+    template='wx/fields.html'
     
 # 将该fields注册为model的管理类
 model_dc[WorkModel]={'fields':WorkloadField}
@@ -128,4 +131,5 @@ permit_list.append(TaskModel)
 InsightEngine.add_pages({'task':TaskTablePage,'task.edit':TaskFormPage})
 page_dc.update({'workloads':WorkTablePage,
                 'workloads.mobile':MWorkTablePage,
-                'workloads.edit':WorkFormPage})
+                'workloads.edit':WorkFormPage,
+                'workloads.mobile.edit':WorkFormPageM})

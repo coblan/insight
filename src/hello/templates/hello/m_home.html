@@ -4,9 +4,9 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
     <title>Deposits and Withdrawals</title>
-    <script type="text/javascript" src='http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js'></script>
-    <!--<script src="http://cdn.bootcss.com/vue/2.0.24/vue.js"></script>-->
+    <script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://cdn.bootcss.com/vue/2.1.6/vue.js"></script>
     <script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -14,6 +14,8 @@
     <link href="https://cdn.bootcss.com/weui/1.1.1/style/weui.min.css" rel="stylesheet">
     <script src="{% static 'js/weui.min.js' %}"></script>
     <script src="{% static 'js/uis_mb.pack.js' %}"></script>
+    <script src="{% static 'js/exfun.js' %}"></script>
+    <script src="{% static 'js/fields_mb.pack.js' %}"></script>
 
 
 
@@ -35,6 +37,9 @@
                 methods:{
                     goto:function(url){
                         location=url
+                    },
+                    close:function(){
+                        ln.rtWin('')
                     }
                 }
             })
@@ -44,6 +49,7 @@
 </head>
 <body >
 <div id="there">
+    <button @click="close()">clos</button>
     <div class="flex flex-center">
         <h1>WeUI</h1>
     </div>

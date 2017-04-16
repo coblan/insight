@@ -440,9 +440,15 @@ class SalaryTablePage(TablePage):
     template='user_admin/salary_table.html'
     tableCls=SalaryTabel
 
+class SalaryTablePageM(SalaryTablePage):
+    template='wx/table.html'
+
 class SalaryFormPage(FormPage):
     template='user_admin/salary_form.html'
     fieldsCls=SalaryFields
+
+class SalaryFormPageM(SalaryFormPage):
+    template='wx/fields.html'
 
 class BaseinfoTablePage(TablePage):
     tableCls=BasicInfoTable
@@ -498,7 +504,9 @@ class EmployeeFormPage(FormPage):
             'person':self.pages
         }
     
-
+class EmployeeFormPageM(FormPage):
+    template='wx/fields.html'
+    fieldsCls=EmployeeFields
     
 #class UserTablePage(TablePage):
     #tableCls=UserTable
@@ -550,4 +558,7 @@ InsightEngine.add_pages({
 })
 page_dc.update({
     'employee.mobile':EmployeeTablePage_M,
+    'employee.mobile.edit':EmployeeFormPageM,
+    'salary.mobile':SalaryTablePageM,
+    'salary.mobile.edit':SalaryFormPageM,
 })
