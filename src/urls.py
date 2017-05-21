@@ -19,7 +19,7 @@ from django.contrib import admin
 from hello import views as hello_view
 from user_admin import urls as user_urls
 from user_admin import views as user_views
-from helpers.director import urls as director_urls
+from helpers.director import views as director_views
 from helpers.director import login_url 
 from helpers.msic.ckeditor import upload_image
 from helpers.face import urls as face_urls
@@ -31,7 +31,8 @@ from hello.engin_proxy import InsightEngine ,MobileEngine
 urlpatterns = [
     
     url(r'^accounts/',include(login_url)),
-    url(r'^d/',include(director_urls)),
+        url(r'^_ajax/(?P<app>\w+)?/?$',director_views.ajax_views,name='ajax_url'),
+    url(r'^_ajax/?$',director_views.ajax_views),  
     
     url(r'nd/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     url(r'm/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
