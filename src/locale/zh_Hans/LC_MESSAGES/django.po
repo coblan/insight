@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-12 20:43+0800\n"
+"POT-Creation-Date: 2017-06-03 16:41+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,136 +18,143 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: .\helpers\director\models.py:11
-msgid "operator"
-msgstr "操作者"
-
-#: .\helpers\director\models.py:13
-msgid "kind"
-msgstr "类别"
-
-#: .\helpers\director\models.py:14
-msgid "detail"
-msgstr "详细"
-
-#: .\helpers\director\models.py:19
-msgid "user group"
-msgstr "用户组"
-
-#: .\helpers\director\models.py:21
-msgid "user permit"
-msgstr "用户权限"
-
-#: .\user_admin\admin.py:227
+#: .\user_admin\admin.py:237
 #, python-format
 msgid "%(name)s ,%(emp_id)s"
 msgstr ""
 
-#: .\user_admin\admin.py:227
+#: .\user_admin\admin.py:237
 msgid "Name"
 msgstr "名字"
 
-#: .\user_admin\admin.py:227 .\user_admin\models.py:14
+#: .\user_admin\admin.py:237
 msgid "Employee ID"
 msgstr "员工ID"
 
-#: .\user_admin\ajax.py:91 .\user_admin\ajax.py:98
+#: .\user_admin\ajax.py:93 .\user_admin\ajax.py:100
 msgid "operation sucess"
 msgstr ""
 
-#: .\user_admin\models.py:12
-msgid "user"
-msgstr "账号"
-
-#: .\user_admin\models.py:13 .\user_admin\models.py:38
+#: .\user_admin\models.py:12 .\user_admin\models.py:42
 msgid "basic info"
 msgstr "基本信息"
 
-#: .\user_admin\models.py:15
+#: .\user_admin\models.py:14
 msgid "job position"
 msgstr "职位"
 
-#: .\user_admin\models.py:16
+#: .\user_admin\models.py:15
 msgid "salary level"
 msgstr "工资级别"
 
-#: .\user_admin\models.py:25
+#: .\user_admin\models.py:24
 #, fuzzy
 #| msgid "Employee ID"
 msgid "Employee Info"
 msgstr "员工信息"
 
-#: .\user_admin\models.py:30
-msgid "name"
-msgstr "名字"
-
-#: .\user_admin\models.py:31
-msgid "age"
-msgstr "年龄"
-
-#: .\user_admin\models.py:32
-msgid "head image"
-msgstr "头像"
-
-#: .\user_admin\models.py:44
+#: .\user_admin\models.py:48
 #, fuzzy
 #| msgid "Employee ID"
 msgid "employee"
 msgstr "员工"
 
-#: .\user_admin\models.py:45
+#: .\user_admin\models.py:49
 msgid "basic salary"
 msgstr "基本工资"
 
-#: .\user_admin\models.py:46
+#: .\user_admin\models.py:50
 msgid "merit pay"
 msgstr "绩效工资"
 
-#: .\user_admin\models.py:51
+#: .\user_admin\models.py:55
 msgid "month"
 msgstr "月份"
 
-#: .\user_admin\models.py:53
+#: .\user_admin\models.py:57
 msgid "is make sure"
 msgstr "是否检查过"
 
-#: .\user_admin\models.py:57
+#: .\user_admin\models.py:61
 #, python-format
 msgid "salary of %(employee)s"
 msgstr ""
 
-#: .\user_admin\templates\user_admin\employee_ok.html:168
+#: .\user_admin\models.py:90
+msgid "department name"
+msgstr ""
+
+#: .\user_admin\models.py:91
+msgid "department label"
+msgstr ""
+
+#: .\user_admin\models.py:92
+msgid "detail"
+msgstr "详细"
+
+#: .\user_admin\models.py:93
+msgid "parent department"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\company.html:399
+#: .\user_admin\templates\user_admin\company_back.html:387
+msgid "root department"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\company.html:400
+#: .\user_admin\templates\user_admin\company_back.html:388
+msgid "sub department"
+msgstr ""
+
+#: .\user_admin\templates\user_admin\company.html:401
+#: .\user_admin\templates\user_admin\company_back.html:389
 msgid "edit"
 msgstr "编辑"
 
-#: .\user_admin\templates\user_admin\employee_ok.html:170
-msgid "new"
-msgstr "新建"
-
-#: .\user_admin\templates\user_admin\salary_table.html:138
-msgid "From"
+#: .\user_admin\templates\user_admin\company.html:402
+#: .\user_admin\templates\user_admin\company_back.html:390
+msgid "save"
 msgstr ""
 
 #: .\user_admin\templates\user_admin\salary_table.html:140
-msgid "To"
-msgstr ""
-
-#: .\user_admin\templates\user_admin\salary_table.html:145
-msgid "submit"
-msgstr ""
-
-#: .\user_admin\templates\user_admin\salary_table.html:150
 msgid "make sure selected records"
 msgstr "标记被选项为【已检查】"
 
-#: .\user_admin\templates\user_admin\salary_table.html:153
+#: .\user_admin\templates\user_admin\salary_table.html:143
 msgid "creat all salary for this month"
 msgstr "创建某月所有员工工资记录"
 
-#: .\user_admin\templates\user_admin\salary_table.html:168
+#: .\user_admin\templates\user_admin\salary_table.html:158
 msgid "select month"
 msgstr "选择月份"
 
-#: .\user_admin\templates\user_admin\salary_table.html:170
+#: .\user_admin\templates\user_admin\salary_table.html:160
 msgid "yes"
 msgstr "是"
+
+#~ msgid "operator"
+#~ msgstr "操作者"
+
+#~ msgid "kind"
+#~ msgstr "类别"
+
+#~ msgid "user group"
+#~ msgstr "用户组"
+
+#~ msgid "user permit"
+#~ msgstr "用户权限"
+
+#~ msgid "user"
+#~ msgstr "账号"
+
+#~ msgid "name"
+#~ msgstr "名字"
+
+#~ msgid "age"
+#~ msgstr "年龄"
+
+#~ msgid "head image"
+#~ msgstr "头像"
+
+#~ msgid "new"
+#~ msgstr "新建"

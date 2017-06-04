@@ -4,7 +4,7 @@ from log import *
 STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
 #MEDIA_ROOT= os.path.join( os.path.dirname(BASE_DIR),'media')
 
-MIDDLEWARE_CLASSES =('helpers.maintenance.request_log.RequestMiddleware',)+MIDDLEWARE_CLASSES 
+#MIDDLEWARE_CLASSES =('helpers.maintenance.request_log.RequestMiddleware',)+MIDDLEWARE_CLASSES 
 
 TEMPLATE_DEBUG = True
 

@@ -3,7 +3,7 @@
 """
 试着加入新的engine，对页面请求进行路由
 """
-from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group,Department
+from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group,Department,Department2
 from workload.models import WorkModel,TaskModel
 from helpers.director.engine import BaseEngine,can_list,can_touch,fa,page
 from helpers.pageadaptor.models import WebPage
@@ -21,7 +21,8 @@ class InsightEngine(BaseEngine):
                     ]},
         {'label':'组织管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
          'submenu':[
-             {'label':'部门管理','url':page('department'),'visible':can_touch(Department)},    
+             {'label':'部门管理','url':page('department'),'visible':can_touch(Department)},  
+             {'label':'部门管理2','url':page('department2'),'visible':can_touch(Department2)},    
              {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
             {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
              ]},

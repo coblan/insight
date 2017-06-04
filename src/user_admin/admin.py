@@ -36,6 +36,8 @@ admin.site.register(SalaryRecords)
 admin.site.register(Month)
 #admin.site.register(PermitModel)
 
+import director_admin
+
 site_option=importlib.import_module(settings.SITE_OPTION)
 
 InsightEngine=locate(settings.DIR_ENGINE)
@@ -266,7 +268,7 @@ class EmployeeTable(ModelTable):
         heads.extend(bas_heads)
         
         norm_heads=[]
-        for name in ['employ_id','name','head','salary_level','position']:
+        for name in ['eid','name','head','salary_level','position']:
             head = find_one(heads,{'name':name})
             if head:
                 norm_heads.append(head)
@@ -288,7 +290,7 @@ class EmployeeTable(ModelTable):
 class EmployeeFields(ModelFields):
     class Meta:
         model=EmployeeModel
-        fields=['employ_id','position','salary_level','baseinfo','user']
+        fields=['eid','position','salary_level','baseinfo','user']
     
     def get_options(self):
         print(site_option.get_value('jjer'))
@@ -519,8 +521,8 @@ class EmployeeFormPageM(FormPage):
 #permit_dc['basicinfo']={'label':'个人信息','model':BasicInfo}
 #permit_dc['employee']={'label':'工作信息','model':EmployeeInfo}
 #permit_dc['salary_records']={'label':'工资记录','model':SalaryRecords}
-permit_list.append(BasicInfo)
-permit_list.append(EmployeeModel)
+#permit_list.append(BasicInfo)
+#permit_list.append(EmployeeModel)
 permit_list.append(SalaryRecords)
 #permit_list.append({'name':'spcial','label':'工作权限','fields':[
                         #{'name':'sp1','label':'所有工作','type':'bool'},
@@ -528,8 +530,8 @@ permit_list.append(SalaryRecords)
                     #]})
 
 
-model_dc[BasicInfo]={'fields':BasicInfoFields}
-model_dc[EmployeeModel]={'fields':EmployeeFields}
+#model_dc[BasicInfo]={'fields':BasicInfoFields}
+#model_dc[EmployeeModel]={'fields':EmployeeFields}
 model_dc[SalaryRecords]={'fields':SalaryFields}
 #model_dc[User]={'fields':UserFields}
 
@@ -548,17 +550,17 @@ model_dc[SalaryRecords]={'fields':SalaryFields}
 # model_page_dc['salary']={'table':SalaryTablePage,'form':SalaryFormPage}
 
 
-InsightEngine.add_pages({
-    'basicinfo':BaseinfoTablePage,
-    'basicinfo.edit':BaseinfoFormPage,
-    'employee':EmployeeTablePage,
-    'employee.edit':EmployeeFormPage,
-    'salary':SalaryTablePage,
-    'salary.edit':SalaryFormPage,
-})
-page_dc.update({
-    'employee.mobile':EmployeeTablePage_M,
-    'employee.mobile.edit':EmployeeFormPageM,
-    'salary.mobile':SalaryTablePageM,
-    'salary.mobile.edit':SalaryFormPageM,
-})
+#InsightEngine.add_pages({
+    #'basicinfo':BaseinfoTablePage,
+    #'basicinfo.edit':BaseinfoFormPage,
+    #'employee':EmployeeTablePage,
+    #'employee.edit':EmployeeFormPage,
+    #'salary':SalaryTablePage,
+    #'salary.edit':SalaryFormPage,
+#})
+#page_dc.update({
+    #'employee.mobile':EmployeeTablePage_M,
+    #'employee.mobile.edit':EmployeeFormPageM,
+    #'salary.mobile':SalaryTablePageM,
+    #'salary.mobile.edit':SalaryFormPageM,
+#})

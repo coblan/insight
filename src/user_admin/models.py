@@ -4,33 +4,36 @@ from __future__ import unicode_literals
 from django.contrib.auth.models import User,Group
 from django.db import models
 from django.utils.translation import ugettext as _
+from helpers.common.employee import Employee
+from helpers.common.human import HumanInfo
+from helpers.common.department import DepartmentBase
 
-class EmployeeModel(models.Model):
-    user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
+class EmployeeModel(Employee):
+    #user = models.ForeignKey(User,verbose_name=_('user'), blank=True, null=True)
     baseinfo=models.OneToOneField('BasicInfo',verbose_name=_('basic info'),blank=True,null=True,on_delete=models.SET_NULL)
-    employ_id = models.CharField(_('Employee ID'),max_length=50,unique=True)
+    #employ_id = models.CharField(_('Employee ID'),max_length=50,unique=True)
     position = models.CharField(_('job position'),max_length=100,blank=True)
     salary_level = models.FloatField(_('salary level'),max_length=100,blank=True,null=True)
     
-    def __unicode__(self):
-        if self.baseinfo:
-            return self.baseinfo.name
-        else:
-            return self.employ_id
+    #def __unicode__(self):
+        #if self.baseinfo:
+            #return self.baseinfo.name
+        #else:
+            #return self.employ_id
     
     class Meta:
         verbose_name=_('Employee Info')
 
 # Create your models here.
-class BasicInfo(models.Model):
+class BasicInfo(HumanInfo):
     # , on_delete=models.SET_NULL
-    name = models.CharField(_('name'), max_length=50, blank=True)
-    age = models.CharField(_('age'), max_length=50, blank=True)
-    head = models.CharField(_('head image'),max_length=200,blank=True)
-    id_number=models.CharField(_('id  number'),max_length=200,blank=True)
-    address=models.CharField(_('address'),max_length=500,blank=True)
-    gen = models.CharField(_('gen'),max_length=30,blank=True)
-    phone = models.CharField(_('phone'),max_length=100,blank=True)
+    #name = models.CharField(_('name'), max_length=50, blank=True)
+    #age = models.CharField(_('age'), max_length=50, blank=True)
+    #head = models.CharField(_('head image'),max_length=200,blank=True)
+    #id_number=models.CharField(_('id  number'),max_length=200,blank=True)
+    #address=models.CharField(_('address'),max_length=500,blank=True)
+    #gen = models.CharField(_('gen'),max_length=30,blank=True)
+    #phone = models.CharField(_('phone'),max_length=100,blank=True)
     
     
     def __unicode__(self):
@@ -38,8 +41,8 @@ class BasicInfo(models.Model):
     
     class Meta:
         verbose_name=_('basic info')
-        permissions = (('read_basicinfo','At leaset read the records'),
-                       )
+        #permissions = (('read_basicinfo','At leaset read the records'),
+                       #)
 
 
 class SalaryRecords(models.Model):
@@ -94,4 +97,6 @@ class Department(models.Model):
     def __unicode__(self):
         return self.label
     
+class Department2(DepartmentBase):
+    pass
 

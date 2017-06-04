@@ -22,7 +22,10 @@ from user_admin import views as user_views
 from helpers.director import views as director_views
 from helpers.director import login_url 
 from helpers.msic.ckeditor import upload_image
+
 from helpers.face import urls as face_urls
+from helpers.director import views as director_views
+
 from helpers.dev import urls as dev_urls
 from django.views.i18n import javascript_catalog
 
@@ -31,9 +34,7 @@ from hello.engin_proxy import InsightEngine ,MobileEngine
 urlpatterns = [
     
     url(r'^accounts/',include(login_url)),
-        url(r'^_ajax/(?P<app>\w+)?/?$',director_views.ajax_views,name='ajax_url'),
-    url(r'^_ajax/?$',director_views.ajax_views),  
-    
+
     url(r'nd/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     url(r'm/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
     
@@ -42,10 +43,13 @@ urlpatterns = [
     #url(r'hello/',include(hello_urls)),
     
     url(r'user/',include(user_urls),name='user_admin'),
-    url(r'employee/ajax/?$',user_views.user_admin_ajax,name='employee_ajax'),
     
-    url(r'ckeditor/upload_image',upload_image),
-    url(r'^face/', include(face_urls)),
+    url(r'^_department/?$',user_views.manage_department),
+
+    url(r'^_face/', include(face_urls)),
+    url(r'^_ajax/(?P<app>\w+)?/?$',director_views.ajax_views,name='ajax_url'),
+    url(r'^_ajax/?$',director_views.ajax_views), 
+    
     url(r'^dev/',include(dev_urls)),
     url(r'^jsi18n/$', javascript_catalog, name='js-tr'),
     

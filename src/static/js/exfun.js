@@ -1,4 +1,8 @@
 
+function para_encode(para_str){
+	return encodeURI(para_str).replace('+','%2B')
+}
+
 ex={
 	parseSearch:function (queryString) {
 		var queryString = queryString || location.search
@@ -28,11 +32,11 @@ ex={
 			}
 		}
 		if(outstr.endsWith('&')){
-			return outstr.slice(0,-1)
+			return para_encode(outstr.slice(0,-1))
 		}else if(outstr==pre){
 			return ''
 		}else{
-			return outstr
+			return para_encode(outstr)
 		}
 	},
 	appendSearch:function(url,obj){
@@ -66,7 +70,7 @@ ex={
 				for (;i<len;i++) {
 					if (!seg[i]) { continue; }
 					s = seg[i].split('=');
-					ret[s[0]] = s[1];
+					ret[s[0]] = decodeURI(s[1]);
 				}
 				return ret;
 			})(),
@@ -180,7 +184,6 @@ ex={
 			rt = func(array[i])
 			if(rt=='break'){break;}
 			else if(rt=='continue'){continue;}
-
 		}
 	},
 	split:function (base_str,sep) {
@@ -303,6 +306,23 @@ ex={
 			rm_item= rm.concat(rm_item)
 		}
 		return rm_item
+	},
+	sort_by_names:function(array,name_list,keep){
+		var out_list=[]
+		ex.each(name_list,function(name){
+			var item = ex.findone(array,{name:name})
+			if (item){
+				out_list.push(item)
+			}
+		})
+		if(keep){
+			ex.each(array,function(item){
+				if(!ex.isin(item,out_list)){
+					out_list.push(item)
+				}
+			})
+		}
+		return out_list
 	},
 	load_js: function(src,success) {
 		success = success || function(){};
