@@ -9,6 +9,7 @@ from helpers.director.engine import BaseEngine,can_list,can_touch,fa,page
 from helpers.pageadaptor.models import WebPage
 from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,GroupTablePage
 from helpers.director.shortcut import page_dc
+from helpers.case.case_employee import menu as case_employee_menu
 
 class InsightEngine(BaseEngine):
     url_name='insight'
@@ -25,7 +26,9 @@ class InsightEngine(BaseEngine):
              {'label':'部门管理2','url':page('department2'),'visible':can_touch(Department2)},    
              {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
             {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
+            
              ]},
+        case_employee_menu.pc_menu,
         {'label':'工作量统计','icon':fa('fa-users'),'visible':can_list((TaskModel,WorkModel)),
          'submenu':[{'label':'任务','url': page('task'),'visible':can_touch(TaskModel)},
                     {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
