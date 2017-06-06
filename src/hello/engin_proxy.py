@@ -42,11 +42,15 @@ InsightEngine.add_pages(page_dc)
 
 class MobileEngine(BaseEngine):
     url_name='mobile_insight'
+    prefer='wx'
     menu=[
         {'label':'home','url':page('m_home'),'icon':fa('fa-users fa-2x')},
         {'label':'工作量','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
         {'label':'员工','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
         {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
+        {'label':'员工','url':page('organize.employee.wx'),'icon':fa('fa-car fa-2x')},
+        {'label':'部门','url':page('organize.department'),'icon':fa('fa-car fa-2x')},
+        
     ]
 
 
