@@ -50,12 +50,16 @@ class MobileEngine(BaseEngine):
         {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
         {'label':'员工','url':page('organize.employee.wx'),'icon':fa('fa-car fa-2x')},
         {'label':'部门','url':page('organize.department'),'icon':fa('fa-car fa-2x')},
-        
     ]
+    
+    def get_ctx(self, ctx):
+        ctx['menu_group']=[
+            {'label':'','group':[]}
+        ]
 
 
 class MHome(object):
-    template='hello/m_home.html'
+    template='wx/home.html'
     need_login=False
     def __init__(self,request):
         self.request=request
