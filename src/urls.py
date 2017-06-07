@@ -36,8 +36,8 @@ urlpatterns = [
     
     url(r'^accounts/',include(login_url)),
 
-    url(r'nd/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
-    url(r'm/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
+    url(r'pc/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
+    url(r'wx/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
     
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),

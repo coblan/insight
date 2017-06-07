@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'helpers.pageadaptor',
     'helpers.common',
     'helpers.case.organize',
+    'helpers.case.site_frame',
     'user_admin',
     'workload',
     
