@@ -32,6 +32,7 @@ from django.views.i18n import javascript_catalog
 from hello.engin_proxy import InsightEngine ,MobileEngine
 
 from helpers.case.organize import urls as organize_urls
+from helpers.case.work import urls as work_urls
 urlpatterns = [
     
     url(r'^accounts/',include(login_url)),
@@ -55,6 +56,7 @@ urlpatterns = [
     url(r'^jsi18n/$', javascript_catalog, name='js-tr'),
     
     url(r'^orgnize/',include(organize_urls)),
+    url(r'^work/',include(work_urls)),
     
 ]
 

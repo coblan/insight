@@ -307,7 +307,7 @@ ex={
 		}
 		return rm_item
 	},
-	sort_by_names:function(array,name_list,append_other){
+	sort_by_names:function(array,name_list,keep){
 		var out_list=[]
 		ex.each(name_list,function(name){
 			var item = ex.findone(array,{name:name})
@@ -315,7 +315,7 @@ ex={
 				out_list.push(item)
 			}
 		})
-		if(append_other){
+		if(keep){
 			ex.each(array,function(item){
 				if(!ex.isin(item,out_list)){
 					out_list.push(item)

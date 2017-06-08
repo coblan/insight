@@ -51,7 +51,13 @@ class MobileEngine(BaseEngine):
         {'label':'员工','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
         {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
         {'label':'员工','url':page('organize.employee.wx'),'icon':fa('fa-user-o fa-2x')},
-        {'label':'部门','url':page('organize.department'),'icon':fa('fa-sitemap fa-2x')},   
+        {'label':'部门','url':page('organize.department'),'icon':fa('fa-sitemap fa-2x')}, 
+        {'label':'工作类别','url':page('work.workindex.wx'),'icon':fa('fa-sitemap fa-2x')}, 
+        
+        {'label':'工作记录','url':page('work.wkself.wx'),'icon':fa('fa-sitemap fa-2x')},  
+        {'label':'工作审核','url':page('work.workrecord'),'icon':fa('fa-sitemap fa-2x')},  
+        
+       
     ]
     
     # def get_ctx(self, ctx):
