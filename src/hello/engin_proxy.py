@@ -52,11 +52,12 @@ class MobileEngine(BaseEngine):
         {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
         {'label':'员工名单','url':page('organize.employee.wx'),'icon':fa('fa-user-o fa-2x')},
         {'label':'部门结构','url':page('organize.department'),'icon':fa('fa-sitemap fa-2x')}, 
-        {'label':'工作类别','url':page('work.workindex.wx'),'icon':'<img src="/static/res/image/work_types.ico" />'}, 
         
-        {'label':'个人工作记录','url':page('work.wkself.wx'),'icon':fa('fa-list-ol fa-2x')},  
+        {'label':'工作类别','url':page('work.workindex.wx'),'icon':'<img src="/static/res/image/work_types.ico" />'}, 
+        {'label':'个人工作提交','url':page('work.wkself.wx'),'icon':fa('fa-list-ol fa-2x')},  
         {'label':'工作审核','url':page('work.workrecord'),'icon':fa('fa-check-square-o fa-2x')},  
         
+        {'label':'工作记录','url':page('work.worklist.wx'),'icon':fa('fa-check-square-o fa-2x')},  
        
     ]
     
