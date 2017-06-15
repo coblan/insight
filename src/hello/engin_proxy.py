@@ -10,6 +10,7 @@ from helpers.pageadaptor.models import WebPage
 from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,GroupTablePage
 from helpers.director.shortcut import page_dc
 from helpers.case.organize import menu as organize_menu
+from helpers.case.work import menu as work_menu
 from helpers.director.models import KVModel
 
 
@@ -31,6 +32,7 @@ class InsightEngine(BaseEngine):
             
              ]},
         organize_menu.pc_menu,
+        work_menu.pc_menu,
         {'label':'工作量统计','icon':fa('fa-users'),'visible':can_list((TaskModel,WorkModel)),
          'submenu':[{'label':'任务','url': page('task'),'visible':can_touch(TaskModel)},
                     {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
@@ -45,21 +47,18 @@ InsightEngine.add_pages(page_dc)
 class MobileEngine(BaseEngine):
     url_name='mobile_insight'
     prefer='wx'
-    menu=[
-        {'label':'home','url':page('home.wx'),'icon':fa('fa-users fa-2x')},
-        {'label':'工作量','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
-        {'label':'员工','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
-        {'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
-        {'label':'员工名单','url':page('organize.employee.wx'),'icon':fa('fa-user-o fa-2x')},
-        {'label':'部门结构','url':page('organize.department'),'icon':fa('fa-sitemap fa-2x')}, 
+    menu=organize_menu.wx_menu+ \
+        work_menu.wx_menu 
+    #[
+        #{'label':'home','url':page('home.wx'),'icon':fa('fa-users fa-2x')},
+        #{'label':'工作量','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
+        #{'label':'员工','url':page('employee.mobile'),'icon':fa('fa-users fa-2x')},
+        #{'label':'工资','url':page('salary.mobile'),'icon':fa('fa-car fa-2x')},
+        #{'label':'员工名单','url':page('organize.employee.wx'),'icon':fa('fa-user-o fa-2x')},
+        #{'label':'部门结构','url':page('organize.department'),'icon':fa('fa-sitemap fa-2x')}, 
         
-        {'label':'工作类别','url':page('work.workindex.wx'),'icon':'<img src="/static/res/image/work_types.ico" />'}, 
-        {'label':'个人工作提交','url':page('work.wkself.wx'),'icon':fa('fa-list-ol fa-2x')},  
-        {'label':'工作审核','url':page('work.workrecord'),'icon':fa('fa-check-square-o fa-2x')},  
-        
-        {'label':'工作记录','url':page('work.worklist.wx'),'icon':fa('fa-check-square-o fa-2x')},  
-       
-    ]
+
+    #]
     
     # def get_ctx(self, ctx):
         # ctx['menu_group']=[
