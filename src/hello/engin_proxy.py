@@ -23,22 +23,22 @@ class InsightEngine(BaseEngine):
                     {'label':'用户管理','url':page('user'),'visible':can_touch(User)},
                     {'label':'用户组','url':page('group'),'visible':can_touch(Group)},
                     ]},
-        {'label':'组织管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
-         'submenu':[
-             {'label':'部门管理','url':page('department'),'visible':can_touch(Department)},  
-             {'label':'部门管理2','url':page('department2'),'visible':can_touch(Department2)},    
-             {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
-            {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
+        # {'label':'组织管理','icon':fa('fa-users'),'visible':can_list((BasicInfo,EmployeeModel,SalaryRecords)),
+         # 'submenu':[
+             # {'label':'部门管理','url':page('department'),'visible':can_touch(Department)},  
+             # {'label':'部门管理2','url':page('department2'),'visible':can_touch(Department2)},    
+             # {'label':'员工名册','url':page('employee'),'visible':can_touch(EmployeeModel)},
+            # {'label':'工资记录','url':page('salary'),'visible':can_touch(SalaryRecords)},
             
-             ]},
+             # ]},
         organize_menu.pc_menu,
         work_menu.pc_menu,
-        {'label':'工作量统计','icon':fa('fa-users'),'visible':can_list((TaskModel,WorkModel)),
-         'submenu':[{'label':'任务','url': page('task'),'visible':can_touch(TaskModel)},
-                    {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
-                    ]
-         },
-        {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
+        # {'label':'工作量统计','icon':fa('fa-users'),'visible':can_list((TaskModel,WorkModel)),
+         # 'submenu':[{'label':'任务','url': page('task'),'visible':can_touch(TaskModel)},
+                    # {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
+                    # ]
+         # },
+        # {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
         {'label':'设置','url':page('kv'),'icon':fa('fa-home'),'visible':can_touch(KVModel)},
     ]    
 
