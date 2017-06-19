@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'user/',include(user_urls),name='user_admin'),
     
     url(r'^_department/?$',user_views.manage_department),
-
+    
     url(r'^_face/', include(face_urls)),
     url(r'^_ajax/(?P<app>\w+)?/?$',director_views.ajax_views,name='ajax_url'),
     url(r'^_ajax/?$',director_views.ajax_views), 
