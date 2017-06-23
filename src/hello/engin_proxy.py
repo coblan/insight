@@ -3,8 +3,9 @@
 """
 试着加入新的engine，对页面请求进行路由
 """
-from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group,Department,Department2
-from workload.models import WorkModel,TaskModel
+#from user_admin.models import SalaryRecords,BasicInfo,EmployeeModel,User,Group,Department,Department2
+from django.contrib.auth.models import User,Group
+#from workload.models import WorkModel,TaskModel
 from helpers.director.engine import BaseEngine,can_list,can_touch,fa,page
 from helpers.pageadaptor.models import WebPage
 from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,GroupTablePage

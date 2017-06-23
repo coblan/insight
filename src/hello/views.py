@@ -3,10 +3,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 #from core.model_render import Render
-from scheme import menus
+#from scheme import menus
 from django.contrib.auth.decorators import login_required
 from helpers.director.container import evalue_container
-from scheme import menus
+#from scheme import menus
 import json
 # from core.port import jsonpost
 # Create your views here.

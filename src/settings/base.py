@@ -44,8 +44,8 @@ INSTALLED_APPS = (
     'helpers.case.organize',
     'helpers.case.site_frame',
     'helpers.case.work',
-    'user_admin',
-    'workload',
+    #'user_admin',
+    #'workload',
     
     'hello',
     'helpers.dev'
