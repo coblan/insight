@@ -38,7 +38,7 @@ class InsightEngine(BaseEngine):
                     # {'label':'工作','url':page('workloads'),'visible':can_touch(WorkModel)}
                     # ]
          # },
-        # {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
+        {'label':'Page Admin','url':page('webpage'),'icon':fa('fa-home'),'visible':can_touch(WebPage)},
         {'label':'设置','url':page('kv'),'icon':fa('fa-home'),'visible':can_touch(KVModel)},
     ]    
 

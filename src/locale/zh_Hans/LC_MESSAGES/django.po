@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-03 16:41+0800\n"
+"POT-Creation-Date: 2017-06-23 11:50+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,64 +35,64 @@ msgstr "员工ID"
 msgid "operation sucess"
 msgstr ""
 
-#: .\user_admin\models.py:12 .\user_admin\models.py:42
+#: .\user_admin\models.py:13 .\user_admin\models.py:43
 msgid "basic info"
 msgstr "基本信息"
 
-#: .\user_admin\models.py:14
+#: .\user_admin\models.py:15
 msgid "job position"
 msgstr "职位"
 
-#: .\user_admin\models.py:15
+#: .\user_admin\models.py:16
 msgid "salary level"
 msgstr "工资级别"
 
-#: .\user_admin\models.py:24
+#: .\user_admin\models.py:25
 #, fuzzy
 #| msgid "Employee ID"
 msgid "Employee Info"
 msgstr "员工信息"
 
-#: .\user_admin\models.py:48
+#: .\user_admin\models.py:49
 #, fuzzy
 #| msgid "Employee ID"
 msgid "employee"
 msgstr "员工"
 
-#: .\user_admin\models.py:49
+#: .\user_admin\models.py:50
 msgid "basic salary"
 msgstr "基本工资"
 
-#: .\user_admin\models.py:50
+#: .\user_admin\models.py:51
 msgid "merit pay"
 msgstr "绩效工资"
 
-#: .\user_admin\models.py:55
+#: .\user_admin\models.py:56
 msgid "month"
 msgstr "月份"
 
-#: .\user_admin\models.py:57
+#: .\user_admin\models.py:58
 msgid "is make sure"
 msgstr "是否检查过"
 
-#: .\user_admin\models.py:61
+#: .\user_admin\models.py:62
 #, python-format
 msgid "salary of %(employee)s"
 msgstr ""
 
-#: .\user_admin\models.py:90
+#: .\user_admin\models.py:91
 msgid "department name"
 msgstr ""
 
-#: .\user_admin\models.py:91
+#: .\user_admin\models.py:92
 msgid "department label"
 msgstr ""
 
-#: .\user_admin\models.py:92
+#: .\user_admin\models.py:93
 msgid "detail"
 msgstr "详细"
 
-#: .\user_admin\models.py:93
+#: .\user_admin\models.py:94
 msgid "parent department"
 msgstr ""
 

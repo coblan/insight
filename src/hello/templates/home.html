@@ -10,13 +10,20 @@
 
 heads=[
 	{'name':'slogan','label':'slogan','type':'richtext'},
-	{'name':'content','label':'content','type':'richtext'},
-	{'name':'foot','label':'foot','type':'richtext'}
+
 ]
 
 </script>
 {% endcomment %}
+
+
+
+
 <script type="text/javascript">
+
+	//	{'name':'content','label':'content','type':'richtext'},
+	//	{'name':'foot','label':'foot','type':'richtext'}
+
 	var ctx={{ ctx | jsonify }}
 	$(function(){
 		new Vue({
