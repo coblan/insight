@@ -48,6 +48,7 @@ InsightEngine.add_pages(page_dc)
 class MobileEngine(BaseEngine):
     url_name='mobile_insight'
     prefer='wx'
+    root_page='/wx/home.wx'
     menu=organize_menu.wx_menu+ \
         work_menu.wx_menu 
     #[
