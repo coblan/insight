@@ -13,6 +13,7 @@ from helpers.director.shortcut import page_dc
 from helpers.case.organize import menu as organize_menu
 from helpers.case.work import menu as work_menu
 from helpers.director.models import KVModel
+from helpers.maintenance.update_static_timestamp import static_file_timestamp
 
 
 class InsightEngine(BaseEngine):
@@ -51,6 +52,10 @@ class MobileEngine(BaseEngine):
     root_page='/wx/home.wx'
     menu=organize_menu.wx_menu+ \
         work_menu.wx_menu 
+    
+    def custome_ctx(self, ctx):
+        ctx['stamp']=static_file_timestamp
+        return ctx
     #[
         #{'label':'home','url':page('home.wx'),'icon':fa('fa-users fa-2x')},
         #{'label':'工作量','url':page('workloads.mobile'),'icon':fa('fa-camera-retro fa-2x')},
