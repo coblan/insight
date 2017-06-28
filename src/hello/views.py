@@ -1,6 +1,6 @@
 # encoding:utf-8
 
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 #from core.model_render import Render
 #from scheme import menus
@@ -11,32 +11,30 @@ import json
 # from core.port import jsonpost
 # Create your views here.
 
-from helpers.pageadaptor.models import WebPage
+#from helpers.pageadaptor.models import WebPage
+#from helpers.pageadaptor.shotcut import EnginPress
 
 from engin_proxy import InsightEngine
 
-#insight_engine=InsightEngine()
 
-#def insight_engine_view(request,name):
-    #return insight_engine.view(request, name)
-
-class Home(object):
-    template='home.html'
-    def __init__(self,request):
-        pass
+#class Home(object):
+    #template='home.html'
+    #def __init__(self,request):
+        #pass
     
-    def get_context(self):
-        try:
-            page = WebPage.objects.get(name='home')
-            return  {'ctx':json.loads(page.content)}
-        except WebPage.DoesNotExist:
-            return {}
+    #def get_context(self):
+        #try:
+            #page = WebPage.objects.get(name='home')
+            #return  {'ctx':json.loads(page.content)}
+        #except WebPage.DoesNotExist:
+            #return {}
         
-InsightEngine.add_pages({'home':Home})
+#InsightEngine.add_pages({'press':EnginPress})
 
 def home(request):
-    #try:
-    return InsightEngine.as_view()(request, 'home')
+    engine = InsightEngine()
+    return redirect(engine.get_url('press')+'?_name=home')
+    #return InsightEngine.as_view()(request, 'home')
         #return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user),'ctx':ctx_dict})
     #except WebPage.DoesNotExist:
         #return render(request,'home.html',context={'menu':evalue_container(menus,user=request.user)})

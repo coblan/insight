@@ -19,7 +19,7 @@ from django.contrib import admin
 from hello import views as hello_view
 #from user_admin import urls as user_urls
 #from user_admin import views as user_views
-from helpers.director import views as director_views
+
 from helpers.director import login_url 
 from helpers.msic.ckeditor import upload_image
 

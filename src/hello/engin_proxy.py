@@ -13,13 +13,13 @@ from helpers.director.shortcut import page_dc
 from helpers.case.organize import menu as organize_menu
 from helpers.case.work import menu as work_menu
 from helpers.director.models import KVModel
-from helpers.maintenance.update_static_timestamp import static_file_timestamp
+from helpers.maintenance.update_static_timestamp import static_file_timestamp_dict
 
 
 class InsightEngine(BaseEngine):
     url_name='insight'
     menu=[
-        {'label':'home','url':'/','icon':fa('fa-home')},
+        {'label':'home','url':page('press',append='?_name=home'),'icon':fa('fa-home')},
         {'label':'账号管理','url':page('user'),'icon':fa('fa-users'),'visible':can_list((User,Group)),
          'submenu':[
                     {'label':'用户管理','url':page('user'),'visible':can_touch(User)},
@@ -54,7 +54,7 @@ class MobileEngine(BaseEngine):
         work_menu.wx_menu 
     
     def custome_ctx(self, ctx):
-        ctx['stamp']=static_file_timestamp
+        ctx['stamp']=static_file_timestamp_dict
         return ctx
     #[
         #{'label':'home','url':page('home.wx'),'icon':fa('fa-users fa-2x')},

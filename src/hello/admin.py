@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 # Register your models here.
-from helpers.pageadaptor import stencil
+#from helpers.pageadaptor.shotcut import regist
 
-stencil.regist('home.html','Home')
+#stencil.regist('home.html','Home')
+
+
