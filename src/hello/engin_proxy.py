@@ -14,7 +14,7 @@ from helpers.case.organize import menu as organize_menu
 from helpers.case.work import menu as work_menu
 from helpers.director.models import KVModel
 from helpers.maintenance.update_static_timestamp import static_file_timestamp_dict
-
+from helpers.pageadaptor.shotcut import Press
 
 class InsightEngine(BaseEngine):
     url_name='insight'
@@ -54,7 +54,11 @@ class MobileEngine(BaseEngine):
         work_menu.wx_menu 
     
     def custome_ctx(self, ctx):
+        help_name = 'help_'+ctx['page_name']
         ctx['stamp']=static_file_timestamp_dict
+        engine_press=Press(help_name)
+        if engine_press.page:
+            ctx['help_url']=self.get_url('press')+'?_name=%s'%help_name
         return ctx
     #[
         #{'label':'home','url':page('home.wx'),'icon':fa('fa-users fa-2x')},
