@@ -15,6 +15,7 @@ from helpers.case.work import menu as work_menu
 from helpers.director.models import KVModel
 from helpers.maintenance.update_static_timestamp import static_file_timestamp_dict
 from helpers.pageadaptor.shotcut import Press
+import urllib
 
 class InsightEngine(BaseEngine):
     url_name='insight'
@@ -54,8 +55,9 @@ class MobileEngine(BaseEngine):
         work_menu.wx_menu 
     
     def custome_ctx(self, ctx):
-        help_name = 'help_'+ctx['page_name']
         ctx['stamp']=static_file_timestamp_dict
+        
+        help_name = 'help_'+ctx['page_name']
         engine_press=Press(help_name)
         if engine_press.page:
             ctx['help_url']=self.get_url('press')+'?_name=%s'%help_name
@@ -89,3 +91,26 @@ class MobileEngine(BaseEngine):
 
 MobileEngine.add_pages(page_dc)
 # MobileEngine.add_pages({'m_home':MHome})
+
+class F7Engine(BaseEngine):
+    url_name='f7_engine'
+    prefer='f7'
+    root_page='/f7/home.f7'
+    
+    menu=organize_menu.wx_menu+ \
+        work_menu.wx_menu     
+
+class F7FrameWraper(object):
+    template='f7/frame_wraper.html'
+    def __init__(self,request):
+        src= request.GET.get('src')
+        self.src=urllib.unquote( src)
+        
+    def get_context(self):
+        return {'src':self.src}
+    
+F7Engine.add_pages(page_dc)
+F7Engine.add_pages({'f7.html':F7FrameWraper})
+    
+
+    

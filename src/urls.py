@@ -29,7 +29,7 @@ from helpers.director import views as director_views
 from helpers.dev import urls as dev_urls
 from django.views.i18n import javascript_catalog
 
-from hello.engin_proxy import InsightEngine ,MobileEngine
+from hello.engin_proxy import InsightEngine ,MobileEngine,F7Engine
 
 from helpers.case.organize import urls as organize_urls
 from helpers.case.work import urls as work_urls
@@ -39,6 +39,7 @@ urlpatterns = [
 
     url(r'pc/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     url(r'wx/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
+    url(r'f7/([\w\.]+)/?$',F7Engine.as_view(),name=F7Engine.url_name),
     
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$',hello_view.home),
@@ -52,6 +53,7 @@ urlpatterns = [
     url(r'^_ajax/(?P<app>\w+)?/?$',director_views.ajax_views,name='ajax_url'),
     url(r'^_ajax/?$',director_views.ajax_views), 
     url(r'^_download/(?P<app>\w+)?/?$',director_views.donwload_views,name='download_url'),
+    url(r'^_f7_iframe/?$',director_views.f7_frame_wraper),
     
     url(r'^dev/',include(dev_urls)),
     url(r'^jsi18n/$', javascript_catalog, name='js-tr'),
