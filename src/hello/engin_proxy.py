@@ -98,7 +98,7 @@ class F7Engine(BaseEngine):
     root_page='/f7/home.f7'
     
     menu=organize_menu.wx_menu+ \
-        work_menu.wx_menu     
+        work_menu.f7_menu     
 
 class F7FrameWraper(object):
     template='f7/frame_wraper.html'
