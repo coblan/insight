@@ -97,7 +97,7 @@ class F7Engine(BaseEngine):
     prefer='f7'
     root_page='/f7/home.f7'
     
-    menu=organize_menu.wx_menu+ \
+    menu=organize_menu.f7_menu+ \
         work_menu.f7_menu     
 
 class F7FrameWraper(object):
