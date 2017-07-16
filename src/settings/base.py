@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     #'workload',
     
     'hello',
-    'helpers.dev'
+    'helpers.dev',
+    'helpers.case.map_daka'
     
 )
 

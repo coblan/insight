@@ -12,6 +12,7 @@ from helpers.director.admin import UserFormPage,UserTablePage,GroupFormPage,Grou
 from helpers.director.shortcut import page_dc
 from helpers.case.organize import menu as organize_menu
 from helpers.case.work import menu as work_menu
+from helpers.case.map_daka import menu as map_daka_menu
 from helpers.director.models import KVModel
 from helpers.maintenance.update_static_timestamp import static_file_timestamp_dict
 from helpers.pageadaptor.shotcut import Press
@@ -98,7 +99,17 @@ class F7Engine(BaseEngine):
     root_page='/f7/home.f7'
     
     menu=organize_menu.f7_menu+ \
-        work_menu.f7_menu     
+        work_menu.f7_menu  + \
+        map_daka_menu.f7_menu
+    
+    def custome_ctx(self, ctx):
+        ctx['stamp']=static_file_timestamp_dict
+        
+        help_name = 'help_'+ctx['page_name']
+        engine_press=Press(help_name)
+        if engine_press.page:
+            ctx['help_url']=self.get_url('press')+'?_name=%s'%help_name
+        return ctx    
 
 class F7FrameWraper(object):
     template='f7/frame_wraper.html'
