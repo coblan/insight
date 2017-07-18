@@ -33,9 +33,13 @@ from hello.engin_proxy import InsightEngine ,MobileEngine,F7Engine
 
 from helpers.case.organize import urls as organize_urls
 from helpers.case.work import urls as work_urls
+from django.views.generic import RedirectView 
 urlpatterns = [
     
     url(r'^accounts/',include(login_url)),
+
+
+    url(r'wx/home.wx',RedirectView.as_view(url='/f7/home.f7')),
 
     url(r'pc/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     url(r'wx/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
