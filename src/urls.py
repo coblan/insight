@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^accounts/',include(login_url)),
 
 
-    url(r'wx/home.wx',RedirectView.as_view(url='/f7/home.f7')),
+    url(r'wx/home.wx',RedirectView.as_view(url='http://192.168.1.101:8000/home')),
 
     url(r'pc/([\w\.]+)/?$',InsightEngine.as_view(),name=InsightEngine.url_name),
     url(r'wx/([\w\.]+)/?$',MobileEngine.as_view(),name=MobileEngine.url_name),
